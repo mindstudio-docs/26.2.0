@@ -8,7 +8,7 @@ from mkdocs.exceptions import PluginError
 from mkdocs.structure.files import Files
 
 
-ROOT_PAGES = ("README.md", "SOURCES.md", "docs/site-maintenance.md")
+ROOT_PAGES = ("README.md",)
 TOOL_ROW = re.compile(r"^\|\s*(ms[\w-]+)\s*\|", re.MULTILINE)
 HEADING = re.compile(r"^#\s+(.+?)\s*#*\s*$", re.MULTILINE)
 LINK_LABEL = re.compile(r"!?\[([^\]]*)\]\([^)]+\)")
@@ -87,7 +87,5 @@ def on_files(files, config, **kwargs):
     config.nav = [
         {"首页": "README.md"},
         {"工具资料": [{tool: directory_nav(tool, pages, config.docs_dir)} for tool in tools]},
-        {"资料来源": "SOURCES.md"},
-        {"建站维护": "docs/site-maintenance.md"},
     ]
     return published

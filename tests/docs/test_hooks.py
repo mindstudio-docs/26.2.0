@@ -51,6 +51,8 @@ class NavigationTests(unittest.TestCase):
             self.assertIn("msmodeling/docs/perf_database/forward_pass_traces/dsv3_dc_1tok.csv", published)
             self.assertFalse(any(p.startswith((".sync/", "hooks/", "tests/", "docs/superpowers/")) for p in published))
             self.assertNotIn("requirements-docs.txt", published)
+            self.assertNotIn("SOURCES.md", published)
+            self.assertNotIn("docs/site-maintenance.md", published)
             manifest = json.loads((ROOT / ".sync/manifest.json").read_text(encoding="utf-8"))
             imported_pages = {
                 repo["name"] + "/" + file["path"]

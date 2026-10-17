@@ -87,3 +87,5 @@ exclude_docs: |
   hooks/
   tests/
   docs/superpowers/
+  SOURCES.md
+  docs/site-maintenance.md

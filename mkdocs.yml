@@ -1,0 +1,89 @@
+site_name: MindStudio 26.2.0 工具链文档
+site_description: MindStudio 26.2.0 训练、推理与算子开发工具链资料
+site_url: !ENV [READTHEDOCS_CANONICAL_URL, ""]
+repo_url: https://github.com/mindstudio-docs/26.2.0
+repo_name: mindstudio-docs/26.2.0
+edit_uri: edit/main/
+
+docs_dir: .
+# Keep build output outside the aggregated source tree.
+site_dir: ../26.2.0-site
+use_directory_urls: true
+
+theme:
+  name: material
+  language: zh
+  font: false
+  palette:
+    - scheme: default
+      primary: indigo
+      toggle:
+        icon: material/brightness-7
+        name: 切换至深色模式
+    - scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/brightness-4
+        name: 切换至浅色模式
+  features:
+    - navigation.top
+    - navigation.indexes
+    - navigation.prune
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.action.edit
+
+plugins:
+  - same-dir
+  - search:
+      lang: [zh, en]
+  - glightbox
+
+markdown_extensions:
+  - md_in_html
+  - tables
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+extra_css:
+  - assets/stylesheets/extra.css
+
+hooks:
+  - hooks/nav_tree.py
+  - hooks/md_in_html_fix.py
+
+# Imported upstream references are tracked in .sync/link-audit.json.
+# Keep inherited missing paths/anchors visible without blocking publication.
+validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+  links:
+    not_found: info
+    anchors: info
+    absolute_links: info
+    unrecognized_links: info
+
+exclude_docs: |
+  .git/
+  .sync/
+  .venv/
+  hooks/
+  tests/
+  docs/superpowers/

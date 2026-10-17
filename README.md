@@ -38,4 +38,8 @@
 - 先查对应工具的 README，再进入其 `docs/`、子组件资料或示例说明；同时收录上游已有的中英文版本。
 - 文档中的版本历史及外部链接保留上游原文；链接指向 `master` 或旧版本，不改变本次文件取自 `26.2.0` 分支的来源事实。
 - 引用时可结合 `.sync/manifest.json` 中的上游提交和文件路径定位原始资料。
-- `msmonitor` 统一使用上游仓库同名目录；`msopmodeling` 因上游不可访问，按本次同步要求跳过，详见 [来源及同步说明](SOURCES.md)。
+- `msmonitor` 统一使用上游仓库同名目录，详见 [来源及同步说明](SOURCES.md)。
+
+## 文档网站
+
+本仓库提供 MkDocs + Material 构建配置，可在 Read the Docs 导入并构建 `main` 分支。环境安装、本地预览及平台接入步骤见 [文档网站维护](docs/site-maintenance.md)。

@@ -1,0 +1,2 @@
+# Preserve upstream blob bytes, including original line endings.
+ms*/** -text

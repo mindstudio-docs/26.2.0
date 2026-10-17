@@ -1,0 +1,110 @@
+# Ceil_X 自适应除数 MXFP4 量化算法 量化术语百科词条
+
+> **词条类别**：[量化算法](../README.md#2-量化算法)<br>
+> **英文名称**：ceil_x<br>
+> **应用领域**：MXFP4 权重量化、低比特量化精度优化<br>
+
+---
+
+## 1. 概述
+
+Ceil_X 是一种面向 MXFP4 per-block 权重量化的尺度优化算法。它通过 `ceil` 与可配置除数组合调整 shared exponent，使块内大值更少因缩放不足而被截断；核心特征是块级共享指数、可调除数和可选误差搜索，适合在 MXFP4 低比特权重量化中改善大值截断带来的精度损失。
+
+---
+
+## 2. 词条介绍
+
+MXFP4 per-block 量化中，传统方法使用 $s = \lfloor \log_2(\max(|x|)) \rfloor - e_{\text{max}}$ 计算 shared exponent，缩放后数值范围为 $[4, 8)$，而 MXFP4 的表示上限为 $6.0$，导致 $[6, 8)$ 区间内的大值被截断，引入较大量化误差。Ceil_X 通过引入可配置除数 $c$ 配合 `ceil` 操作，将缩放后数值范围压缩至 $(c/2, c]$，完全落在 MXFP4 的可表示区间内。
+
+### 2.1 核心思想
+
+Ceil_X 的核心思想是“用向上取整的共享指数优先保证动态范围，再用除数 $c$ 调整范围与分辨率的平衡”。对每个 block，根据 $\lceil\log_2(\max|x|/c)\rceil$ 选择 power-of-two shared scale。相较直接向下取整指数，ceil 候选为大值预留更多表示空间；参数 $c$ 则移动指数跳变边界，使算法能够在减少饱和和保持较细量化步长之间折中。
+
+ceil 的优势是显著降低最大值因 shared exponent 过小而发生的溢出/截断风险，特别适用于 FP4 高端码点有限、饱和误差昂贵的块。
+
+### 2.2 工作机制
+
+MXFP4 这类块浮点格式通常让一组元素共享一个 2 的幂尺度（shared exponent）。给定块内最大绝对值后，连续理想尺度往往落在两个相邻的 2 的幂之间；选择较小指数可以得到更细的步长，但可能使最大元素超出可表示范围，选择较大指数则有更大裕量但会牺牲分辨率。Ceil_X 通过向上取整 shared exponent，优先保证块内大值有足够表示裕量。
+
+参数 $c$ 用来移动“何时需要跳到下一个指数”的边界。把最大值先除以 $c$ 再取 $\lceil\log_2\rceil$，等价于控制缩放后最大值应落入哪个目标区间。较大的 $c$ 通常倾向于保留更小的 shared exponent、获得更细步长，但饱和风险增加；较小的 $c$ 更保守。若启用搜索，则对候选 $c$ 做真实 QDQ，并用累计 MSE 选择全局折中点。
+
+### 2.3 数学描述
+
+传统 floor 缩放：
+
+$$
+s_{\text{floor}} = \lfloor \log_2(\max(|x|)) \rfloor - e_{\text{max}}
+$$
+
+Ceil_X 缩放：
+
+$$
+s = \operatorname{ceil}\left(\log_2\left(\frac{\max(|x|)}{c} + \epsilon\right)\right) - e_{\text{max}}
+$$
+
+- $s$：shared exponent
+- $\max(|x|)$：block 内权重绝对值的最大值
+- $c$：控制 shared exponent 跳变边界的正除数。
+- $\epsilon$：数值稳定项，$\epsilon = 9.6 \times 10^{-7}$
+- $e_{\text{max}}$：指数偏置，MXFP4 E4M2 格式下 $e_{\text{max}} = 2^{e_{\text{bits}}-1} = 2$
+
+缩放后 block 内最大值的量级：
+
+$$
+\frac{\max(|x|)}{2^s} = \frac{\max(|x|)}{2^{\operatorname{ceil}(\log_2(\max(|x|)/c))}} \in \left(\frac{c}{2}, c\right]
+$$
+
+一般地，缩放后 block 最大值被约束在 $(c/2,c]$ 的数量级区间内。$c$ 改变时，shared exponent 只会在跨越 2 的幂边界时离散跳变，因此误差关于 $c$ 呈分段变化。
+
+可选的自适应搜索：
+
+$$
+c^* = \arg\min_{c \in [c_{\min}, c_{\max}]} \sum_{\text{blocks}} \|x - \hat{x}(c)\|^2
+$$
+
+- $c^*$：搜索得到的最优除数
+- $c_{\min}$、$c_{\max}$：候选除数的搜索边界。
+- $\hat{x}(c)$：使用除数 $c$ 量化-反量化后的值
+
+若 shared exponent 为 $s$，把归一化块记为 $u=x/2^s$，则后续 MXFP4 编码可抽象为 $\hat x=2^s\,\mathcal F(u)$，其中 $\mathcal F$ 表示低比特浮点格点投影。于是块误差为：
+
+$$
+E(s)=\sum_i\left(x_i-2^s\mathcal F(x_i/2^s)\right)^2.
+$$
+
+Ceil_X 并不是直接连续优化 $E(s)$，而是通过 $c$ 控制整数指数 $s(c)$。当 $s(c)$ 不变时 $E$ 完全不变；当 $s(c)$ 跨越相邻指数时，整个块同时切换到新的格点尺度。
+
+### 2.4 关键性质
+
+- **ceil 缩放**：使用 ceil 操作收紧缩放范围，避免大值截断。
+- **可调指数边界**：除数 $c$ 控制何时切换到更大的 shared exponent。
+- **自适应搜索**：可选启用全局 MSE 搜索最优除数 $c$。
+- **范围/分辨率权衡**：ceil 提供更大动态范围裕量，但指数上移会同步增大量化步长。
+
+从误差与适用边界看，全局搜索得到的 $c$ 是跨许多 block 的平均最优，不保证每个 block 都最优，这也是它与逐块 MSE_Round 的重要差异。
+
+### 2.5 适用场景
+
+- 对 mxFP4 量化精度有更高要求的场景。
+- 权重分布范围较大、floor 缩放导致步长过粗或大值截断的模型层。
+
+### 2.6 使用限制
+
+- 仅支持 mxFP4 格式的 per_block 对称量化。
+- 启用 `enable_search` 时增加若干次前向量化评估，计算开销增大。
+- `search_max` 须大于 `search_min`。
+
+---
+
+## 3. 关联词条
+
+- [线性量化](../linear_quant/term_linear_quant.md)：应用对象，Ceil_X 作为线性量化的权重量化方法使用。
+- [FouroverSix](../fouroversix/term_fouroversix.md)：同类算法，同为 MXFP4 格式的缩放策略优化算法。
+- [MSE_Round](../mse_round/term_mse_round.md)：同类算法，同为 MXFP 格式的 shared exponent 优化算法（针对 MXFP8）。
+- [MinMax](../minmax/term_minmax.md)：对比算法，Ceil_X 是 MinMax MXFP4 量化的截断抑制优化。
+
+---
+
+## 4. 参考文档
+
+1. 《[Ceil_X 参数配置流程指南](./usage_ceil_x.md)》

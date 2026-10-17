@@ -1,0 +1,120 @@
+# MinMax 参数配置流程指南
+
+## 1. 适用范围
+
+本指南面向需要使用[MinMax 最小最大值量化算法](./term_minmax.md)的用户。MinMax 作为 `linear_quant` 处理器的激活值或权重量化方法，通过统计张量极值计算量化参数，是大多数常规量化场景的首选。
+
+适用场景：
+
+- 需要为 `linear_quant` 的激活值或权重量化选择一个简单、稳定、可解释的参数估计算法；
+- 需要在常规量化场景下以最少的配置变量建立可比较的量化基线。
+
+模型是否在官方预验证列表中请参考《[大模型支持矩阵](../../model/README.md)》；如需快速了解 CLI 基础用法可参阅《[一键量化使用指南](../../../user_guide/usage_one_click_quantization.md)》。
+
+## 2. 输入和交付件
+
+| 类型 | 名称 | 来源或保存位置 | 格式或约束 | 验收方式 |
+| --- | --- | --- | --- | --- |
+| 输入 | 浮点模型权重目录 | 模型下载或本地路径 | HuggingFace 格式，含 `config.json` 及 `*.safetensors` 分片 | 可被目标 Transformers 版本正常加载 |
+| 输入 | 校准数据集 | 工具内置 `lab_calib/` 或用户自定义路径 | JSONL 或 JSON 格式文本 Prompt，推荐 50 条 | 能被当前量化流程正常读取，并覆盖主要输入形态 |
+| 输入 | 配置约束与实践基线 | 本算法配置说明、目标模型已有 `lab_practice` 配方（如有） | 字段名、支持组合、作用范围和模型适配与当前版本一致 | 推荐起点能够追溯到当前配置定义或已验证实践 |
+| 交付件 | MinMax 参数配置方案 | 用户量化 YAML 或任务配置 | 参数取值合法、作用范围明确；关键参数说明选择依据 | 可作为后续量化流程的算法配置输入，并可复现本指南中的基线选择 |
+
+## 3. 流程总览
+
+MinMax 的整体使用流程如下：
+
+```mermaid
+flowchart LR
+    A[确定<br/>量化位宽与粒度] --> B[统计最小/最大值]
+    B --> C[计算<br/>scale/zero-point]
+    C --> D[执行量化]
+    D --> E[必要时<br/>换更稳健算法]
+```
+
+各阶段的关键细节如下：
+
+- **前置条件：模型适配**：量化前需先完成模型适配，适配器实现 `PipelineInterface`（基础流水线接口）等接口，详见[《LLM 模型接入量化流程指南》](../../ptq/llm/integration_guide_large_language_model_quantization.md)。模型适配必须先完成，才能执行量化流程。
+- **确定量化位宽与粒度**：先锁定部署目标与当前量化器实际注册的 `dtype + scope + symmetric + method` 组合；粒度越局部越能适应动态范围变化，但元数据与后端要求更高。
+- **统计最小/最大值**：MinMax 通过校准数据观测张量极值，不主动丢弃尾部；数据分布直接决定统计结果。
+- **计算 scale/zero-point**：由观测范围确定量化参数，对称量化围绕 0，非对称可适应明显偏移分布。
+- **执行量化**：按 `include/exclude` 圈定的作用范围逐层应用量化；范围应先覆盖预期模块再看精度。
+- **必要时换更稳健算法**：精度不足时先定位问题来源——粒度问题调 scope；离群问题引入平滑或 Histogram；低比特权重问题换 SSZ/GPTQ，而不是继续给 MinMax 堆无关参数。
+
+## 4. 操作步骤
+
+### 步骤 1：确认目标与约束
+
+**操作**：先固定目标模型、最终量化格式/位宽、作用对象和评测基线，再确认当前版本支持的参数组合。目标模型已有 `lab_practice` 配方时，优先把该配方作为实践基线；没有模型专用配方时，再使用本指南给出的通用推荐起点。若算法依赖校准统计或优化数据，还应在调参前固定代表性数据，避免把数据分布变化误判为参数收益。
+
+**输出**：一份明确的配置目标：目标位宽/格式、处理范围、校准条件、评测基线和部署约束。
+
+### 步骤 2：建立推荐配置
+
+**操作**：
+
+下面配置用于建立**第一版可比较基线**。如果目标模型已有 `lab_practice` 配方，优先使用已验证配方，再参考本节理解每个参数为什么这样选。
+
+```yaml
+spec:
+  process:
+    - type: "linear_quant"
+      qconfig:
+        act:
+          scope: "per_token"
+          dtype: "int8"
+          symmetric: true
+          method: "minmax"
+        weight:
+          scope: "per_channel"
+          dtype: "int8"
+          symmetric: true
+          method: "minmax"
+      include: ["*"]
+      exclude: []
+```
+
+**输出**：一份可复现的推荐配置，后续所有参数调整均以此为比较对象。
+
+### 步骤 3：选择并调整参数
+
+**操作**：
+
+| 配置项 | 含义（原理） | 推荐配置 | 选择与调整建议 |
+| --- | --- | --- | --- |
+| `qconfig.act.dtype/scope/symmetric` | MinMax 只是“如何从观测范围计算 qparam”的方法，真正的尺度粒度和数值格式仍由 dtype/scope/symmetric 决定。仓库最常见 W8A8 是 INT8 per-token 对称；也有 INT8 per-tensor 非对称、PDMIX 和 MX per-block。 | 通用 W8A8 从 `int8 + per_token + symmetric` 起步。 | 如果 MinMax 精度不足，先判断问题来自粒度过粗还是极端值。粒度问题优先改 scope；长尾 clipping 问题才考虑 Histogram/Smooth 等方法，而不是无目的更换所有字段。 |
+| `qconfig.act.method` | 固定为 `minmax` 时，根据观察到的最小/最大值确定量化范围，不主动丢弃尾部。优点是简单、稳定、可解释，缺点是少量离群值可能拉大步长。 | 普通基线固定 `minmax`。 | 当激活长尾导致主体区间分辨率不足时，可比较 Histogram 或先做平滑；如果 MinMax 已达到目标精度，通常没有必要增加搜索算法。 |
+| `qconfig.weight.dtype/scope/symmetric` | 权重 MinMax 常用 per-channel 对称 INT8/INT4。per-channel 能让每个输出通道拥有独立尺度，通常比全 tensor 共享尺度更稳。MXFP4/8 则使用 per-block MinMax，并可通过 `ext.axes` 指定 block 轴。 | INT 权重从 `int8 + per_channel + symmetric` 起步；低比特/特殊格式按目标配方。 | INT4 对权重动态范围更敏感，如果简单 MinMax 退化明显，可考虑 SSZ/GPTQ；MX 格式先确认 block 布局，不要把 per-channel 经验直接套到 per-block。 |
+| `qconfig.weight.method` | 固定 `minmax` 表示直接用权重范围计算尺度，不需要校准激活，成本最低。 | W8 权重优先 `minmax`。 | 需要低比特进一步优化时才换 SSZ/GPTQ 等；method 改变后应按对应算法重新处理 ext 和校准要求。 |
+| `ext.aggregation_type` | 部分 MinMax 激活观察器支持聚合方式扩展，默认 `max`；它影响多次观测统计如何合并。注意 per-token 路径当前直接使用 max 聚合，不把它作为常规可调项。 | 常规使用保持默认，不显式配置。 | 只有明确使用支持该 ext 的 per-tensor/per-channel/PDMIX 观察路径，并理解多批次统计需求时才调整；入门阶段不建议用它替代更直接的 scope/平滑选择。 |
+| `ext.axes` | MXFP4/MXFP8 per-block MinMax 使用的分块轴，默认 `-1`。INT per-token/per-channel MinMax 不需要该字段。 | MX 权重/激活按实践保持 `-1`，除非后端布局另有要求。 | 这是布局参数。换 axes 会改变 block 分组和 scale 形状，必须和部署端一致。 |
+
+### 参数组合与选择顺序
+
+MinMax 是首选基线的原因是变量最少。精度不够时应先定位：**粒度问题 → 调 scope；离群问题 → 平滑/Histogram；低比特权重问题 → SSZ/GPTQ**，而不是继续给 MinMax 堆无关参数。
+
+**输出**：一份完成单变量调整的算法参数方案，关键字段均有明确的选择依据和调整方向。
+
+### 步骤 4：根据结果收敛参数方案
+
+**操作**：
+
+- **先跑推荐配置，再调单变量。** 不要同时修改位宽、粒度、算法参数和层范围，否则很难判断精度变化来自哪一项。
+- **优先回退局部，而不是整体提高精度。** 如果只有少数层敏感，优先通过 `exclude` 或混合策略保留高精度，通常比整体升位宽更划算。
+- **最终以模型实践配置和部署能力为准。** 入门推荐用于建立稳定起点；目标模型已有 `lab_practice` 配方时，应优先复用已验证组合。
+
+**输出**：一份可进入后续量化流程的最终参数方案，并保留相对于推荐配置的调整记录。
+
+## 5. 术语
+
+| 术语 | 简述 | 链接 |
+| --- | --- | --- |
+| MinMax 最小最大值量化算法 | 说明该算法的定义、核心原理、关键性质、适用场景与限制。 | [《MinMax 最小最大值量化算法 量化术语百科词条》](./term_minmax.md) |
+
+## 6. 相关文档
+
+| 接口或文档 | 简述 | 链接 |
+| --- | --- | --- |
+| linear_quant 配置说明 | 字段类型、默认值、合法取值与完整配置约束。 | [《linear_quant 配置说明》](../../../api_reference/config/processor/linear_quant.md) |
+| modelslim_v1 配置说明 | 需要继续探索 runner、prior、save、dataset 等任务级高级配置时查阅。 | [《modelslim_v1 配置说明》](../../../api_reference/config/quant/modelslim_v1.md) |
+| 权重量化使用指南 | 用户指南：量化命令参数与完整使用说明。 | [《权重量化使用指南》](https://gitcode.com/Ascend/msmodelslim/blob/26.2.0/docs/zh/user_guide/usage_weight_quantization.md) |

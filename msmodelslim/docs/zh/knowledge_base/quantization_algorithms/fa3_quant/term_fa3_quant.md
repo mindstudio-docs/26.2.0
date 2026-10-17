@@ -1,0 +1,102 @@
+# FA3 Quant 注意力激活量化算法 量化术语百科词条
+
+> **词条类别**：[量化算法](../README.md#2-量化算法)<br>
+> **英文名称**：fa3_quant<br>
+> **应用领域**：大语言模型量化压缩、推理加速、长序列推理<br>
+
+---
+
+## 1. 概述
+
+FA3 Quant 是一种面向注意力激活的逐 Head 量化算法。它对 Q、K、V 等注意力中间张量按 Head 建立量化范围，以降低长序列 Attention 的存储与计算开销，并尽量控制激活量化误差；核心特征是 per-head 粒度、面向 Attention 路径的激活量化和针对范围选择的专门统计策略。
+
+---
+
+## 2. 词条介绍
+
+在长序列下，Attention 的中间激活 Q、K、V 张量在显存中占比高，对其进行量化可以有效降低显存占用并提升计算效率。但 Q、K、V 的激活动态范围大且分布高度不均，直接进行全局量化会导致精度损失严重。FA3 Quant 通过逐注意力头独立量化，适应不同 head 的激活分布差异。
+
+### 2.1 核心思想
+
+FA3 Quant 的核心思想是“逐注意力头独立量化”：对每个注意力头独立计算量化参数（scale），适应不同 head 的激活分布差异；每个 head 使用 Recall Window 算法找到包含指定比例数据的最小数值分布区间作为量化范围，避免离群值拉大量化尺度。
+
+per-head 统计可以阻断“一个 head 的离群值让所有 head 都变粗”的误差耦合；Recall Window 则进一步解决单个 head 内极少量尾部样本的问题。
+
+### 2.2 工作机制
+
+不同 attention head 的 Q/K/V 或中间激活分布并不一定相同。如果所有 head 共享一个量化尺度，某个 head 的极端值会抬高整组步长，使其他 head 的主体数据浪费大量码点。FA3 Quant 因此按 head 独立收集统计量，把“跨 head 的动态范围差异”从量化误差来源中分离出去。
+
+在每个 head 内，Recall Window 不强求量化区间覆盖全部样本，而是在排序后的样本上寻找能包含给定比例数据的最短区间。它相当于主动舍弃极少量尾部点，以换取更窄的主体范围和更小的量化步长。对称量化时再用窗口两端绝对值的较大者形成 $[-a,a]$ 范围；跨校准批次则需要合并统计，避免某一批次的偶然窄区间导致真实推理时频繁饱和。
+
+### 2.3 数学描述
+
+对激活张量 $x$（shape 为 $(B, H, S, D)$），将其 reshape 为 $(H, N)$，其中 $N = B \times S \times D$，每个 head 独立收集 $N$ 个数据点。
+
+对每个 head 使用 Recall Window 算法寻找最小量化范围：
+
+1. 排序：$\text{sorted\_data} = \operatorname{sort}(\text{head\_data})$
+2. 目标元素数量：$\text{target\_num} = \lfloor \text{ratio} \times N \rfloor$
+3. 滑动窗口搜索窗口长度最小的范围 $[\text{sorted\_data}[i], \text{sorted\_data}[i + \text{target\_num} - 1]]$
+
+对称量化参数：
+
+$$
+\text{abs\_max}[h] = \max(|\min\_values[h]|, |\max\_values[h]|), \quad \text{scale}[h] = \frac{\text{abs\_max}[h]}{127}
+$$
+
+- $B$：batch 大小
+- $H$：注意力头数量
+- $S$：序列长度
+- $D$：head 维度
+- $h$：注意力头索引
+- $\text{ratio}$：Recall Window 希望保留在量化区间内的样本比例。
+- $\text{scale}[h]$：第 $h$ 个头的量化缩放因子
+
+跨批次累积统计时，量化范围取所有校准批次的最小值/最大值并集。
+
+将某个 head 的排序样本记为 $x_{(1)}\le\cdots\le x_{(N)}$，保留数量 $m=\lfloor rN\rfloor$，Recall Window 可写为：
+
+$$
+i^*=\arg\min_{1\le i\le N-m+1}\left(x_{(i+m-1)}-x_{(i)}\right),
+$$
+
+$$
+[l,u]=[x_{(i^*)},x_{(i^*+m-1)}].
+$$
+
+被窗口排除的样本产生 clipping error；窗口越窄，范围内量化步长越小。对于对称 INT8，可进一步令 $a=\max(|l|,|u|)$、$s=a/127$。因此保留率 $r$ 明确控制“裁剪尾部多少”与“主体分辨率多细”的权衡。
+
+### 2.4 关键性质
+
+- **per-head 量化**：对每个注意力头独立计算量化参数，适应分布差异。
+- **Recall Window**：滑动窗口寻找包含指定比例数据的最小范围，抑制离群值影响。
+- **多粒度支持**：支持 INT8 与 FP8（静态/动态）多种量化粒度。
+- **裁剪与精度可权衡**：Recall Window 的保留比例直接决定尾部饱和与主体分辨率之间的平衡。
+
+从误差与适用边界看，注意力对 Q/K 量化尤其敏感，因为误差会进入点积并经过 softmax。一个看似很小的 logit 偏差，在两个候选位置得分接近时可能改变概率排序；因此校准数据必须覆盖真实序列长度、位置模式和 head 行为。
+
+### 2.5 适用场景
+
+- 长序列推理场景下需要降低 Attention 中间激活显存占用的场景。
+- 基于 MLA 架构的模型（如 DeepSeek 系列）的全量化方案。
+
+### 2.6 使用限制
+
+- 主要面向与 FA3 低精度注意力路径兼容的注意力结构，尤其是 MLA 类架构；普通注意力结构不能直接假设具有相同的量化插入点。
+- Q、K、V 的量化粒度和数据格式必须与实际注意力算子能力一致；更低精度格式通常需要更严格的端到端精度验证。
+
+---
+
+## 3. 关联词条
+
+- [线性量化](../linear_quant/term_linear_quant.md)：配套术语，FA3 Quant 通常与线性量化配合实现全量化方案。
+- [KVCache Quant](../kvcache_quant/term_kvcache_quant.md)：配套术语，同属长序列推理的缓存/激活量化方案。
+- [KV Smooth](../kv_smooth/term_kv_smooth.md)：配套术语，同为长序列推理的缓存优化算法。
+- [MinMax](../minmax/term_minmax.md)：应用对象，FA3 Quant 的量化参数基于 MinMax 思路计算。
+
+---
+
+## 4. 参考文档
+
+1. Dao T et al. FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision. 2024. <https://arxiv.org/abs/2407.08608>
+2. 《[FA3 Quant 参数配置流程指南](./usage_fa3_quant.md)》

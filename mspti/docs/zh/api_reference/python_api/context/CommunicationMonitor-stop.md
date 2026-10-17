@@ -1,0 +1,46 @@
+# CommunicationMonitor.stop<a name="ZH-CN_TOPIC_0000002108243904"></a>
+
+## 产品支持情况<a name="zh-cn_topic_0000002111094444_section5889102116569"></a>
+
+> [!NOTE]
+>
+> 昇腾产品的具体型号，请参见《[昇腾产品形态说明](https://www.hiascend.com/document/detail/zh/Glossary/productform/hardwaredesc_0001.html)》。
+
+<a name="zh-cn_topic_0000002143882701_table38301303189"></a>
+
+<!-- npu="950" id1 -->
+- Ascend 950PR&950DT系列产品：支持
+<!-- end id1 -->
+<!-- npu="A3" id2 -->
+- Atlas A3系列产品：支持
+<!-- end id2 -->
+<!-- npu="910b" id3 -->
+- Atlas A2系列产品：支持
+<!-- end id3 -->
+<!-- npu="310b" id4 -->
+- Atlas 200I/500 A2推理产品：支持
+<!-- end id4 -->
+<!-- npu="310p" id5 -->
+- Atlas推理系列产品：不支持
+<!-- end id5 -->
+<!-- npu="910" id6 -->
+- Atlas训练系列产品：不支持
+<!-- end id6 -->
+
+## 函数功能
+
+标识通信算子性能数据采集的结束。
+
+## 函数原型<a name="section759854510169"></a>
+
+```python
+def stop(self) -> MsptiResult:
+```
+
+## 参数说明<a name="section354791521716"></a>
+
+无
+
+## 返回值说明<a name="section776014535188"></a>
+
+返回MsptiResult.MSPTI\_SUCCESS表示成功；返回MsptiResult.MSPTI\_ERROR\_INVALID\_PARAMETER表示失败。

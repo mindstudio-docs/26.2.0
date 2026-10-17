@@ -1,0 +1,91 @@
+<h1 align="center">MindStudio Inference Tools</h1>
+
+<div align="center">
+
+<p><b><span style="font-size:24px;">昇腾 AI 推理开发工具链</span></b></p>
+
+ [![快速入门](https://badgen.net/badge/快速入门/QuickStart/blue)](./docs/zh/quick_start/msit_quick_start.md)
+ [![AI问答(DeepWiki)](https://badgen.net/badge/AI问答/DeepWiki/blue)](https://deepwiki.com/mindstudio-docs/master)
+ [![AI问答(ZRead)](https://badgen.net/badge/AI问答/ZRead/blue)](https://zread.ai/mindstudio-docs/master)
+ [![精确搜索](https://badgen.net/badge/精确搜索/ReadTheDocs/blue)](https://mindstudio-docs-master.readthedocs.io)
+ [![昇腾社区](https://badgen.net/badge/昇腾社区/Community/blue)](https://www.hiascend.com/cn/developer/software/mindstudio)
+ [![报告问题](https://badgen.net/badge/报告问题/Issues/blue)](https://gitcode.com/Ascend/msit/issues)
+</div>
+
+简体中文 | [English](./README_EN.md)
+
+## ✨ 最新消息
+
+<span style="font-size:14px;">
+
+🔹 **[2026.09.09]**：msit 仓库profile、benchmark模块日落公告，详情请参见[公告](https://gitcode.com/Ascend/msit/discussions/4)    
+🔹 **[2026.03.30]**：msit 仓库精度调试、推理服务调优、模型量化模块日落公告，详情请参见[公告](https://gitcode.com/Ascend/msit/discussions/2)  
+🔹 **[2026.01.12]**：本仓库许可证（License）变更，详情请参见 [公告](https://gitcode.com/Ascend/msit/discussions/1)    
+🔹 **[2025.12.31]**：MindStudio 推理开发工具链全面开源
+
+</span>
+
+## ℹ️ 简介
+
+MindStudio Inference Tools（msIT）推理开发工具链，聚焦大模型与传统模型推理开发中的关键挑战，通过提供模型压缩、调试与调优等能力，高效解决推理效率低、资源开销大等问题，助力用户实现最优推理性能。
+
+<img src="./docs/zh/figures/readme/fullview.svg" width="1200"/>
+
+## ⚙️ 功能介绍
+
+推理开发工具链提供以下系列化工具：
+
+| 类别 | 工具名称                                                                         | 功能简介                                                 |
+|:--:|:-----------------------------------------------------------------------------|:-----------------------------------------------------|
+| 预检 | [**msPrechecker**](https://gitcode.com/Ascend/msit/tree/26.2.0/msprechecker) | **【预检工具】** 支持环境预检、连通性预检及推理过程落盘和比对，帮助用户在部署前发现异常问题。    |
+| 量化 | [**msModelSlim**](https://gitcode.com/Ascend/msmodelslim)                    | **【模型压缩】** 包含量化和压缩等推理优化技术，支持大语言稠密模型、MoE 模型、多模态模型等。   |
+| 精度 | [**msProbe**](https://gitcode.com/Ascend/msprobe)                            | **【精度调试】** 昇腾全场景精度工具，用于精度调试与问题定位。                    |
+| 性能 | [**msProf**](https://gitcode.com/Ascend/msprof)                              | **【模型调优】** 全场景性能调优底座，采集软硬件全栈性能数据，提升设备调优效率。           |
+| 性能 | [**msprof-analyze**](https://gitcode.com/Ascend/msprof-analyze)              | **【性能分析】** 基于采集数据做性能分析，快速识别性能瓶颈。                     |
+| 性能 | [**msServiceProfiler**](https://gitcode.com/Ascend/msserviceprofiler)        | **【服务调优】** 支持请求调度、模型执行过程可视化，提升服务化性能分析效率。             |
+| 性能 | [**msMemScope**](https://gitcode.com/Ascend/msmemscope)                      | **【内存调优】** 内存调优专用工具：整网级多维度内存采集，支持自动诊断与优化分析。          |
+| 性能 | [**msInsight**](https://gitcode.com/Ascend/msinsight)                        | **【可视调优】** 可视化性能分析，覆盖系统、算子、服务化等场景，辅助完成性能诊断。          |
+| 性能 | [**msModeling**](https://gitcode.com/Ascend/msmodeling)                       | **【建模仿真】** 神经网络推理性能仿真框架，助力开发者在无硬件或部署前预测性能、识别瓶颈并优化配置。 |
+| 监控 | [**msMonitor**](https://gitcode.com/Ascend/msmonitor)                        | **【在线监控】** 一站式监控，支持落盘与在线采集，面向集群的监测与问题定位。             |
+
+## 🚀 快速入门
+
+MindStudio Inference Tools（msIT）是面向昇腾 AI 平台的开源推理开发工具链，为开发者提供从模型部署到在线运维的全流程工具支持。工具链涵盖预检、量化、精度调试、性能调优和在线监控五大环节，包含多款专项工具，帮助开发者在昇腾硬件上高效完成大语言模型（含稠密模型与 MoE 架构）、多模态模型及传统模型的推理开发与优化。如需快速上手各工具，请参见《[推理开发工具链快速入门](docs/zh/quick_start/msit_quick_start.md)》。
+
+## 📦 安装指南
+
+请通过上方“[功能介绍](#️-功能介绍)”章节表格链接进入对应源码仓库，详情参见仓库《README》文档中的“安装指南”章节。
+
+## 📘 使用指南
+
+请通过上方表格链接进入对应源码仓库，参见 README 中的《使用指南》；若需按场景选择工具，请参见《[msIT 工具选型指南](./docs/zh/user_guide/msit_user_guide.md)》。    
+
+## 🌌 智能检索
+
+为提升文档查阅效率，我们提供多种高效检索方式：  
+🔹 [AI 问答（DeepWiki）](https://deepwiki.com/mindstudio-docs/master)：自然语言问答，快速把握项目架构与模块关系。   
+🔹 [AI 问答（ZRead）](https://zread.ai/mindstudio-docs/master)：中文问答体验更优，精准定位功能用法与细节。   
+🔹 [精确搜索（ReadTheDocs）](https://mindstudio-docs-master.readthedocs.io)：关键词全文检索，直达接口、参数与报错等信息。  
+
+## 🛠️ 贡献指南
+
+欢迎参与项目贡献，请参见 《[贡献指南](https://gitcode.com/Ascend/msit/blob/26.2.0/docs/zh/contributing/contributing_guide.md)》。
+
+## ⚖️ 相关说明
+ 
+🔹 《[许可证声明](https://gitcode.com/Ascend/msit/blob/26.2.0/docs/zh/legal/license_notice.md)》     
+🔹 《[安全声明](https://gitcode.com/Ascend/msit/blob/26.2.0/docs/zh/legal/security_statement.md)》     
+🔹 《[免责声明](https://gitcode.com/Ascend/msit/blob/26.2.0/docs/zh/legal/disclaimer.md)》     
+
+## 🤝 建议与交流
+
+欢迎大家为社区做贡献。如果有任何疑问或建议，请提交 [Issues](https://gitcode.com/Ascend/msit/issues)，我们会尽快回复。感谢您的支持。
+
+|                                                                         即时互动（微信群）                                                                          |                                                                               官方资讯（公众号）                                                                                | 深度支持（助手/论坛）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+|:----------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <img src="https://raw.gitcode.com/Ascend/docs/files/master/common/Writing_Template/figures/qr_code_wechat_work.png" width="120"><br><sub>*扫码加入技术交流群*</sub> | <img src="https://raw.gitcode.com/Ascend/docs/files/master/common/Writing_Template/figures/qr_code_wechat_official_account.png" width="120"><br><sub>*扫码关注官方公众号*</sub> | 扫码入群并关注公众号，直达 MindStudio 用户与开发者最快捷的交流平台：<br> **快速提问：** 与社区小伙伴即时探讨技术问题<br>**掌握动态：** 第一时间获取版本发布与功能更新通知<br> **经验共享：** 与广大开发者交流最佳实践与实战心得  <br> <br> **更多支持渠道**：👉 昇腾助手：[![WeChat](https://img.shields.io/badge/WeChat-07C160?style=flat-square&logo=wechat&logoColor=white)](https://gitcode.com/Ascend/msit/blob/master/docs/zh/figures/readme/xiaozhushou.png) 👉 昇腾论坛：[![Website](https://img.shields.io/badge/Website-%231e37ff?style=flat-square&logo=RSS&logoColor=white)](https://www.hiascend.com/forum/) |
+
+## 🙏 致谢
+
+本工具由华为技术有限公司与开发者联合贡献。
+感谢来自社区的每一个PR，欢迎贡献。

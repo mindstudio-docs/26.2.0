@@ -1,0 +1,168 @@
+# -------------------------寻优相关参数配置------------------------------------------------
+n_particles = 10 
+iters = 5 
+ttft_penalty = 1 
+tpot_penalty = 0 
+success_rate_penalty = 5.0 
+ttft_slo = 1 
+tpot_slo = 0.05 
+service = "master"
+sample_size = 1000 
+
+# -------------------------选取top_k进入精调------------------------------------------------
+[data_storage]
+pso_top_k = 0
+# -------------------------运行中检测日志异常------------------------------------------------
+# 日志检测功能会自动监控服务化框架和测评工具的运行日志，
+# 根据错误类型采取不同的处理策略：
+# - 致命错误（FATAL）：立即停止调度器，不进行重试
+# - 可重试错误（RETRYABLE）：触发重试机制（最多重试3次）
+# 配置建议：
+# 1. 从最小严格模式开始，逐步根据实际情况放宽
+# 2. 避免使用过于宽泛的模式（如 "error", "exception", "failed"）
+# 3. 优先使用完整的错误信息（如 "out of memory" 而不是 "memory"）
+# 4. 区分服务化框架和测评工具的错误模式
+#
+# 默认配置为空，请根据实际场景配置以下内容：
+# [health_check.service_errors.fatal_patterns]
+# out_of_memory = ["out of memory", "OOM killed", "MemoryError"]
+# device_error = ["NPU error", "device fault", "Ascend error"]
+
+# [health_check.service_errors.retryable_patterns]
+# network_error = ["connection reset", "connection refused", "timeout"]
+# io_error = ["file not found", "permission denied", "IO error"]
+[health_check]
+log_snippet_length = 200
+[health_check.service_errors.fatal_patterns]
+out_of_memory = []
+device_error = []
+[health_check.service_errors.retryable_patterns]
+network_error = []
+io_error = []
+[health_check.benchmark_errors.fatal_patterns]
+out_of_memory = []
+device_error = []
+[health_check.benchmark_errors.retryable_patterns]
+network_error = []
+io_error = []
+
+# -------------------------mindie相关配置------------------------------------------------
+[mindie]
+[[mindie.target_field]]
+name = "max_batch_size"
+config_position = "BackendConfig.ScheduleConfig.maxBatchSize"
+min = 10
+max = 1000
+dtype = "int"
+[[mindie.target_field]]
+name = "max_prefill_batch_size"
+config_position = "BackendConfig.ScheduleConfig.maxPrefillBatchSize"  # 该值不允许大于maxBatchSize
+min = 0.1
+max = 0.7
+dtype = "ratio"
+dtype_param = "max_batch_size"
+[[mindie.target_field]]
+name = "prefill_time_ms_per_req"
+config_position = "BackendConfig.ScheduleConfig.prefillTimeMsPerReq"
+min = 0
+max = 1000
+dtype = "range"
+dtype_param = 10
+[[mindie.target_field]]
+name = "decode_time_ms_per_req"
+config_position = "BackendConfig.ScheduleConfig.decodeTimeMsPerReq"
+min = 0
+max = 1000
+dtype = "range"
+dtype_param = 10
+[[mindie.target_field]]
+name = "support_select_batch"
+config_position = "BackendConfig.ScheduleConfig.supportSelectBatch"
+min = 0
+max = 1
+dtype = "bool"
+[[mindie.target_field]]
+name = "max_queue_deloy_mircroseconds"
+config_position = "BackendConfig.ScheduleConfig.maxQueueDelayMicroseconds"
+min = 500
+max = 1000000
+dtype = "range"
+dtype_param = 100
+[[mindie.target_field]]
+name = "max_preempt_count"
+config_position = "BackendConfig.ScheduleConfig.maxPreemptCount"
+min = 0
+max = 1
+dtype = "ratio"
+dtype_param = "max_batch_size"
+[[mindie.target_field]]
+name = "CONCURRENCY"  # 支持范围0-1000
+config_position = "env"
+min = 1
+max = 1001
+dtype = "int"
+value = 100
+[[mindie.target_field]]
+name = "REQUESTRATE" # 支持范围0-10000
+config_position = "env"
+min = 1
+max = 1001
+dtype = "float"
+value = 100
+
+# -------------------------测评工具相关配置------------------------------------------------
+[ais_bench.command]
+models = "models"
+datasets = "datasets"
+mode = "perf"
+num_prompts = 3000
+
+[vllm_benchmark.command]
+host = "127.0.0.1"
+port = "port"
+model = "model_path"
+served_model_name = "model_name"
+dataset_name = "dataset_name"
+num_prompts = 3000
+others = ""
+
+
+# -------------------------vllm相关配置------------------------------------------------
+[vllm]
+[vllm.command]
+host = "127.0.0.1"
+port = "port"
+model = "model_path"
+served_model_name = "model_name"
+others = ""
+[[vllm.target_field]]
+name = "MAX_NUM_BATCHED_TOKENS"
+config_position = "env"
+min = 8192
+max = 65536
+dtype = "int"
+value = 8192
+[[vllm.target_field]]
+name = "MAX_NUM_SEQS"
+config_position = "env"
+min = 32
+max = 512
+dtype = "int"
+value = 64
+[[vllm.target_field]]
+name = "CONCURRENCY" 
+config_position = "env"
+min = 1
+max = 1000
+dtype = "int"
+value = 100
+[[vllm.target_field]]
+name = "REQUESTRATE" 
+config_position = "env"
+min = 0
+max = 0
+dtype = "float"
+value = 0
+# -------------------------kubectl相关配置------------------------------------------------
+[kubectl]
+kubectl_default_path = ""

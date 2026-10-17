@@ -1,0 +1,100 @@
+# msPTI工具样例指南
+
+## 1. 简介
+
+本文通过提供msPTI样例集的方式，供用户理解使用msPTI工具。
+
+## 2. 产品支持情况
+
+> [!NOTE]
+>
+> 昇腾产品的具体型号，请参见《[昇腾产品形态说明](https://www.hiascend.com/document/detail/zh/Glossary/productform/hardwaredesc_0001.html)》。
+
+<!-- npu="950" id1 -->
+- Ascend 950PR&950DT系列产品：支持
+<!-- end id1 -->
+<!-- npu="A3" id2 -->
+- Atlas A3系列产品：支持
+<!-- end id2 -->
+<!-- npu="910b" id3 -->
+- Atlas A2系列产品：支持
+<!-- end id3 -->
+<!-- npu="310b" id4 -->
+- Atlas 200I/500 A2推理产品：支持
+<!-- end id4 -->
+<!-- npu="310p" id5 -->
+- Atlas推理系列产品：不支持
+<!-- end id5 -->
+<!-- npu="910" id6 -->
+- Atlas训练系列产品：不支持
+<!-- end id6 -->
+
+## 3. 使用前准备
+
+**环境准备**
+
+- 硬件环境请参见《[昇腾产品形态说明](https://www.hiascend.com/document/detail/zh/Glossary/productform/hardwaredesc_0001.html)》。
+
+- 软件环境请参见《[CANN快速安装](https://www.hiascend.com/zh/cann/download)》安装配套版本的CANN Toolkit开发套件包和ops算子包并配置CANN环境变量。
+- msPTI Python API部分的样例依赖于PyTorch框架和TorchNPU插件，请确保安装，具体请参见《[TorchNPU软件安装](https://www.hiascend.com/zh/developer/software/ai-frameworks/pytorch/download)》。
+
+**约束**
+
+msPTI工具不可与任何其他性能数据采集工具同时使用，否则会导致采集的数据丢失。
+
+## 4. msPTI样例集
+
+本节提供msPTI各种接口的使用样例，供用户理解使用msPTI接口。
+
+**构建样例执行<a name="zh-cn_topic_0000002257378834_section6122533557"></a>**
+
+1. 安装CANN软件后，需要以CANN运行用户登录环境，执行`source /${install_path}/set_env.sh`命令设置环境变量。其中`${install_path}`为CANN软件安装后文件存储路径，例如：/usr/local/Ascend/cann。
+   示例如下：
+
+   ```bash
+   source /usr/local/Ascend/cann/set_env.sh
+   ```
+
+2. 进入样例目录。
+
+   msPTI样例代码集成在CANN Toolkit开发套件包中，路径为$\{install\_path\}/tools/mspti/samples。
+
+   $\{install\_path\}请替换为CANN软件安装后文件存储路径。以root安装举例，则安装后文件存储路径为：/usr/local/Ascend/cann。
+
+   示例如下：
+
+   ```bash
+   cd ${install_path}/tools/mspti/samples/callback_domain
+   ```
+
+3. 执行对应样例目录下的sample\_run.sh。
+
+   ```bash
+   bash sample_run.sh
+   ```
+
+下表为当前提供的样例介绍：
+
+- Callback API
+
+  | 样例                                             | 说明                                                         |
+  | ------------------------------------------------ | ------------------------------------------------------------ |
+  | [callback_domain](../../../samples/callback_domain) | 1. 展示Callback API功能，可以通过msptiEnableDomain，在runtime API的前后执行Callback操作。 |
+  | [callback_mstx](../../../samples/callback_mstx)     | 1. 展示Callback与msTX接口相结合功能，使用Callback API和msTX打点功能，在runtime的Launch Kernel前后打点，采集算子数据。<br/> 2. 演示Callback中userdata用法，用户可以通过userdata透传配置或者部分运行参数。 |
+
+- Activity API
+
+  | 样例                                                         | 说明                                                         |
+  | ------------------------------------------------------------ | ------------------------------------------------------------ |
+  | [mspti_activity](../../../samples/mspti_activity)               | 1. 展示Activity API接口的基本功能，样例展示如何采集Kernel和Memory等数据。<br/> 2. 演示Activity API的基本运行，讲述Activity API的基本使用，包括Activity Buffer内存分配，Buffer消费等逻辑。 |
+  | [mspti_correlation](../../../samples/mspti_correlation)         | 1. 展示Activity API接口的基本功能，展示如何通过correlationId字段将API和Kernel数据做关联。<br/> 2. 演示runtime API下发与Kernel实际执行数据的关联，关联后可以将算子的下发和执行一一对应，方便分析性能瓶颈。 |
+  | [mspti_external_correlation](../../../samples/mspti_external_correlation) | 1. 展示msPTI External Correlation功能。<br/>2. 演示msptiActivityPopExternalCorrelationId和msptiActivityPushExternalCorrelationId两接口使用方法，用户可以通过接口将各种API关联到一起，方便回溯函数的调用栈。 |
+  | [mspti_hccl_activity](../../../samples/mspti_hccl_activity)     | 1. 展示Activity API接口的基本功能，样例展示如何通过Hccl开关采集通信数据。 |
+  | [mspti_mstx_activity_domain](../../../samples/mspti_mstx_activity_domain) | 1. 展示msPTI控制mstxDomain功能，通过开关控制打点数据是否采集。<br/> 2. 用户可以通过msPTI开关实时开关采集打点，减小性能损耗。 |
+
+- Python API
+
+  | 样例                                                     | 说明                                                         |
+  | -------------------------------------------------------- | ------------------------------------------------------------ |
+  | [python_monitor](../../../samples/python_monitor)           | 1.展示Monitor基本使用方式，通过KernelMonitor、CommunicationMonitor获取计算算子和通信算子的耗时。 |
+  | [python_mstx_monitor](../../../samples/python_mstx_monitor) | 1. 展示MstxMonitor基本使用方式，用户可以通过Mstx打点采集对应算子（如matmul）耗时。 |

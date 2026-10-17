@@ -1,0 +1,89 @@
+# 多卡量化并行
+
+> **范围说明**：本目录实际内容仅包含多卡量化机制（DP / EP / DTS）。**多卡量化机制不覆盖权重转换（Convert），权重转换走自身独立的转换并行方案**（NPU 多卡使用 `--device npu --device_id` 启动每卡独立计算进程，CPU 并行使用 `parallel.cpu_workers`），具体请参阅《[权重转换使用指南](../ptq/convert/usage_weight_conversion.md)》。
+
+## 1. 并行机制简述
+
+msModelSlim 量化侧的并行机制以数据并行（Data Parallel, DP）为基础，当一个量化流程中涉及的量化算法均已实现 DP 支持时，则该量化可使用多卡完成，因而我们也称 DP 为多卡量化的完备性支持。专家并行（Expert Parallel, EP）和分布式任务调度器（Distributed Task Scheduler, DTS）均是在完备性支持的基础上，在特定场景下对多卡量化进行的优化。EP 面向 MoE 模型，通过专家分片加载降低单卡显存占用，同时也起到量化提速的作用。DTS 面向计算密集型算法，将复杂流程拆为可调度的原子子任务，用卡间共享任务队列替代各卡重复执行完整任务链，以提升复杂算法的执行效率。
+
+并行机制的原理决定了它们的适配体现在 msModelSlim 的不同概念域，DP 与 DTS 的适配体现在算法层面，msModelSlim 的算法则以 Processor 承载；EP 的适配体现在模型层面，msModelSlim 通过模型适配器承载对模型的改造与适配。使能一个量化任务的多卡量化的必要条件是完成量化方案中涉及到的算法的 DP 支持，EP 和 DTS 均在此基础上进行优化。由于当前基础模型的演进存在参数量持续上升的趋势，因而对于 MoE 结构的模型，建议在模型适配时完成 EP 支持以防止显存溢出。DTS 的支持则需要结合算法本身进行具体分析，只有对计算密集型的复杂算法它才会带来较为显著的加速效果。
+
+## 2. 并行机制目录
+
+本目录收录 msModelSlim **多卡量化**相关的流程指南与术语百科。
+
+| 文档 | 说明 |
+|------|------|
+| 《[数据并行](data_parallelism/term_data_parallelism.md)》 | DP 术语百科 |
+| 《[数据并行使用指南](data_parallelism/data_parallelism_guide.md)》 | DP 使用指南 |
+| 《[专家并行](expert_parallelism/term_expert_parallelism.md)》 | EP 术语百科 |
+| 《[专家并行使用指南](expert_parallelism/expert_parallelism_guide.md)》 | EP 使用指南 |
+| 《[分布式任务调度器](distributed_task_scheduler/term_distributed_task_scheduler.md)》 | DTS 术语百科 |
+| 《[分布式任务调度器使用指南](distributed_task_scheduler/distributed_task_scheduler_guide.md)》 | DTS 使用指南 |
+
+## 3. 并行机制支持列表
+
+下表汇总当前量化算法的并行机制支持情况。
+
+| Processor | DP 支持 | DTS 支持 |
+|-----------|:----------:|:--------:|
+| `AdaptRotationProcessor` | ✓ | — |
+| `FA3QuantProcessor` | ✓ | — |
+| `FlexSmoothQuantProcessor` | ✓ | ✓ |
+| `FlexAWQSSZProcessor` | ✓ | ✓ |
+| `IterSmoothProcessor` | ✓ | — |
+| `LinearQuantProcessor` | ✓ | ✓ |
+| `OnlineQuaRotProcessor` | ✓ | — |
+| `QuaRotProcessor` | ✓ | — |
+
+以算法名视角汇总，`dp_layer_wise`（分布式逐层量化）当前支持以下算法：
+
+**离群值抑制算法**
+
+| 算法名称 | 处理器类型 | 支持状态 | 说明 |
+|----------|----------|---------|------|
+| Iterative Smooth | iter_smooth | ✅ 支持 | 完全支持分布式执行 |
+| Flex Smooth Quant | flex_smooth | ✅ 支持 | 完全支持分布式执行 |
+| Flex AWQ SSZ | flex_awq_ssz | ✅ 支持 | 完全支持分布式执行 |
+| QuaRot | quarot | ✅ 支持 | 完全支持分布式执行 |
+| Online QuaRot | online_quarot | ✅ 支持 | 完全支持分布式执行 |
+| Adapt Rotation | adapt_rotation | ✅ 支持 | 完全支持分布式执行 |
+
+**量化算法**
+
+| 算法名称 | 量化方法 | 支持状态 | 说明 |
+|----------|---------|---------|------|
+| MinMax | minmax | ✅ 支持 | 完全支持分布式执行 |
+| SSZ | ssz | ✅ 支持 | 完全支持分布式执行 |
+| CeilX | ceil_x | ✅ 支持 | 完全支持分布式执行 |
+| FA3 Quant | fa3_quant | ✅ 支持 | 完全支持分布式执行 |
+
+下表汇总当前已支持 EP 的模型。
+
+| 模型适配器 | 具体模型 |
+|-----------|---------|
+| `DeepSeekV3ModelAdapter` | `DeepSeek-V3`、`DeepSeek-V3-0324`、`DeepSeek-R1`、`DeepSeek-R1-0528`、`DeepSeek-V3.1`、`DeepSeek-V3.1-Terminus` |
+| `DeepSeekV32ModelAdapter` | `DeepSeek-V3.2-Exp`、`DeepSeek-V3.2` |
+| `DeepSeekV4ModelAdapter` | `DeepSeek-V4-Flash`、`DeepSeek-V4-Pro` |
+| `DeepSeekV4DSparkModelAdapter` | `DeepSeek-V4-Flash-DSpark`、`DeepSeek-V4-Pro-DSpark`、`DeepSeek-V4-Flash-0731`、`DeepSeek-V4-Pro-0813` |
+| `GLM5ModelAdapter` | `GLM-5`、`GLM-5.1` |
+| `GLM52ModelAdapter` | `GLM-5.2`、`GLM-5.3` |
+| `GLM5NextModelAdapter` | `GLM-5.3-Flash` |
+| `KimiK2ModelAdapter` | `Kimi-K2-Instruct-0905`、`Kimi-K2-Thinking` |
+| `KimiK3ModelAdapter` | `Kimi-K3` |
+
+## 4. 多卡量化配置与使用
+
+通过命令行 `--device npu --device_id 0 1 ...` 参数传入多个设备索引即可启动多卡量化：
+
+```shell
+msmodelslim quant \
+  --model_path ${MODEL_PATH} \
+  --save_path ${SAVE_PATH} \
+  --model_type ${MODEL_TYPE} \
+  --quant_type ${QUANT_TYPE} \
+  --device npu \
+  --device_id 0 1 2 3 4 5 6 7
+```
+
+**说明**：量化路径下会按已适配情况启用 DP、EP、DTS。多卡量化机制不覆盖权重转换（Convert），权重转换走自身方案，具体见《[权重转换使用指南](../ptq/convert/usage_weight_conversion.md)》。

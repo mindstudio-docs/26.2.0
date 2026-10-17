@@ -1,0 +1,391 @@
+# Optimization strategy: "pso" (default) or "agent"
+# When set to "agent", the optimizer reads candidates from [agent_optimizer] run_dir
+# instead of running PSO internally.
+optimizer_strategy = "pso"
+
+# ------------------------- Optimization Parameter Configuration ------------------------------------------------
+n_particles = 8
+iters = 4
+ttft_penalty = 1
+tpot_penalty = 1
+success_rate_penalty = 5.0
+ttft_slo = 2
+tpot_slo = 0.05
+# false: use scheduler.run, search CONCURRENCY during PSO. REQUESTRATE is fixed
+#   at its maximum pressure: 0 when the range contains 0 (unlimited), otherwise max.
+# true: use scheduler.run_with_request_rate, CONCURRENCY fixed to max. The first
+#   run uses the same maximum-pressure rule, then a finite rate is calibrated.
+use_request_rate_calibration = true
+skip_pso = false
+
+# ------------------------- Select top_k for fine-tuning ------------------------------------------------
+[data_storage]
+pso_top_k = 0
+# ------------------------- Runtime Log Anomaly Detection ------------------------------------------------
+# The log detection feature automatically monitors the running logs of the serving framework and benchmark tools,
+# adopting different handling strategies based on error types:
+# - Fatal errors (FATAL): immediately stop the scheduler, no retry
+# - Retryable errors (RETRYABLE): trigger the retry mechanism (up to 3 retries)
+# Configuration suggestions:
+# 1. Start from the strictest mode and gradually relax based on actual conditions
+# 2. Avoid overly broad patterns (e.g., "error", "exception", "failed")
+# 3. Prefer complete error messages (e.g., "out of memory" instead of "memory")
+# 4. Distinguish error patterns between the serving framework and benchmark tools
+#
+# Default configuration is empty, please configure the following based on actual scenarios:
+# [health_check.service_errors.fatal_patterns]
+# out_of_memory = ["out of memory", "OOM killed", "MemoryError"]
+# device_error = ["NPU error", "device fault", "Ascend error"]
+
+# [health_check.service_errors.retryable_patterns]
+# network_error = ["connection reset", "connection refused", "timeout"]
+# io_error = ["file not found", "permission denied", "IO error"]
+[health_check]
+log_snippet_length = 200
+[health_check.service_errors.fatal_patterns]
+out_of_memory = []
+device_error = []
+[health_check.service_errors.retryable_patterns]
+network_error = []
+io_error = []
+[health_check.benchmark_errors.fatal_patterns]
+out_of_memory = []
+device_error = []
+[health_check.benchmark_errors.retryable_patterns]
+network_error = []
+io_error = []
+
+# ------------------------- mindie Related Configuration ------------------------------------------------
+[mindie]
+[[mindie.target_field]]
+name = "max_batch_size"
+config_position = "BackendConfig.ScheduleConfig.maxBatchSize"
+min = 10
+max = 1000
+dtype = "int"
+[[mindie.target_field]]
+name = "max_prefill_batch_size"
+config_position = "BackendConfig.ScheduleConfig.maxPrefillBatchSize"  # This value must not exceed maxBatchSize
+min = 0.1
+max = 0.7
+dtype = "ratio"
+dtype_param = "max_batch_size"
+[[mindie.target_field]]
+name = "prefill_time_ms_per_req"
+config_position = "BackendConfig.ScheduleConfig.prefillTimeMsPerReq"
+min = 0
+max = 1000
+dtype = "range"
+dtype_param = 10
+[[mindie.target_field]]
+name = "decode_time_ms_per_req"
+config_position = "BackendConfig.ScheduleConfig.decodeTimeMsPerReq"
+min = 0
+max = 1000
+dtype = "range"
+dtype_param = 10
+[[mindie.target_field]]
+name = "support_select_batch"
+config_position = "BackendConfig.ScheduleConfig.supportSelectBatch"
+min = 0
+max = 1
+dtype = "bool"
+[[mindie.target_field]]
+name = "max_queue_delay_microseconds"
+config_position = "BackendConfig.ScheduleConfig.maxQueueDelayMicroseconds"
+min = 500
+max = 1000000
+dtype = "range"
+dtype_param = 100
+[[mindie.target_field]]
+name = "max_preempt_count"
+config_position = "BackendConfig.ScheduleConfig.maxPreemptCount"
+min = 0
+max = 1
+dtype = "ratio"
+dtype_param = "max_batch_size"
+[[mindie.target_field]]
+name = "CONCURRENCY"  # Supports range 0-1000
+config_position = "env"
+min = 1
+max = 1001
+dtype = "int"
+value = 100
+[[mindie.target_field]]
+name = "REQUESTRATE" # Supports range 0-10000
+config_position = "env"
+min = 1
+max = 1001
+dtype = "float"
+value = 100
+
+# ------------------------- Benchmark Tool Related Configuration ------------------------------------------------
+[ais_bench.command]
+models = "models"
+mode = "perf"
+others = ""
+
+[vllm_benchmark.command]
+host = "127.0.0.1"
+port = "port"
+model = "model_path"
+served_model_name = "model_name"
+dataset_name = "dataset_name"
+others = ""
+
+
+# ------------------------- vllm Related Configuration ------------------------------------------------
+[vllm]
+[vllm.command]
+host = "127.0.0.1"
+port = "port"
+model = "model_path"
+served_model_name = "model_name"
+others = ""
+
+# Fixed environment variables injected into the vLLM service subprocess.
+# Example:
+# [vllm.env]
+# ASCEND_RT_VISIBLE_DEVICES = "8,9"
+
+# ------------------------- Deploy Environment Configuration ------------------------------------------------
+# Optional override (DeployConfig.path_prefix). Default: system PATH after stripping msmodeling venv.
+# Set only when vllm/ais_bench are not on system PATH. Priority: OPTIX_DEPLOY_PATH env > path_prefix.
+# Example:
+# [deploy]
+# path_prefix = "/path/to/custom-deploy-root"
+
+[[vllm.target_field]]
+name = "MAX_NUM_BATCHED_TOKENS"
+config_position = "run"
+min = 8192
+max = 65536
+dtype = "int"
+value = 8192
+[[vllm.target_field]]
+name = "MAX_NUM_SEQS"
+config_position = "run"
+min = 32
+max = 512
+dtype = "int"
+value = 64
+[[vllm.target_field]]
+name = "CONCURRENCY"
+config_position = "env"
+min = 1
+max = 1000
+dtype = "int"
+value = 100
+[[vllm.target_field]]
+name = "REQUESTRATE"
+config_position = "env"
+min = 0
+max = 0
+dtype = "float"
+value = 0
+
+# ------------------------- Benchmark Early Exit ------------------------------------------------
+# Only intermediate search trials should be terminated early. Baseline, best
+# validation, and fine-tuning runs are protected by the optimizer, but still
+# collect eligible vLLM metrics windows. The historical best complete benchmark
+# supplies its representative metrics window as the reference for later trials.
+# Warm-up is controlled internally: metrics are sampled every 5 seconds, load
+# readiness can end warm-up after 15 seconds, and 90 seconds is the hard cap.
+# Set action to "report" only when a metrics_samples trace is needed for debugging.
+[benchmark_early_exit]
+enabled = false
+action = "terminate"
+metrics_url = "http://127.0.0.1:8000/metrics"
+
+# ------------------------- Built-in PD Disaggregation Tuning --------------------------------------------
+# This mode only searches P/D service parameters and recommends the ratio:
+#   msmodeling optix --mode pd_disagg -c ./config.toml
+# After starting the PD service yourself, use the regular standard mode
+# with skip_pso=true and manage_simulator_lifecycle=false for benchmark tuning.
+# Prefill/Decode can override the top-level n_particles/iters independently;
+# an omitted phase value falls back to the corresponding top-level value.
+# For Decode prefix-cache warmup, set the top-level
+# use_request_rate_calibration=false and configure benchmark_run_count=2.
+# [pd_disagg]
+# total_devices = 16
+# prefill_devices_per_instance = 4
+# decode_devices_per_instance = 2
+# top_k = 3
+# use_full_device = true
+# phase_output_dir = "pd_disagg"
+
+# [pd_disagg.prefill]
+# engine = "vllm"
+# benchmark_policy = "vllm_benchmark" # Or "ais_bench".
+# benchmark_run_count = 1
+# n_particles = 8
+# iters = 4
+# ttft_penalty = 1
+# tpot_penalty = 0
+# ttft_slo = 2.0
+# fine_tune_mode = "pd_mixed"
+# Only this phase's vLLM command is changed. The global [vllm.command] remains
+# the common baseline. Placeholders must also be declared in this phase's target_field.
+# [pd_disagg.prefill.simulator_command_overrides]
+# others = "--tensor-parallel-size 4 --no-enable-prefix-caching --max-model-len $MAX_MODEL_LEN --gpu-memory-utilization $GPU_MEMORY_UTILIZATION"
+# The prefill benchmark must set output length to 1 token. Prefill QPS is read
+# directly from the benchmark throughput (req/s), without a TTFT-based fallback.
+# [pd_disagg.prefill.benchmark_command_overrides]
+# others = "--num-prompts 500 --random-input-len 1024 --random-output-len 1"
+
+# [[pd_disagg.prefill.target_field]]
+# name = "MAX_NUM_BATCHED_TOKENS"
+# config_position = "run"
+# min = 8192
+# max = 65536
+# dtype = "int"
+# value = 8192
+
+# [[pd_disagg.prefill.target_field]]
+# name = "MAX_NUM_SEQS"
+# config_position = "run"
+# min = 8
+# max = 128
+# dtype = "int"
+# value = 32
+
+# [[pd_disagg.prefill.target_field]]
+# name = "MAX_MODEL_LEN"
+# config_position = "run"
+# min = 8192
+# max = 131072
+# dtype = "int"
+# value = 8192
+
+# [[pd_disagg.prefill.target_field]]
+# name = "GPU_MEMORY_UTILIZATION"
+# config_position = "run"
+# min = 0.5
+# max = 0.95
+# dtype = "float"
+# value = 0.8
+
+# [[pd_disagg.prefill.target_field]]
+# name = "CONCURRENCY"
+# config_position = "env"
+# min = 1
+# max = 256
+# dtype = "int"
+# value = 32
+
+# [[pd_disagg.prefill.target_field]]
+# name = "REQUESTRATE"
+# config_position = "env"
+# min = 0
+# max = 0
+# dtype = "float"
+# value = 0
+
+# [pd_disagg.decode]
+# engine = "vllm"
+# benchmark_policy = "vllm_benchmark" # Or "ais_bench".
+# benchmark_run_count = 2
+# n_particles = 12
+# iters = 6
+# ttft_penalty = 0
+# tpot_penalty = 1
+# tpot_slo = 0.05
+# fine_tune_mode = "pd_disaggregation"
+# [pd_disagg.decode.simulator_command_overrides]
+# others = "--tensor-parallel-size 2 --enable-prefix-caching --max-model-len $MAX_MODEL_LEN --gpu-memory-utilization $GPU_MEMORY_UTILIZATION"
+# [pd_disagg.decode.benchmark_command_overrides]
+# others = "--seed 1024 --num-prompts 500 --random-input-len 1024 --random-output-len 256"
+
+# [[pd_disagg.decode.target_field]]
+# name = "MAX_NUM_BATCHED_TOKENS"
+# config_position = "run"
+# min = 128
+# max = 4096
+# dtype = "int"
+# value = 512
+
+# [[pd_disagg.decode.target_field]]
+# name = "MAX_NUM_SEQS"
+# config_position = "run"
+# min = 32
+# max = 512
+# dtype = "int"
+# value = 64
+
+# [[pd_disagg.decode.target_field]]
+# name = "MAX_MODEL_LEN"
+# config_position = "run"
+# min = 8192
+# max = 131072
+# dtype = "int"
+# value = 8192
+
+# [[pd_disagg.decode.target_field]]
+# name = "GPU_MEMORY_UTILIZATION"
+# config_position = "run"
+# min = 0.5
+# max = 0.95
+# dtype = "float"
+# value = 0.8
+
+# [[pd_disagg.decode.target_field]]
+# name = "CONCURRENCY"
+# config_position = "env"
+# min = 1
+# max = 1000
+# dtype = "int"
+# value = 100
+
+# [[pd_disagg.decode.target_field]]
+# name = "REQUESTRATE"
+# config_position = "env"
+# min = 0
+# max = 1000
+# dtype = "float"
+# value = 0
+
+# ------------------------- External PD Service Fine-tuning --------------------------------------------
+# Put these settings in a separate config after the PD service is running, then execute:
+#   msmodeling optix --mode standard -e vllm -b vllm_benchmark -c ./pd_fine_tune.toml
+# Settings.partial_update_vllm copies host, port, model and served_model_name from
+# [vllm.command] to [vllm_benchmark.command], even when manage_simulator_lifecycle=false.
+# Set these fields under [vllm.command]; this does not start or stop the external service.
+# skip_pso = true
+# manage_simulator_lifecycle = false
+# fine_tune_mode = "pd_mixed"
+# [vllm]
+# target_field = []
+# [vllm.command]
+# host = "pd-service-host"
+# port = "8000"
+# model = "model_path"
+# served_model_name = "model_name"
+# [vllm_benchmark.command]
+# dataset_name = "random"
+# others = "--num-prompts 500 --random-input-len 1024 --random-output-len 256"
+# [[vllm_benchmark.target_field]]
+# name = "CONCURRENCY"
+# config_position = "env"
+# min = 1
+# max = 1000
+# dtype = "int"
+# value = 100
+# [[vllm_benchmark.target_field]]
+# name = "REQUESTRATE"
+# config_position = "env"
+# min = 1
+# max = 1000
+# dtype = "float"
+# value = 100
+
+# ------------------------- Agent Optimizer Configuration ------------------------------------------------
+[agent_optimizer]
+run_id = "default"     # 模板占位：config_preflight --set-agent-mode 自动生成新 run-id（default 不再被沿用）
+max_rounds = 32
+candidates_per_round = 0     # 0 = dynamic; >0 = fixed count per round
+max_trials = 12
+time_limit_minutes = 1440    # 单轮 optix 运行的 trial 时间上限（分钟）；全局 24h 预算由 agent 跨轮累计
+run_dir = ""                    # empty = auto: .agent_optimizer/runs/{run_id}
+convergence_rounds = 6       # 趋势门：连续无显著改善(>1%)轮数阈值，触发后须过覆盖率门才收敛
+min_rounds = 4               # 覆盖率门：允许收敛前至少执行的最小轮次
+min_trials = 12              # 提前停止前至少完成的最小 trial 数

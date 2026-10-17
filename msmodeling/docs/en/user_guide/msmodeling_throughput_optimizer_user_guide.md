@@ -1,0 +1,596 @@
+# Serving Performance Simulation User Guide
+
+## 1 Introduction
+
+The throughput optimizer is a tool for optimizing throughput under SLO (Service Level Objective) constraints. It automatically searches for the optimal model configuration (parallelism strategy, batch size) under specified SLO constraints (for example, limits on TTFT and TPOT) to maximize token throughput.
+This document is intended for developers, performance engineers, and capacity planners who need to evaluate LLM serving deployment plans, model serving throughput, parallelism strategies, and SLO constraint configurations. Before you start, complete the environment setup described in [msModeling Installation Guide](../install_guide/msmodeling_install_guide.md) and confirm that the target model configuration can be loaded.
+
+## 2 Main Scenarios
+
+The throughput optimizer can be used for hardware planning, throughput optimization under SLO constraints, and PD-disaggregation deployment design. By deployment form, it mainly supports the following scenarios:
+
+| Mode | Applicable Scenario | Key Parameters |
+| --- | --- | --- |
+| PD aggregation | prefill and decode run on the same instance, suitable for quickly evaluating overall throughput | `--tpot-limits`, `--ttft-limits`|
+| PD disaggregation | prefill and decode are deployed separately, requiring evaluation of the capability of each phase | `--disagg`, `--ttft-limits` or `--tpot-limits` |
+| PD ratio | For planning the ratio of prefill to decode instance counts | `--enable-optimize-prefill-decode-ratio`, `--prefill-devices-per-instance`, `--decode-devices-per-instance` |
+
+Any of the above scenarios can be combined with `--speculative-method {dflash,dspark}` to enable speculative decoding (for MTP, prefer the unified entry `--speculative-method mtp`); see [Adding Speculative Decoding (DFlash / DSpark)](#adding-speculative-decoding-dflash--dspark).
+
+### 2.1 PD Aggregation Scenario
+
+Aggregation mode optimizes throughput for a combined prefill-decode serving architecture where both phases run on the same instance. The optimizer searches across all possible TP (Tensor Parallelism) and DP (Data Parallelism) configurations to find the best throughput under SLO (Service Level Objective) constraints.
+
+#### Example
+
+```bash
+python -m cli.inference.throughput_optimizer Qwen/Qwen3-32B \
+    --device TEST_DEVICE \
+    --num-devices 8 \
+    --input-length 3500 \
+    --output-length 1500 \
+    --compile \
+    --quantize-linear-action W8A8_DYNAMIC \
+    --quantize-attention-action DISABLED \
+    --tpot-limits 50
+```
+
+#### Using Prefix Cache
+
+If you want to estimate aggregation throughput with prefix cache enabled, add `--prefix-cache-hit-rate`:
+
+```bash
+python -m cli.inference.throughput_optimizer Qwen/Qwen3-32B \
+    --device TEST_DEVICE \
+    --num-devices 8 \
+    --input-length 3500 \
+    --output-length 1500 \
+    --compile \
+    --quantize-linear-action W8A8_DYNAMIC \
+    --quantize-attention-action DISABLED \
+    --tpot-limits 50 \
+    --prefix-cache-hit-rate 0.5
+```
+
+#### Constraints
+
+- `--max-batched-tokens` sets the token budget for one prefill or mixed prefill/decode step. If `effective_input_length` is greater than `max_batched_tokens`, the optimizer automatically splits prefill into chunks. Set `--max-batched-tokens` to match the scheduling budget of the serving engine.
+
+### 2.2 PD Disaggregation Scenario
+
+Disaggregation mode separates prefill and decode phases into independent optimization runs. This is useful when you need to characterize each phase independently or when planning disaggregated serving deployments.
+
+#### Prerequisites
+
+To enable disaggregation mode, you must provide:
+
+- `--disagg`: Enables disaggregation mode.
+
+#### Prefill Mode
+
+Optimize prefill phase throughput under TTFT (Time-to-First-Token) constraints. In this mode, set both `--disagg` and `--ttft-limits`.
+
+```bash
+python -m cli.inference.throughput_optimizer Qwen/Qwen3-32B \
+    --device TEST_DEVICE \
+    --num-devices 8 \
+    --input-length 3500 \
+    --output-length 1500 \
+    --compile \
+    --quantize-linear-action W8A8_DYNAMIC \
+    --quantize-attention-action DISABLED \
+    --disagg \
+    --ttft-limits 2000
+```
+
+#### Decode Mode
+
+Optimize decode phase throughput under TPOT (Time-per-Output-Token) constraints. In this mode, set both `--disagg` and `--tpot-limits`.
+
+```bash
+python -m cli.inference.throughput_optimizer Qwen/Qwen3-32B \
+    --device TEST_DEVICE \
+    --num-devices 8 \
+    --input-length 3500 \
+    --output-length 1500 \
+    --compile \
+    --quantize-linear-action W8A8_DYNAMIC \
+    --quantize-attention-action DISABLED \
+    --disagg \
+    --tpot-limits 50
+```
+
+#### Adding Speculative Decoding (DFlash / DSpark)
+
+In PD aggregation, PD disaggregation, or PD ratio scenarios, you can stack draft speculative decoding modeling via `--speculative-method {dflash,dspark}` to evaluate its impact on decode throughput and TPOT. It is mutually exclusive with MTP (`--num-mtp-tokens` non-zero); `--num-speculative-tokens`, `--acceptance-length`, `--num-draft-layers`, and `--draft-model-config-path` require `--speculative-method` to be set first; DSpark optionally accepts `--dspark-markov-rank` / `--dspark-markov-head` (defaults `256` / `vanilla`).
+
+> Note: for MTP, prefer the unified entry `--speculative-method mtp --num-speculative-tokens N [--acceptance-length A]`. The legacy entry `--num-mtp-tokens` / `--mtp-acceptance-rates` cannot be mixed with the new entry `--speculative-method` / `--num-speculative-tokens` / `--acceptance-length`; when `mtp` is selected, `--num-speculative-tokens` is mandatory. The legacy `--num-mtp-tokens` (and `--mtp-acceptance-rates`) still work standalone for compatibility and will be gradually deprecated. `--num-speculative-tokens` supports multi-value search; `--acceptance-length` is uniformly clamped to `n` (= `block_size - 1`) for all methods.
+
+The following example appends speculative decoding parameters to the PD disaggregation decode example:
+
+```bash
+python -m cli.inference.throughput_optimizer Qwen/Qwen3-32B \
+    --device TEST_DEVICE \
+    --num-devices 8 \
+    --input-length 3500 \
+    --output-length 1500 \
+    --compile \
+    --quantize-linear-action W8A8_DYNAMIC \
+    --quantize-attention-action DISABLED \
+    --disagg \
+    --tpot-limits 50 \
+    --speculative-method dflash \
+    --num-speculative-tokens 7 \
+    --acceptance-length 5 \
+    --num-draft-layers 6
+```
+
+Notes:
+
+- When `--speculative-method` is set, any explicit `0` candidate in `--num-speculative-tokens` fails to parse; omit `--speculative-method` to disable. When the parameter is omitted, dflash/dspark still use the builtin `block_size`. `--num-speculative-tokens` also accepts multiple candidate values (e.g. `2 4`) for search.
+- `--num-draft-layers` / `--draft-model-config-path` only apply to `dflash` / `dspark` and cannot be used with `--speculative-method mtp`.
+- For DSpark, change `--speculative-method` to `dspark`; Markov parameters default to `--dspark-markov-rank 256` and `--dspark-markov-head vanilla` (alternatives `gated`, `rnn`; setting rank to `0` disables the MarkovHead).
+- The default draft config is `tensor_cast/runtime_configs/draft_configs/dflash_draft_builtin.json`; see [`tensor_cast/runtime_configs/draft_configs/README.md`](../../../tensor_cast/runtime_configs/draft_configs/README.md) for field descriptions and customization.
+
+#### Pipeline Parallel (PP) Search
+
+The following example enables pipeline parallel (PP) search on top of PD disaggregation to evaluate TTFT/TPOT/throughput across PP configurations:
+
+```bash
+python -m cli.inference.throughput_optimizer deepseek-ai/DeepSeek-V3.1 \
+    --device ATLAS_800_A3_560T_128G_DIE \
+    --num-devices 32 \
+    --input-length 2048 \
+    --output-length 512 \
+    --quantize-linear-action W8A8_DYNAMIC \
+    --disagg \
+    --tpot-limits 50 --ttft-limits 10000 \
+    --tp-sizes 8 \
+    --pp-sizes 1 2 4 \
+    --ep-sizes 8 \
+    --moe-dp-sizes 1
+```
+
+Notes:
+
+- Without `--pp-sizes`, PP is fixed to 1 and the original TP/EP/DCP search path is used with fully compatible behavior and results; when specified, the PP-aware search path is used.
+- For PP>1, `dp = num_devices // (tp * pp)` and `moe_tp = (num_devices // pp) // (ep * moe_dp)` are derived via stage-local arithmetic, and a forward-blocking pipeline scheduler computes makespan / bubble ratio / bottleneck stage; the result table adds columns such as `pp_size` / `pp_bubble_ratio` / `pp_bottleneck_stage` / `pp_makespan_ms`.
+- Use `--pp-layer-partitions '[[31,30],[16,15,15,15]]'` to specify layer partitions explicitly (each inner list length must equal its `pp_size`, and inner-list elements must sum to `num_hidden_layers`); balanced partitioning is used when omitted.
+- PP and DCP can be searched jointly (explicit `--dcp-sizes` is not dropped).
+- PP>1 does not yet support: VL/multimodal models and variable-length input distribution (`length_distribution`) — such candidates are skipped with a warning. PP can be searched jointly with speculative decoding (`--speculative-method mtp/dflash/dspark`); speculative proposal/draft compute runs on the last pipeline stage.
+- The forward-blocking (no-overlap) scheduler gives a conservative lower bound for PP>1 throughput (systematically overestimates bubbles); do not conclude that PP is strictly worse from it. Future 1F1B / interleaved scheduling evolution will improve this.
+
+### 2.3 PD Ratio Scenario
+
+PD (prefill-decode) ratio optimization mode enables independent optimization of prefill and decode phases, then combines the results to find the optimal P/D instance ratio for maximum system throughput. This mode is particularly useful for disaggregated serving architectures where prefill and decode instances can be scaled independently.
+
+#### Prerequisites
+
+To enable PD ratio optimization, you must provide:
+
+- `--enable-optimize-prefill-decode-ratio`: Enables PD ratio optimization mode.
+- `--prefill-devices-per-instance`: number of devices per prefill instance
+- `--decode-devices-per-instance`: number of devices per decode instance
+
+#### Example
+
+```bash
+python -m cli.inference.throughput_optimizer deepseek-ai/DeepSeek-V3.1 \
+    --device TEST_DEVICE \
+    --input-length 3500 \
+    --output-length 1500 \
+    --compile \
+    --quantize-linear-action W8A8_DYNAMIC \
+    --quantize-attention-action DISABLED \
+    --enable-optimize-prefill-decode-ratio \
+    --prefill-devices-per-instance 16 \
+    --decode-devices-per-instance 16 \
+    --log-level info
+```
+
+#### Constraints
+
+- `--enable-optimize-prefill-decode-ratio` cannot be used together with `--disagg`
+- Both `--prefill-devices-per-instance` and `--decode-devices-per-instance` must be specified when PD ratio optimization is enabled
+
+## 3 Result Information
+
+The script outputs performance metrics (throughput, TTFT, TPOT, concurrency, and mode-specific fields such as QPS or PD ratio). The following example shows the output of the PD aggregation scenario in 2.1:
+
+```bash
+********************************************************************************
+  ----------------------------------------------------------------------------
+  Input Configuration:
+    Model: Qwen/Qwen3-32B
+    Quantize Linear action: W8A8_DYNAMIC
+    Quantize Attention action: DISABLED
+    Devices: 8 TEST_DEVICE
+    TTFT Limits: None ms
+    TPOT Limits: 50.0 ms
+  ----------------------------------------------------------------------------
+  Overall Best Configuration:
+    Best Throughput: 2888.45 tokens/s
+    TTFT: 16032.05 ms
+    TPOT: 49.90 ms
+  ----------------------------------------------------------------------------
+Top 4 Aggregation Configurations:
++-----+----------------------+-----------+-----------+-------------+-------------+--------------------+------------+
+| Top | Throughput (token/s) | TTFT (ms) | TPOT (ms) | concurrency | num_devices |      parallel      | batch_size |
++-----+----------------------+-----------+-----------+-------------+-------------+--------------------+------------+
+|  1  |       2888.45        |  16032.05 |   49.90   |     175     |       8     | TP=8 | PP=1 | DP=1 |    175     |
+|  2  |       2013.49        |  22512.86 |   49.56   |     130     |       8     | TP=4 | PP=1 | DP=2 |     65     |
+|  3  |       1140.23        |  25817.73 |   49.44   |      76     |       8     | TP=2 | PP=1 | DP=4 |     19     |
+|  4  |        549.89        |  14214.54 |   48.72   |      32     |       8     | TP=1 | PP=1 | DP=8 |     4      |
++-----+----------------------+-----------+-----------+-------------+-------------+--------------------+------------+
+********************************************************************************
+```
+
+### 3.1 Comparing Multiple Hardware Profiles
+
+One or more `--device` values can be passed in a single run to benchmark multiple `DeviceProfile` targets and compare their best configurations under the same model, workload, and SLO settings.
+
+```bash
+python -m cli.inference.throughput_optimizer Qwen/Qwen3-32B \
+    --device ATLAS_800_A2_280T_64G ATLAS_800_A3_560T_128G_DIE \
+    --num-devices 8 \
+    --input-length 3500 \
+    --output-length 1500 \
+    --compile \
+    --quantize-linear-action W8A8_DYNAMIC \
+    --quantize-attention-action DISABLED \
+    --tpot-limits 50
+```
+
+Behavior:
+
+- Each device profile is optimized sequentially. Per-device tables (same format as a single-device run) are printed after each profile finishes.
+- When two or more devices are specified, the tool additionally prints:
+  1. A **hardware profile comparison** table with core modeling parameters (compute, memory, communication bandwidth, and related fields).
+  2. A **cross-hardware summary** table with the best configuration per device, ranked for easy comparison.
+- Cross-hardware summaries are mode-specific:
+  - Aggregation: best throughput per device under TTFT/TPOT limits.
+  - Disaggregation: separate prefill and decode cross-hardware tables when the corresponding limits are set.
+  - PD ratio: best balanced QPS per device under TTFT/TPOT limits, including PD ratio and optional P/D instance counts when `--num-devices` is set.
+
+#### Example Output When Using Multiple `--device` Values
+
+When two or more device profiles are specified, the optimizer prints per-device results for each profile, followed by two additional cross-hardware tables:
+
+**Hardware Profile Comparison Table**
+
+This table shows core modeling parameters for all requested devices (compute, memory bandwidth, communication bandwidth, and so on):
+
+```text
+************************************************************************************************************
+  Cross-hardware - device profile summary (modeling abstraction vs performance merge tables)
+  Device profile parameter comparison (effective compute / memory BW / comm BW)
+  --------------------------------------------------------------------------------------------------------
++-----------------------+-----------------------+-------------------------+---------------+-------------+-----------+----------------+
+|         Device        | Cube Compute (TFLOPS) | Vector Compute (TFLOPS) | HBM BW (TB/s) | Memory (GB) | Comm Grid | Comm BW (GB/s) |
++-----------------------+-----------------------+-------------------------+---------------+-------------+-----------+----------------+
+|      TEST_DEVICE      |         247.73        |           7.70          |     0.960     |     64.0    |  256 x 8  |   35 | 137.2   |
+| ATLAS_800_A2_376T_64G |         247.73        |          15.40          |     0.960     |     64.0    |  128 x 8  |  17.5 | 137.2  |
++-----------------------+-----------------------+-------------------------+---------------+-------------+-----------+----------------+
+```
+
+**Cross-Hardware Summary Table (Mode-Specific)**
+
+A ranked table of the best configuration per device under the active SLO constraints. Example for Aggregation mode:
+
+```text
+****************************************************************************************************
+  Cross-hardware - PD Aggregated (best throughput config per device under TTFT/TPOT limits)
+  ------------------------------------------------------------------------------------------------
++-----+-----------------------+----------------------+-----------+-----------+-------------+--------------------+-------+-------------+
+| Top |         Device        | Throughput (token/s) | TTFT (ms) | TPOT (ms) | Concurrency |      Parallel      | Batch | num_devices |
++-----+-----------------------+----------------------+-----------+-----------+-------------+--------------------+-------+-------------+
+|  1  | ATLAS_800_A2_376T_64G |       18435.99       |  4986.05  |   54.48   |     1184    | TP=1 | PP=1 | DP=8 |  148  |      8      |
+|  2  |      TEST_DEVICE      |       18128.74       |  4973.39  |   53.39   |     1144    | TP=1 | PP=1 | DP=8 |  143  |      8      |
++-----+-----------------------+----------------------+-----------+-----------+-------------+--------------------+-------+-------------+
+```
+
+For PD Disaggregation and PD Ratio modes, the cross-hardware summary tables contain the corresponding phase-specific or QPS-related columns.
+
+#### Terminal sweep curves (single device)
+
+When exactly one device profile is evaluated, the optimizer can render **terminal ASCII scatter plots** after the sweep completes. These plots help inspect how throughput relates to concurrency and latency across parallel configurations.
+
+Plots are produced for all three optimizer modes:
+
+| Mode | Plots |
+|------|-------|
+| Aggregation | Throughput vs Concurrency; Throughput vs TPOT |
+| Disaggregation (Prefill) | Throughput vs Concurrency; Throughput vs TTFT |
+| Disaggregation (Decode) | Throughput vs Concurrency; Throughput vs TPOT |
+| PD ratio | Throughput vs Concurrency; Throughput vs TPOT (decode-side TPS) |
+
+Notes:
+
+- Terminal curves are **not** printed when multiple `--device` values are used; use cross-hardware summary tables instead.
+- Curve points exclude OOM/insufficient-memory configurations. They are **not** filtered by TTFT/TPOT SLO limits. Therefore, the plots show the full valid sweep while tables still report SLO-constrained bests.
+- Rendering uses the optional `plotext` dependency. If `plotext` is unavailable or plotting fails, optimization results are still printed and a warning is logged.
+
+Example (single device, aggregation):
+
+```bash
+python -m cli.inference.throughput_optimizer Qwen/Qwen3-32B \
+    --device ATLAS_800_A2_280T_64G \
+    --num-devices 8 \
+    --input-length 3500 \
+    --output-length 1500 \
+    --tpot-limits 50 \
+    --batch-range 1 256
+```
+
+## 4 Parameters
+
+```bash
+Options:
+  --input-length INPUT_LENGTH
+                        The input length of the prompt. (default: None)
+  --output-length OUTPUT_LENGTH
+                        The expected output length. (default: None)
+  --mtp-acceptance-rate MTP_ACCEPTANCE_RATE [MTP_ACCEPTANCE_RATE ...]
+                        Acceptance rate list for MTP (default: [0.9, 0.6, 0.4, 0.2])
+  --dump-original-results
+                        If set, dump the original results for analysis. (default: False)
+
+General Options:
+  model_id              Model source. Recommended safe mode: a reviewed absolute local model path. Model id mode also accepts Hugging Face or
+                        ModelScope ids, but may execute remote Python code through trust_remote_code=True and is not security-guaranteed.
+  --device DEVICE [DEVICE ...]
+                        Device profile(s) to evaluate. One or more registered DeviceProfile names.
+                        Supported values: TEST_DEVICE, ATLAS_800_A2_376T_64G, ATLAS_800_A2_313T_64G,
+                        ATLAS_800_A2_280T_64G, ATLAS_800_A2_280T_64G_PCIE, ATLAS_800_A2_280T_32G_PCIE,
+                        ATLAS_800_A3_752T_128G_DIE, ATLAS_800_A3_560T_128G_DIE,
+                        ATLAS_800_A3_560T_128G_DIE_ROCE, ATLAS_350_425T_112G, ATLAS_350_425T_84G.
+                        Multiple values enable cross-hardware comparison tables.
+                        Duplicate names are removed; input order is preserved.
+                        If omitted, defaults to TEST_DEVICE. (default: TEST_DEVICE)
+  --num-devices NUM_DEVICES
+                        Specifies the total number of devices/processes to use. Must be a positive integer. A value of 1 indicates single-device
+                        execution. (default: 1)
+  --enable-multistream  Enable compiler-driven multi-stream simulation for torch.compile path. Enabled by default. (default: True)
+  --reserved-memory-gb RESERVED_MEMORY_GB
+                        Amount of device memory (in gigabytes) reserved for system usage and unavailable for application. Set to 0 to disable
+                        memory reservation. (default: 10.0)
+  --log-level {debug,info,warning,error,critical}
+                        Specifies the verbosity level for log output. Available levels: 'debug' (most verbose), 'info', 'warning', 'error',
+                        'critical' (least verbose). (default: error)
+
+Model & Quantization Options:
+  --compile             If set, invoke torch.compile() on the model before inference. (default: False)
+  --compile-allow-graph-break
+                        If set, allows graph breaks during torch.compile() to improve compilation speed or handle unsupported ops. (default: False)
+  --num-mtp-tokens {0,1,2,3,4,5,6,7,8,9}
+                        Number of MTP tokens, 0 means disabled - only support models having MTP like DeepSeek (default: 0)
+  --quantize-linear-action {DISABLED,W8A16_STATIC,W8A8_STATIC,W4A8_STATIC,W8A16_DYNAMIC,W8A8_DYNAMIC,W4A8_DYNAMIC,FP8,MXFP4}
+                        Quantize all linear layers in the model from choices (currently only support symmetric quant) (default: W8A8_DYNAMIC)
+  --quantize-non-expert-linear-action {DISABLED,W8A16_STATIC,W8A8_STATIC,W4A8_STATIC,W8A16_DYNAMIC,W8A8_DYNAMIC,W4A8_DYNAMIC,FP8,MXFP4}
+                        Set a separate quantization type for non-expert linear layers, such as attention projections, dense MLP layers, and shared experts, while routed MoE experts keep --quantize-linear-action. This option is mainly intended for DeepSeek V4-style MoE models. (default: DISABLED)
+  --mxfp4-group-size MXFP4_GROUP_SIZE
+                        Group size for MXFP4 quantization (default: 32)
+  --quantize-attention-action {DISABLED,INT8,FP8}
+                        Quantize the KV cache with the given action (default: DISABLED)
+  --tp-sizes [TP_SIZES ...]
+                        Enable TP search. Optional explicit TP sizes. If no value is provided, defaults to powers of 2 up to world_size. (default: None)
+  --ep-sizes [EP_SIZES ...]
+                        Enable EP search. Optional explicit EP sizes. If no value is provided, defaults to powers of 2 up to world_size. (default: None)
+  --moe-dp-sizes [MOE_DP_SIZES ...]
+                        Enable MoE-DP search. Optional explicit MoE-DP sizes. If no value is provided, defaults to powers of 2 up to world_size. (default: None)
+
+Service Options:
+  --ttft-limits TTFT_LIMITS
+                        TTFT constraints under which to search for the best throughput. None means no constraint. (default: None)
+  --tpot-limits TPOT_LIMITS
+                        TPOT constraints under which to search for the best throughput. None means no constraint. (default: None)
+  --max-batched-tokens MAX_BATCHED_TOKENS
+                        Max batched tokens for one prefill or mixed prefill/decode step. (default: 8192)
+  --prefix-cache-hit-rate PREFIX_CACHE_HIT_RATE
+                        Prefix cache hit rate for token-level prefill reuse approximation. Valid range: [0, 1). (default: 0.0)
+  --batch-range BATCH_RANGE [BATCH_RANGE ...]
+                        Batch size range: [min max] or [max] (default: 1 for min, no limit for max) (default: None)
+  --serving-cost SERVING_COST
+                        Serving cost represents the cost of service delivery (default: 0)
+  --disagg              If set, run disaggregation mode. disagg means disaggregation mode. (default: False)
+  --jobs JOBS           Number of parallel jobs. (default: 8)
+  --concurrency-search-strategy {exponential,linear_exponential}
+                        Concurrency search strategy. The default is exponential. (default: exponential)
+
+MultiModal Options:
+  --image-batch-size IMAGE_BATCH_SIZE
+                        Number of images per request. If omitted, reuse batch_size for backward compatibility. (default: None)
+  --image-height IMAGE_HEIGHT
+                        Height of the input images (default: None)
+  --image-width IMAGE_WIDTH
+                        Width of the input images (default: None)
+
+PD Ratio Optimization Options:
+  --enable-optimize-prefill-decode-ratio
+                        Enable PD (prefill-decode) ratio optimization mode. This mode independently
+                        optimizes prefill and decode phases, then combines results to find the optimal
+                        P/D instance ratio. Cannot be used together with --disagg. (default: False)
+  --prefill-devices-per-instance PREFILL_DEVICES_PER_INSTANCE
+                        Number of devices per prefill instance. Required when --enable-optimize-prefill-decode-ratio
+                        is set. Determines the parallelism configuration search space for prefill phase.
+  --decode-devices-per-instance DECODE_DEVICES_PER_INSTANCE
+                        Number of devices per decode instance. Required when --enable-optimize-prefill-decode-ratio
+                        is set. Determines the parallelism configuration search space for decode phase.
+```
+
+The main parameters are described as follows:
+
+| Parameter                               | Category | Optional/Required | Description |
+| --------------------------------------  | --- | --- | --- |
+| --device                                | Options | Optional | Specifies one or more device profile names. When multiple devices are passed, cross-hardware comparison results are output.<br>1. Type: Str or List[Str].<br>2. Reference values: `TEST_DEVICE`, `ATLAS_800_A2_376T_64G`, `ATLAS_800_A2_313T_64G`, `ATLAS_800_A2_280T_64G`, `ATLAS_800_A2_280T_64G_PCIE`, `ATLAS_800_A2_280T_32G_PCIE`, `ATLAS_800_A3_752T_128G_DIE`, `ATLAS_800_A3_560T_128G_DIE`, `ATLAS_800_A3_560T_128G_DIE_ROCE`, `ATLAS_350_425T_112G`, `ATLAS_350_425T_84G`.<br>3. Default: `TEST_DEVICE` when not specified.<br>4. You can pass multiple registered `DeviceProfile` names in one run. Duplicate names are removed and the input order is preserved. |
+| --input-length                          | Options | Required | Token length of the input prompt.<br>1. Type: Int.<br>2. Value range: positive integer.<br>3. Default: none. |
+| --output-length                         | Options | Required | Expected output token length.<br>1. Type: Int.<br>2. Value range: positive integer.<br>3. Default: none. |
+| --mtp-acceptance-rate                   | Options | Optional | Specifies the acceptance rate list for MTP tokens.<br>1. Type: List[Float].<br>2. Value range: a list of float values.<br>3. Default: [0.9, 0.6, 0.4, 0.2]. |
+| --prefix-cache-hit-rate                 | Options | Optional | Specifies the prefix cache hit rate.<br>1. Type: Float.<br>2. Value range: [0, 1).<br>3. Default: 0.0. |
+| --dump-original-results                 | Options | Optional | Dumps the original search results for further analysis.<br>1. Type: Bool.<br>2. Value range: switch parameter.<br>3. Default: `False`. |
+| model_id                                | General Options | Required | Model ID or a reviewed absolute local model path.<br>1. Type: Str.<br>2. Reference values: Hugging Face ID, ModelScope ID, or a local absolute path.<br>3. Default: none.<br>4. When you use a remote model ID, remote code may be executed through `trust_remote_code=True`. |
+| --num-devices                           | General Options | Optional | Specifies the total number of devices involved in the simulation.<br>1. Type: Int.<br>2. Value range: positive integer.<br>3. Default: 1. |
+| --enable-multistream                    | General Options | Optional | Enables compiler-driven multi-stream simulation on the compile path.<br>1. Type: Bool.<br>2. Value range: switch parameter.<br>3. Default: `True`. |
+| --reserved-memory-gb                    | General Options | Optional | Specifies the amount of device memory reserved for system usage on each device, in GB.<br>1. Type: Float.<br>2. Value range: non-negative. Setting 0 disables system memory reservation.<br>3. Default: 10.0. |
+| --log-level                             | General Options | Optional | Specifies the log level.<br>1. Type: Str.<br>2. Reference values: `debug`, `info`, `warning`, `error`, `critical`.<br>3. Default: `error`. |
+| --compile                               | Model & Quantization Options | Optional | Invokes `torch.compile()` on the model before inference.<br>1. Type: Bool.<br>2. Value range: switch parameter.<br>3. Default: `False`. |
+| --compile-allow-graph-break             | Model & Quantization Options | Optional | Allows graph breaks during `torch.compile()`.<br>1. Type: Bool.<br>2. Value range: switch parameter.<br>3. Default: `False`. |
+| --num-mtp-tokens                        | Model & Quantization Options | Optional | Specifies the number of MTP tokens. 0 means disabled.<br>1. Type: Int.<br>2. Value range: 0 to 9.<br>3. Default: 0. |
+| --speculative-method | Model & Quantization Options | Optional | Specifies the speculative decoding method.<br>1. Type: Str.<br>2. Values: `mtp`, `dflash`, or `dspark`.<br>3. Default: unset (disabled).<br>4. New speculative entry; cannot be mixed with the legacy MTP entry `--num-mtp-tokens` / `--mtp-acceptance-rates`.<br>5. Selecting `mtp` requires `--num-speculative-tokens`. It is the prerequisite switch for dependent parameters such as `--num-speculative-tokens` / `--acceptance-length`. |
+| --num-speculative-tokens | Model & Quantization Options | Optional | Speculative token count / depth `n` (excluding anchor/bonus).<br>1. Type: List[Int] (`nargs="+"`, multi-value search supported).<br>2. Semantics: when `>= 1`, internal `block_size = n + 1`; when **omitted**, dflash/dspark use the builtin / external config; when `--speculative-method` is set, any **explicit** `0` candidate fails to parse (omit `--speculative-method` to disable); for `mtp`, `n` is the MTP token count and must be set explicitly.<br>3. Default: unset.<br>4. Requires `--speculative-method`. Multiple values combine with TP / EP / MOE-DP for search. |
+| --acceptance-length | Model & Quantization Options | Optional | Acceptance length for decode throughput folding.<br>1. Type: Float.<br>2. Range: non-negative; uniformly clamped to `n` (= `block_size - 1`) for all methods.<br>3. Default: `5.0`.<br>4. Requires `--speculative-method`; it does not participate in graph building and only affects decode latency folding. |
+| --dspark-markov-rank | Model & Quantization Options | Optional | Markov embedding dimension.<br>1. Type: Int.<br>2. Range: non-negative integer; `0` disables the MarkovHead.<br>3. Default: `256`.<br>4. Requires `--speculative-method dspark`. |
+| --dspark-markov-head | Model & Quantization Options | Optional | Markov head type.<br>1. Type: Str.<br>2. Values: `vanilla`, `gated`, `rnn`.<br>3. Default: `vanilla`.<br>4. Requires `--speculative-method dspark`. |
+| --num-draft-layers | Model & Quantization Options | Optional | Overrides draft `num_hidden_layers`.<br>1. Type: Int.<br>2. Range: non-negative integer; `0` uses the config default.<br>3. Default: `0`.<br>4. Requires `--speculative-method dflash` or `dspark` (cannot be used with `mtp`). |
+| --draft-model-config-path | Model & Quantization Options | Optional | Path to an external draft `config.json` (or a directory containing it).<br>1. Type: Str.<br>2. Default: `None` (uses `tensor_cast/runtime_configs/draft_configs/dflash_draft_builtin.json`).<br>3. Requires `--speculative-method dflash` or `dspark` (cannot be used with `mtp`).<br>4. See [`tensor_cast/runtime_configs/draft_configs/README.md`](../../../tensor_cast/runtime_configs/draft_configs/README.md) for field descriptions. |
+| --quantize-linear-action                | Model & Quantization Options | Optional | Specifies the quantization mode for linear layers.<br>1. Type: Str.<br>2. Reference values: `DISABLED`, `W8A16_STATIC`, `W8A8_STATIC`, `W4A8_STATIC`, `W8A16_DYNAMIC`, `W8A8_DYNAMIC`, `W4A8_DYNAMIC`, `FP8`, `MXFP4`.<br>3. Default: `W8A8_DYNAMIC`. |
+| --quantize-non-expert-linear-action     | Model & Quantization Options | Optional | Specifies a separate quantization mode for non-expert linear layers, such as attention projections, dense MLP layers, and shared experts.<br>1. Type: Str.<br>2. Reference values: same as the preceding list.<br>3. Default: `DISABLED`.<br>4. Mainly intended for DeepSeek V4-style MoE models. Routed MoE experts still use `--quantize-linear-action`. |
+| --mxfp4-group-size                      | Model & Quantization Options | Optional | Specifies the group size for MXFP4 quantization.<br>1. Type: Int.<br>2. Value range: positive integer.<br>3. Default: 32. |
+| --quantize-attention-action             | Model & Quantization Options | Optional | Specifies the quantization mode for the KV cache.<br>1. Type: Str.<br>2. Reference values: `DISABLED`, `INT8`, `FP8`.<br>3. Default: `DISABLED`. |
+| --tp-sizes                              | Model & Quantization Options | Optional | Enables TP search and can explicitly specify the TP value range.<br>1. Type: List[Int].<br>2. Value range: a list of positive integers.<br>3. Default: `None`. When the argument is passed without values, powers of 2 up to `world_size` are searched by default. |
+| --ep-sizes                              | Model & Quantization Options | Optional | Enables EP search and can explicitly specify the EP value range.<br>1. Type: List[Int].<br>2. Value range: a list of positive integers.<br>3. Default: `None`. When the argument is passed without values, powers of 2 up to `world_size` are searched by default. |
+| --moe-dp-sizes                          | Model & Quantization Options | Optional | Enables MoE-DP search and can explicitly specify the MoE-DP value range.<br>1. Type: List[Int].<br>2. Value range: a list of positive integers.<br>3. Default: `None`. When the argument is passed without values, powers of 2 up to `world_size` are searched by default. |
+| --pp-sizes | Model & Quantization Options | Optional | Enables Pipeline Parallel (PP) search and optionally specifies PP candidates.<br>1. Type: List[Int] (`nargs="*"`).<br>2. Valid range: positive integers, each not exceeding `num_devices` and the model's `num_hidden_layers`.<br>3. Default: `None`; when omitted, PP is fixed to 1 (backward compatible, using the legacy TP/EP/DCP search path). When provided without values, searches powers of 2 up to `num_devices` (`1, 2, 4, ...`).<br>4. When set, enters the PP-aware search path: derives `dp = num_devices // (tp * pp)` and `moe_tp = (num_devices // pp) // (ep * moe_dp)` via stage-local arithmetic, and uses a forward blocking pipeline scheduler to compute makespan, bubble ratio, and schedule-aware throughput for PP>1 candidates. PP and DCP can be searched jointly (explicit `--dcp-sizes` is not dropped).<br>5. Unsupported for PP>1: VL/multimodal models and variable-length input distribution (`length_distribution`) — such candidates are skipped with a warning. PP can be searched jointly with speculative decoding (`--speculative-method mtp/dflash/dspark`); speculative proposal/draft compute runs on the last pipeline stage. |
+| --pp-layer-partitions | Model & Quantization Options | Optional | Explicitly specifies per-stage layer partitions for PP.<br>1. Type: Str (JSON list of lists).<br>2. Format: e.g. `'[[31,30],[16,15,15,15]]'`; each inner list length must equal its `pp_size`, and the sum of all inner-list elements must equal the model's `num_hidden_layers` (DeepSeek-V3.1 has 61 layers: 31+30=61, 16+15+15+15=61). Inner lists are auto-matched to their `pp_size` by length.<br>3. Default: `None`; uses balanced partitioning (remainder placed on earlier stages, avoiding the last stage carrying both norm + lm_head).<br>4. Only effective for PP>1. |
+| --ttft-limits                           | Service Options | Optional | Specifies the TTFT constraint under which to search for the best throughput.<br>1. Type: Float.<br>2. Value range: positive, in ms.<br>3. Default: `None`, meaning no TTFT limit. |
+| --tpot-limits                           | Service Options | Optional | Specifies the TPOT constraint under which to search for the best throughput.<br>1. Type: Float.<br>2. Value range: positive, in ms.<br>3. Default: `None`, meaning no TPOT limit. |
+| --max-batched-tokens                    | Service Options | Optional | Specifies the maximum number of batched tokens for one prefill or mixed prefill/decode step.<br>1. Type: Int.<br>2. Value range: positive integer.<br>3. Default: 8192. |
+| --batch-range                           | Service Options | Optional | Specifies the batch size search range.<br>1. Type: List[Int].<br>2. Format: `[min max]` or `[max]`.<br>3. Default: `None`. When `min` is not specified, the search starts from 1. When `max` is not specified, no upper limit is set. |
+| --serving-cost                          | Service Options | Optional | Specifies the serving cost for cost-related metric calculation.<br>1. Type: Float.<br>2. Value range: non-negative.<br>3. Default: 0. |
+| --disagg                                | Service Options | Optional | Enables PD disaggregation mode.<br>1. Type: Bool.<br>2. Value range: switch parameter.<br>3. Default: `False`. |
+| --jobs                                  | Service Options | Optional | Specifies the number of parallel search jobs.<br>1. Type: Int.<br>2. Value range: positive integer.<br>3. Default: 8. |
+| --concurrency-search-strategy           | Service Options | Optional | Specifies the concurrency search strategy.<br>1. Type: Str.<br>2. Reference values: `exponential`, `linear_exponential`.<br>3. Default: `exponential`. |
+| --image-batch-size                      | MultiModal Options | Optional | Specifies the number of images per request.<br>1. Type: Int.<br>2. Value range: positive integer.<br>3. Default: `None`. When not set, the batch size is reused. |
+| --image-height                          | MultiModal Options | Optional | Specifies the height of the input images.<br>1. Type: Int.<br>2. Value range: positive integer.<br>3. Default: `None`. |
+| --image-width                           | MultiModal Options | Optional | Specifies the width of the input images.<br>1. Type: Int.<br>2. Value range: positive integer.<br>3. Default: `None`. |
+| --prefill-devices-per-instance          | PD Ratio Optimization Options | Conditionally required | Required when PD ratio optimization is enabled. Specifies the number of devices per prefill instance.<br>1. Type: Int.<br>2. Value range: positive integer.<br>3. Default: none.<br>4. Determines the parallelism configuration search space for the prefill phase. |
+| --decode-devices-per-instance           | PD Ratio Optimization Options | Conditionally required | Required when PD ratio optimization is enabled. Specifies the number of devices per decode instance.<br>1. Type: Int.<br>2. Value range: positive integer.<br>3. Default: none.<br>4. Determines the parallelism configuration search space for the decode phase. |
+| --enable-optimize-prefill-decode-ratio  | PD Ratio Optimization Options | Optional | Enables the prefill/decode instance ratio optimization mode.<br>1. Type: Bool.<br>2. Value range: switch parameter.<br>3. Default: `False`.<br>4. Cannot be used together with `--disagg`. |
+
+### Search Dimensions and Ranges
+
+`throughput_optimizer` determines the search dimensions based on the provided search arguments:
+
+- `--tp-sizes`: Enables TP search.
+- `--ep-sizes`: Enables EP search.
+- `--moe-dp-sizes`: Enables MoE-DP search.
+
+Rules:
+
+- If no search argument is provided, only TP search is performed by default with the default range.
+- For dimensions not selected for search, fixed defaults are used:
+  - `tp = num_devices`
+  - `ep = num_devices`
+  - `moe-dp = 1`
+- If a search argument is provided, you must explicitly give the values. The commonly used range is:
+  `powers of 2 up to world_size`
+  (for example, when `num_devices=8`, you can set [1, 2, 4, 8]).
+
+Examples:
+
+```bash
+# Search TP only (explicit range)
+python -m cli.inference.throughput_optimizer Qwen/Qwen3-30B-A3B --device TEST_DEVICE --num-devices 8 --input-length 3500 --output-length 1500 --tpot-limits 50 --tp-sizes 1 2 4 8
+
+# Search TP/EP (MoE-DP fixed to 1)
+python -m cli.inference.throughput_optimizer Qwen/Qwen3-30B-A3B --device TEST_DEVICE --num-devices 8 --input-length 3500 --output-length 1500 --tpot-limits 50 --tp-sizes 1 2 4 8 --ep-sizes 1 2 4 8
+
+# Search TP/EP/MoE-DP
+python -m cli.inference.throughput_optimizer Qwen/Qwen3-30B-A3B --device TEST_DEVICE --num-devices 8 --input-length 3500 --output-length 1500 --tpot-limits 50 --tp-sizes 1 2 4 8 --ep-sizes 1 2 4 8 --moe-dp-sizes 1 2 4 8
+
+# Search EP only (explicit range)
+python -m cli.inference.throughput_optimizer Qwen/Qwen3-30B-A3B --device TEST_DEVICE --num-devices 8 --input-length 3500 --output-length 1500 --tpot-limits 50 --ep-sizes 1 2 4 8
+```
+
+## 5 Additional Notes
+
+### 5.1 How to Calculate the Performance Metrics in Aggregation Mode
+
+- TTFT:
+
+  When `effective_input_length <= max_batched_tokens`, we keep the original full-prefill formula.
+  We get average `ttft = sum_for_ttft / concurrency`. For `sum_for_ttft`, we assume the prefill
+  batch size is the max batched tokens divided by effective input length.
+  Therefore, `prefill_batch_size = max_batched_tokens // effective_input_length`. Requests
+  are processed step by step in batches of `prefill_batch_size`. We can get the total `ttft` time as follows:
+
+  `sum_for_ttft = (prefill_latency * prefill_batch_size) * (1 + calc_nums_for_ttft) * calc_nums_for_ttft / 2`
+
+  For example, if we have 12 requests, and `max_batched_tokens` is 8192,
+  `input_length` is 2048, then `prefill_batch_size` is 4. And 12 requests were processed in 3 steps.
+  Therefore:
+
+  `sum_for_ttft = (prefill_latency * 4) * (1 + 3) * 3 / 2`
+
+  `ttft = sum_for_ttft / 12`
+
+  When `effective_input_length > max_batched_tokens`, the optimizer automatically splits prefill
+  into multiple chunks. The current version uses a fixed decode-first mixed scheduler with 15% token
+  budget slack. It does not expose a CLI parameter for scheduler selection.
+
+- TPOT:
+
+  We don't consider the bubble time in TPOT calculation.
+
+  `tpot = (ttft + decode_latency * output_length) / output_length`
+
+- Output Throughput
+  `output_throughput = 1000 * (output_length * concurrency) / (ttft + tpot * output_length)`
+
+### 5.2 How to Calculate the Performance Metrics in PD Ratio Mode
+
+PD ratio mode uses QPS (Queries Per Second) as the primary metric for matching prefill and decode capacities:
+
+- **Prefill QPS (P QPS)**:
+
+  P QPS represents the request processing capacity of a single prefill instance.
+
+  `P QPS = p_concurrency / ttft * 1000` (req/s)
+
+  Where:
+  - `p_concurrency`: The batch size (number of concurrent requests) in prefill phase
+  - `ttft`: Time-to-first-token in milliseconds
+
+- **Decode QPS (D QPS)**:
+
+  D QPS represents the request processing capacity of a single decode instance.
+
+  `D QPS = d_concurrency / (tpot * max(output_length - 1, 1)) * 1000` (req/s)
+
+  Where:
+  - `d_concurrency`: The batch size (number of concurrent requests) in decode phase
+  - `tpot`: Time-per-output-token in milliseconds
+  - `max(output_length - 1, 1)`: Number of decode tokens after the first token has been produced
+
+- **PD Ratio**:
+
+  PD Ratio indicates the optimal ratio between prefill and decode instances to achieve balanced throughput.
+
+  `PD Ratio = D QPS / P QPS`
+
+  Interpretation:
+  - PD Ratio = 1.0: One prefill instance can feed one decode instance
+  - PD Ratio = 2.0: Each decode instance needs approximately two prefill instances
+  - PD Ratio = 0.5: One prefill instance can feed approximately two decode instances
+
+- **Instance Distribution**:
+
+  When `--num-devices` is specified, the optimal number of prefill and decode instances is calculated:
+
+  1. Calculate total instances that fit within device budget:
+     `max_p_inst = total_devices / p_devices_per_instance`
+     `max_d_inst = total_devices / d_devices_per_instance`
+
+  2. Find the P:D instance combination that:
+     - First maximizes allocated `Balanced QPS`
+     - Uses more devices when `Balanced QPS` ties
+     - Matches the theoretical PD ratio more closely when device usage also ties
+     - Fits within the total device budget
+
+  The allocated cluster throughput is calculated as follows:
+
+  `Allocated P QPS = P instances * P QPS`
+
+  `Allocated D QPS = D instances * D QPS`
+
+  `Balanced QPS = min(Allocated P QPS, Allocated D QPS)`

@@ -1,0 +1,274 @@
+# 一键量化使用指南
+
+## 1. 适用范围
+
+**一键量化**是 msModelSlim 内置的量化能力：针对已收录支持矩阵的主流模型，用户只需指定模型名与量化类型，工具即可自动匹配官方验证过的最佳实践配置完成量化。
+
+本指南面向希望在昇腾 NPU 或 CPU 上快速获得可部署量化权重的开发者（零基础可用），适用于以下场景：
+
+- 目标模型已收录于《[大模型支持矩阵](../knowledge_base/model/README.md)》且标记为"一键量化"，无需自定义量化策略；
+- 采用工具已内置验证的标准量化模式（如 W8A8、W4A8 等），无特殊精度或算法定制诉求。
+
+以下情况**不适用**本指南，请改用其他路径：
+
+- 模型未收录支持矩阵或未验证：请参考《[新模型权重量化流程](process_new_model_quantization_tuning.md)》；
+- 需要深度定制量化算法组合、校准集等策略：请参考《[新模型量化调优流程](process_new_model_quantization_tuning.md)》制定方案。
+
+## 2. 流程关系与前置条件
+
+**上级流程**：用户按《[主流模型量化部署流程指南](process_mainstream_model_deployment.md)》执行部署时，需先完成权重量化，从部署指南的"获取量化权重"环节进入本指南。
+
+**前置条件**：
+
+- 已安装 msModelSlim 且版本兼容，参见《[msModelSlim 工具安装指南](../install_guide/install_guide.md)》；
+- 推荐使用昇腾 NPU 环境（执行 `npu-smi info` 确认卡状态正常），或使用 CPU 环境（执行效率较低，不推荐），磁盘空间充足；
+- 已获取或可下载目标模型的浮点权重目录（tokenizer 等配套文件随权重目录一并提供）。
+
+**后续操作**：量化权重交付部署，进入[主流模型量化部署流程指南](process_mainstream_model_deployment.md#步骤2部署推理服务)的"部署推理服务"章节；若部署测评发现精度异常，进入《[量化推理精度异常定位流程指南](process_quantization_accuracy_anomaly_locating.md)》。
+
+## 3. 输入和交付件
+
+| 类型 | 名称 | 来源或保存位置 | 格式或约束 | 验收方式 |
+| --- | --- | --- | --- | --- |
+| 输入 | 浮点模型权重目录 `${MODEL_PATH}` | ModelScope/HuggingFace 下载或自有权重 | 含模型配置、权重分片及类别所需附属文件（如 tokenizer、config 等） | 文件齐全；若官方提供了校验值或版本号，则本地的对应值须与官方一致。 |
+| 交付件 | 量化权重目录 `${SAVE_PATH}` | 用户指定保存路径 | 含所选导出格式约定的描述文件与权重分片（如 AscendV1 的 `quant_model_description.json`） | 日志输出 SUCCESS；文件齐全；符合所选导出格式约定 |
+
+## 4. 流程总览
+
+本流程端到端分为七个阶段：确认模型支持、下载浮点模型、确定场景标签、添加量化权重输出目录、添加运行设备、执行量化命令、校验交付件。
+
+```mermaid
+flowchart LR
+  A[确认模型支持<br>确定 model_type / quant_type] --> B[下载浮点模型<br>确定 model_path]
+  B --> C[确定场景标签 tag]
+  C --> D[添加量化权重的输出目录]
+  D --> E[添加运行设备]
+  E --> F[执行量化命令]
+  F --> G[校验交付件]
+```
+
+## 5. 操作步骤
+
+### 命令行预览
+
+```bash
+msmodelslim quant \
+  --model_path ${MODEL_PATH} \          # 浮点权重目录
+  --save_path ${SAVE_PATH} \            # 量化权重输出目录
+  --device npu \                        # 量化设备类型，如 npu、cpu；多卡另加 --device_id 0 1 2 3
+  --model_type ${MODEL_TYPE} \          # 已注册或支持矩阵中的模型名，大小写敏感
+  --quant_type ${QUANT_TYPE} \          # 量化类型，如 w8a8
+  --tags ${TAG} \                        # 场景标签，如 vLLM-Ascend Atlas_A2_Inference
+  --trust_remote_code false             # 仅可信模型必要时设为 true
+```
+
+### 执行前预检
+
+进入下载与量化前，按下列 checklist 逐项核对，任一项未通过时，先处理再继续后续步骤，执行一键量化前建议再跑一遍本预检。
+
+| 序号 | 检查项 | 推荐命令 | 通过标准 |
+| --- | --- | --- | --- |
+| 1 | 原始权重未被意外更改 | `ls -lt <浮点模型目录> \| head` 或 `stat <关键权重文件>`，记录并比对最后修改时间 | 下载后与量化前的修改时间一致，无异常变化 |
+| 2 | 硬盘空间足够 | `df -h` | 浮点目录与量化输出目录所在分区空间可覆盖模型体积、量化产物及余量 |
+| 3 | NPU 未被占用 | `npu-smi info` | 目标卡状态正常，无非预期任务长期占卡 |
+
+### 步骤1：确认模型支持
+
+**目标**：确认目标模型已收录支持矩阵，且所选量化模式已验证——这是后续所有步骤的前提。
+
+**操作**：
+
+1. **确认模型收录**：在《[大模型支持矩阵](../knowledge_base/model/README.md)》中查找目标模型。支持矩阵是 msModelSlim 官方验证过的"模型 × 量化模式"清单，其中模型名称（`model_type`，大小写敏感，需与支持矩阵完全一致）与依赖库要求（如 transformers 版本）是后续命令的直接输入，先记录下来。
+2. **确认量化模式验证状态**：确认所选量化模式（如 `w8a8`）在该模型下已标记验证通过。标记为"一键量化"的模型即可直接按本指南量化。
+
+> **可选：了解量化算法与格式选型**
+>
+> 默认情况下无需关心算法与格式细节，工具自动匹配最佳实践配置。如需理解离群值抑制、线性量化等算法差异，参见《[量化算法说明](../knowledge_base/quantization_algorithms/README.md)》；如需选择导出格式（AscendV1、compressed-tensors 等），参见《[量化格式支持矩阵](../knowledge_base/quantization_format/README.md)》。
+
+**输出**：确认的 `${MODEL_TYPE}` 与 `${QUANT_TYPE}`（即 `--model_type`、`--quant_type` 两个参数的取值）。
+
+**通过条件**：支持矩阵中该模型与量化模式的组合标记为已验证。
+
+### 步骤2：下载浮点模型
+
+**目标**：获得与支持矩阵中 `model_type` 一致的浮点权重目录。
+
+**操作**：
+
+1. 从 [ModelScope](https://www.modelscope.cn/)、[Hugging Face](https://huggingface.co/) 或团队内部模型存放位置获取完整权重到本地目录；具体下载方式以对应社区或仓库文档为准。
+2. 核对目录含配置、权重分片及 tokenizer 等附属文件。若官方页面提供文件校验值（如 MD5/SHA256）或明确的版本号/提交号，与本地下载结果比对一致即可。
+
+**输出**：浮点权重目录 `${MODEL_PATH}`（即 `--model_path` 参数的取值）。
+
+**通过条件**：模型可被目标 transformers 版本正常加载。
+
+### 步骤3：确定场景标签
+
+**目标**：确定目标推理场景（`--tags`），使工具能匹配到该场景下已验证的最佳实践配置。
+
+**操作**：
+
+场景标签（`--tags`）用于告诉工具"量化后的模型将运行在什么环境"，支持两类场景标签，每一类别可指定一种场景，多个标签用空格分隔。各取值说明如下：
+
+| 标签类别 | 取值 | 说明 |
+| --- | --- | --- |
+| 推理引擎 | `MindIE` | 量化后模型运行于 MindIE 推理引擎 |
+| 推理引擎 | `vLLM-Ascend` | 量化后模型运行于 vLLM-Ascend 推理引擎 |
+| 推理引擎 | `SGLang` | 量化后模型运行于 SGLang 推理引擎 |
+| 硬件形态 | `Atlas_A2_Inference` | 量化后模型运行于 Atlas A2 系列推理卡 |
+| 硬件形态 | `Atlas_A3_Inference` | 量化后模型运行于 Atlas A3 系列推理卡 |
+| 硬件形态 | `Atlas_A2_Training` | 量化后模型运行于 Atlas A2 系列训练卡 |
+| 硬件形态 | `Atlas_A3_Training` | 量化后模型运行于 Atlas A3 系列训练卡 |
+| 硬件形态 | `Atlas_300I_Duo` | 量化后模型运行于 Atlas 300I Duo 推理卡 |
+| 硬件形态 | `Ascend_950` | 量化后模型运行于Ascend 950PR&950DT 系列产品 |
+
+> 推理引擎各取值对应的官方文档参见：《[MindIE 文档](https://mindie-motor.readthedocs.io/zh-cn/latest/)》、《[vLLM-Ascend 文档](https://docs.vllm.ai/projects/ascend/zh-cn/latest/index.html)》、《[SGLang 文档](https://docs.sglang.io/)》；硬件形态各取值对应的产品形态说明参见《[昇腾硬件形态描述](https://www.hiascend.com/document/detail/zh/AscendFAQ/ProduTech/productform/hardwaredesc_0001.html)》。
+
+**注意**：
+
+- 标签大小写不敏感；
+- 未命中已验证场景时，工具会询问是否采用忽略场景标签的配置。
+
+**输出**：确定的 `${TAG}`。
+
+**通过条件**：`--tags` 取值与目标推理环境一致。
+
+### 步骤4：添加量化权重的输出目录
+
+**目标**：指定量化权重的输出目录。
+
+**操作**：
+
+在命令中添加 `--save_path` 参数：
+
+- **填写**：`${SAVE_PATH}` 为自定义输出路径，建议单独建目录，例如 `~/qwen36_27b_w8a8`。
+- **注意**：请确保磁盘空间充足。
+
+**输出**：已指定输入与输出路径的量化命令。
+
+**通过条件**：`--save_path` 取值已确认，指向量化权重输出目录。
+
+### 步骤5：添加运行设备
+
+**目标**：指定量化运行在哪个设备上。
+
+**操作**：
+
+`--device` 为可选参数，不指定时默认使用 NPU 单卡执行。如需显式指定，可参考以下取值：
+
+- **填写**：`--device` 指定设备类型：`npu`（默认）、`cpu`；多卡时另加 `--device_id` 指定设备索引，如 `--device_id 0 1 2 3`。
+- **注意**：指定多张卡时自动启用分布式逐层量化，详见下方"可选：多卡分布式量化"。
+
+**输出**：量化命令中已包含设备参数（或使用默认值）。
+
+**通过条件**：确认设备取值满足需求（默认单卡或显式指定多卡/CPU）。
+
+> **可选：多卡分布式量化**
+>
+> 片上内存受限场景中，可指定多张 NPU 卡自动启用分布式逐层量化，将 `--device` 改为多卡即可，如 `--device npu --device_id 0 1 2 3`。
+>
+>
+> **注意**：多卡量化是否支持与具体算法相关，部分最佳实践中的算法可能尚未适配多卡，使用前请确认对应算法已支持多卡。当前已支持的多卡算法列表详见[并行机制支持列表](../knowledge_base/parallel/README.md#3-并行机制支持列表)。
+> 多卡量化与逐层量化说明详见《[多卡量化并行](../knowledge_base/parallel/README.md)》。
+
+### 步骤6：执行量化命令
+
+**目标**：执行量化命令完成量化。
+
+**执行前检查**：
+
+- 目标 NPU 卡空闲可用；量化前不与其他训练/推理任务共享计算资源。
+- `trust_remote_code` 默认 `false`；仅当模型必须执行仓库内自定义代码且来源可信时设为 `true`。
+
+**操作**：
+
+按[命令行预览](#命令行预览)将变量替换为实际值后执行。
+
+> **可选：最佳实践匹配逻辑（了解即可）**
+>
+> 指定 `--quant_type` 后，工具在最佳实践库中优先匹配"模型指定量化方式 + 场景标签"均命中的配置；若该模型在目标场景下没有已验证配置（最佳实践库仅收录已验证场景的组合），工具会依次询问是否采用忽略场景标签的配置、模型推荐量化方式的配置，按提示输入 `y` 即可继续。完整搜索优先级见[参数关系](../api_reference/cli/msmodelslim_quant.md#4-参数关系)"最佳实践匹配搜索优先级"。
+
+**输出**：日志输出 `===========SUCCESS===========`，生成量化权重目录 `${SAVE_PATH}`。
+
+**通过条件**：量化运行日志出现 SUCCESS 标志，无未处理的 ERROR。
+
+### 步骤7：校验交付件
+
+**目标**：确认量化新增的交付文件完整可用，并留下可复现的配置记录。
+
+**操作**：
+
+1. **核对新增文件**：量化后 `${SAVE_PATH}` 目录除从浮点模型复制的配置文件（如 `config.json`、`tokenizer_config.json` 等）外，新增以下量化文件（交付件清单，以 AscendV1 格式为例）：
+
+   ```text
+   ${SAVE_PATH}/
+   ├── quant_model_description.json      # 量化权重描述文件（AscendV1 格式；推理框架加载量化模型的重要依据）
+   ├── quant_model_weights-00001-of-*.safetensors   # 量化权重分片
+   └── ${MODEL_TYPE}_best_practice.yaml  # 本次量化的完整配置记录（可用于方案复现）
+   ```
+
+   输出文件含义详见《[AscendV1 量化权重格式说明](../knowledge_base/quantization_format/ascendv1/ascendv1_usage.md)》。
+
+   > **注意**：不同导出格式的交付文件不同。如 compressed-tensors 格式没有 `quant_model_description.json`，量化元数据写入 `config.json` 的 `quantization_config` 字段，各格式的文件结构详见《[量化格式支持矩阵](../knowledge_base/quantization_format/README.md)》。
+2. **保存配置记录**：留存 `${SAVE_PATH}` 下生成的 `*_best_practice.yaml`，作为本次量化的复现依据与审计记录。
+
+**输出**：通过校验的量化权重目录 `${SAVE_PATH}` 与量化配置记录。
+
+**通过条件**：所选导出格式约定的描述文件与全部权重分片存在（如 AscendV1 的 `quant_model_description.json`）；若缺失任一关键文件，量化权重不得进入部署环节。
+
+**审计记录**：量化权重目录路径、`*_best_practice.yaml` 文件内容、量化日志（含 SUCCESS 标志）。
+
+## 6. 验收条件
+
+量化权重目录通过步骤7 校验（所选导出格式约定的描述文件与全部权重分片齐全、量化日志出现 SUCCESS）即完成交付，可进入部署流程；建议部署前按部署指南验证量化权重可被推理框架加载。
+
+## 7. 异常处置
+
+- **交互询问场景**：`--tags` 或 `--quant_type` 未命中已验证配置时，工具会询问是否采用推荐配置，确认场景与推荐配置匹配后按提示执行；
+- **量化失败或 OOM**：先排查 NPU 状态（`npu-smi info`）与环境变量 `ASCEND_RT_VISIBLE_DEVICES` 是否指向有效空闲卡；显存不足（OOM）时改用空闲卡，或开启逐层量化、分布式逐层量化；
+- **模型加载报错**：确认 transformers 等依赖库版本与支持矩阵要求一致，必要时补充 `--trust_remote_code true`（仅限可信模型）；
+- **部署测评后精度异常**：量化权重已完成交付，但部署测评出现 badcase 或输出异常时，进入《[量化推理精度异常定位流程指南](process_quantization_accuracy_anomaly_locating.md)》定位异常位点，并按《[量化精度调优指南](process_quantization_precision_tuning.md)》调优后重新量化。
+
+## 8. 案例列表
+
+| 案例 | 简述 | 链接 |
+| --- | --- | --- |
+| DeepSeek-V4-Flash W8A8 一键量化 | 从环境准备到一键量化、量化权重检查、推理部署与评测的全流程闭环 | 《[DeepSeek-V4-Flash W8A8 一键量化案例](../best_practices/deepseek_v4_flash_w8a8_quick_quantization_case.md)》 |
+
+## 9. 术语
+
+| 术语 | 简述 | 链接 |
+| --- | --- | --- |
+| 大模型支持矩阵 | 官方验证过的"模型 × 量化模式"支持清单，含依赖库要求 | 《[大模型支持矩阵](../knowledge_base/model/README.md)》 |
+| 量化模式 | `W{权重位数}A{激活位数}[C{KV Cache位数}][S]` 命名规范，如 W8A8 表示权重与激活均量化为8bit | 《[量化模式](../knowledge_base/quantization_mode/README.md)》 |
+| 量化格式 | 量化权重的导出格式，如 AscendV1、compressed-tensors 等 | 《[量化格式支持矩阵](../knowledge_base/quantization_format/README.md)》 |
+
+## 10. 接口文档列表
+
+| 接口或能力 | 简述 | 链接 |
+| --- | --- | --- |
+| `msmodelslim quant` | 一键量化命令，含全部参数说明与使用示例 | 《[msmodelslim quant 命令行 API 文档](../api_reference/cli/msmodelslim_quant.md)》 |
+
+## 11. 安全说明
+
+- trust_remote_code 默认保持 false，仅可信模型必要时开启。
+- 测评日志、校准数据、量化产物与 ModelScope 发布内容按业务权限管控。
+
+## 12. 附录
+
+### 12.1 协议版本维护策略
+
+一键量化配置通过 `apiversion` 字段选择后端量化服务的版本。各协议版本的维护策略如下：
+
+| 协议版本 | 维护策略 | 状态 |
+| --- | --- | --- |
+| modelslim_v0 | 即将废弃 | 不推荐 |
+| modelslim_v1 | 逐步完善 | 推荐 |
+| multimodal_vlm_modelslim_v1 | 逐步完善 | 推荐 |
+| multimodal_sd_modelslim_v1 | 逐步完善 | 推荐 |
+
+**说明**：
+
+- `modelslim_v0` 协议版本即将废弃，不推荐使用，建议使用 `modelslim_v1` 或更新的协议版本；
+- `modelslim_v1`、`multimodal_vlm_modelslim_v1`、`multimodal_sd_modelslim_v1` 正在逐步完善，为当前推荐版本；
+- `apiversion` 字段的取值、必选性与 `spec` 结构说明请参阅《[modelslim_v1 配置说明](../api_reference/config/quant/modelslim_v1.md)》、《[multimodal_vlm_modelslim_v1 配置说明](../api_reference/config/quant/multimodal_vlm_modelslim_v1.md)》、《[multimodal_sd_modelslim_v1 配置说明](../api_reference/config/quant/multimodal_sd_modelslim_v1.md)》。

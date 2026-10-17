@@ -1,0 +1,89 @@
+# Attention MSE 敏感层分析算法 量化术语百科词条
+
+> **词条类别**：[敏感层分析算法](../README.md#3-敏感层分析算法)<br>
+> **英文名称**：attention_mse<br>
+> **应用领域**：量化敏感层分析、Attention 权重量化<br>
+
+---
+
+## 1. 概述
+
+Attention MSE（`mse`）是一种注意力模块粒度的量化敏感度分析算法。它比较同一 Attention 模块在浮点权重与目标量化权重下的输出，并以均方误差衡量量化扰动，从而形成敏感度排序；核心特征是直接观察注意力子系统的实际输出误差，可与 [MSE Layer Wise](../mse_layer_wise/term_mse_layer_wise.md) 等层级指标互补。
+
+---
+
+## 2. 词条介绍
+
+对 Attention 结构做权重量化或评估其敏感度时，需要直接度量注意力子系统在量化权重下的输出漂移。Attention MSE 通过分别用浮点与量化权重执行前向，在 attention 模块输出处对比两路张量，用 MSE 刻画该模块对权重量化的敏感程度。
+
+### 2.1 核心思想
+
+Attention MSE 的核心思想是“直接度量输出漂移”：对同一校准样本，分别使用浮点权重与量化权重执行前向，在 attention 模块输出处采集张量，计算两路输出的均方误差；MSE 越大，表示该 attention 模块对当前量化方案越敏感。
+
+该指标比单纯比较权重 MSE 更接近 attention 的实际功能，因为它把权重误差经过 Q/K/V 投影、点积和 softmax 后的综合影响压缩成一个输出层面的分数。
+
+### 2.2 工作机制
+
+分析时可以把目标 attention 模块视为一个受控干预对象：输入样本保持一致，只改变待评估量化配置所造成的权重/算子数值误差，然后分别得到浮点输出 $Y_{fp}$ 与量化输出 $Y_q$。两者的 MSE 就是这次量化扰动在 attention 子系统输出端留下的直接痕迹。
+
+这一位置具有较强的综合性。Q/K 的误差会先影响点积 logits，随后经过 softmax 非线性重新分配注意力概率；V 或输出投影的误差则会影响加权求和结果。因此 attention 输出 MSE 不只反映某个权重张量自身的量化误差，还部分包含了注意力内部非线性对误差的放大或抑制。按相同数据与相同基线逐模块比较，就可以得到用于回退或提精度的相对敏感度排序。
+
+### 2.3 数学描述
+
+对同一层、同一样本的浮点与量化输出计算 MSE：
+
+$$
+\text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_{\text{float}}^{(i)} - y_{\text{quant}}^{(i)})^2
+$$
+
+- $y_{\text{float}}$：使用浮点权重的 attention 输出
+- $y_{\text{quant}}$：使用量化权重的 attention 输出
+- $n$：输出元素个数
+- $\text{MSE}$：均方误差，用于敏感度排序
+
+对小扰动做一阶展开，可把 Q/K 引起的 logit 误差写为：
+
+$$
+\Delta L \approx \frac{\Delta QK^T+Q\Delta K^T}{\sqrt d}.
+$$
+
+若 $P=\operatorname{softmax}(L)$，则某一行 softmax 的局部 Jacobian 为 $J_{\mathrm{sm}}=\operatorname{diag}(p)-pp^T$，从而：
+
+$$
+\Delta O \approx J_{\mathrm{sm}}\Delta L\,V + P\Delta V.
+$$
+
+这一近似说明 Attention MSE 同时受到量化误差大小和当前注意力分布形态影响：当多个位置 logits 接近时，概率重排可能更明显；当 softmax 已高度饱和时，部分方向的扰动又可能被压缩。
+
+### 2.4 关键性质
+
+- **attn 范围分析**：输出注意力模块粒度的敏感度排序。
+- **直接度量**：直接度量注意力子系统在量化权重下的输出漂移。
+- **量化配置感知**：MSE 大小与当前量化方案相关。
+- **包含 attention 非线性传播**：Q/K 误差经过 logits 与 softmax 后的放大效应能够反映到最终输出 MSE 中。
+
+局限也来自同一点：MSE 受输出幅值、序列长度、mask、输入语义以及当前量化基线影响，绝对数值没有跨模型通用阈值；它也只是数值代理，并不等价于最终任务质量。
+
+### 2.5 适用场景
+
+- 需要对 Attention 结构做权重量化或评估其敏感度的场景。
+- 需要注意力模块粒度敏感度排序以辅助回退决策的场景。
+
+### 2.6 使用限制
+
+- 需要能够获得同一 Attention 模块在浮点权重与目标量化权重下的可比输出。
+- MSE 数值依赖当前量化方案与校准数据，只适合在相同量化目标下比较模块之间的相对敏感度。
+
+---
+
+## 3. 关联词条
+
+- [Std](../std/term_std.md)：对比算法，同为敏感层分析指标，但用于 `linear` 范围。
+- [MSE Layer Wise](../mse_layer_wise/term_mse_layer_wise.md)：同类算法，同为基于 MSE 的敏感层分析指标，但用于 `layer` 范围。
+- [MSE Model Wise](../mse_model_wise/term_mse_model_wise.md)：同类算法，基于模型最终输出的 MSE 分析指标。
+
+---
+
+## 4. 参考文档
+
+1. 《[Attention MSE 分析配置流程指南](./usage_attention_mse.md)》

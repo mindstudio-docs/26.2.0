@@ -1,0 +1,108 @@
+# KVCache Quant 缓存量化算法 量化术语百科词条
+
+> **词条类别**：[量化算法](../README.md#2-量化算法)<br>
+> **英文名称**：kvcache_quant<br>
+> **应用领域**：KV Cache 压缩、长序列推理加速<br>
+
+---
+
+## 1. 概述
+
+KVCache Quant 是一种针对推理 KV Cache 的低比特量化算法。它对需要长期缓存的 Key/Value 状态建立量化表示，以减少长序列生成过程中随上下文长度增长的缓存占用；核心特征是面向缓存张量而非模型权重、通常采用按通道或其他局部粒度计算量化参数，并需要兼顾 Key 与 Value 误差对注意力计算的不同影响。
+
+---
+
+## 2. 词条介绍
+
+在大模型推理中，KV Cache 存储的 Key/Value 状态占用大量显存，并随序列长度线性增长，成为长序列推理的瓶颈。对写入 KV Cache 的状态进行量化，可以在保持生成质量的前提下显著降低缓存内存占用，提升长序列推理效率。
+
+### 2.1 核心思想
+
+KVCache Quant 的核心思想是把自回归注意力中需要跨 token 长期保存的 Key/Value 状态由高精度表示压缩为低比特表示，并在后续注意力计算需要这些历史状态时按对应尺度恢复或直接由低比特算子消费。因为 KV Cache 的容量随层数、序列长度、KV head 数和 head 维度近似线性增长，降低单元素位宽能够直接降低长上下文推理的缓存开销。
+
+与普通权重量化不同，KV Cache 是随解码过程不断追加的动态状态，其分布会随层、head、通道和 token 位置变化。因此算法不仅要决定位宽，还要决定尺度共享粒度和尺度更新方式：共享范围过大容易被局部离群值支配，过细则增加尺度元数据、统计与访存开销。
+
+缓存量化的主要收益几乎与缓存位宽成正比，因此长上下文越长，显存收益越显著。
+
+### 2.2 工作机制
+
+以标准注意力为例，历史 Key/Value 被不断追加为 $K_{1:t},V_{1:t}$，当前 Query 通过 $\operatorname{softmax}(Q_tK_{1:t}^T/\sqrt d)V_{1:t}$ 读取它们。量化可写成 $K_q=Q(K;S_K,Z_K)$、$V_q=Q(V;S_V,Z_V)$，随后用反量化值或支持低比特输入的算子完成注意力。若从 FP16/BF16 压缩到 INT8，忽略尺度元数据时理论元素存储约减半；更低位宽则进一步降低。
+
+尺度粒度决定哪些 token/head/channel 共用量化区间。per-channel/per-head 可以减少不同通道之间的离群值串扰；动态尺度能随当前数据适配，但需要在线统计与额外元数据，静态尺度开销更小却依赖校准分布。K 和 V 的误差传播也不同：K 误差先改变 logits，经过 softmax 后可能产生非线性放大；V 误差主要在线性加权求和中传播。因此两者即使使用相同位宽，也可能表现出不同敏感性。
+
+### 2.3 数学描述
+
+对任意待缓存张量 $X\in\{K,V\}$，线性低比特量化可以写为：
+
+$$
+q_X=\operatorname{clip}\left(\operatorname{round}\left(\frac{X}{S_X}\right)+Z_X,\;Q_{min},Q_{max}\right)
+$$
+
+反量化近似为：
+
+$$
+\hat X=S_X(q_X-Z_X)
+$$
+
+其中 $S_X,Z_X$ 可以按 tensor、head、channel 或更细粒度共享。标准注意力在使用量化缓存时近似为：
+
+$$
+\hat Y_t=\operatorname{softmax}\left(\frac{Q_t\hat K_{1:t}^{T}}{\sqrt d}\right)\hat V_{1:t}
+$$
+
+若原缓存元素位宽为 $b_{fp}$，量化后数据位宽为 $b_q$，忽略尺度、零点及对齐开销时，数据区的理论存储比例约为：
+
+$$
+\frac{M_q}{M_{fp}}\approx\frac{b_q}{b_{fp}}
+$$
+
+实际节省还取决于尺度粒度、元数据和后端存储格式。
+
+设量化后缓存为 $\hat K=K+E_K$、$\hat V=V+E_V$，注意力输出为 $O=PV$，其中 $P=\operatorname{softmax}(QK^T/\sqrt d)$。一阶近似下：
+
+$$
+\Delta L=\frac{QE_K^T}{\sqrt d},\qquad\Delta P\approx J_{\mathrm{sm}}\Delta L,
+$$
+
+$$
+\Delta O\approx \Delta P\,V+P E_V.
+$$
+
+第一项体现 K 误差经 softmax 的非线性传播，第二项体现 V 误差的概率加权传播。若原缓存使用 $b_{fp}$ 位、量化缓存使用 $b_q$ 位且忽略尺度元数据，则理想存储比约为 $b_q/b_{fp}$；实际比例还要加上 scale/zero-point 等元数据。
+
+### 2.4 关键性质
+
+- **状态量化**：量化对象是会跨解码步保存并重复读取的 Key/Value 历史状态。
+- **per_channel 量化**：按隐藏层维度计算量化参数，平衡精度与效率。
+- **内存压缩**：FP16→INT8 理论可减少约 50% 的 cache 内存占用。
+- **增量校准**：支持动态序列长度变化的增量式校准。
+- **误差具有时间复用性**：历史 K/V 的量化误差会在后续多个解码步中被反复读取。
+
+从误差与适用边界看，尺度太粗会被 head/channel 离群值支配，尺度太细又会增加存储和计算开销；动态尺度适配强但可能给解码路径增加归约延迟。低位宽还会让极少数重要历史 token 的表示失真，因此实际算法常与 KV Smooth、head 选择或混合精度策略配合。
+
+### 2.5 适用场景
+
+- 长序列推理场景下需要降低 KV Cache 显存占用的场景。
+- 与 [线性量化](../linear_quant/term_linear_quant.md) 配合实现全量化方案，提升长序列推理效率。
+
+### 2.6 使用限制
+
+- 注意力模块 `forward` 函数必须接受一个 `DynamicCache` 对象并调用 `cache.update()`。
+- 当前仅支持 INT8 量化，仅对 KV Cache 状态量化。
+- 伪量化阶段仍需原精度内存，真实内存节省需要底层算子支持。
+- 基于模块类名称模式匹配（`*self_attn*`），自定义命名需要适配。
+
+---
+
+## 3. 关联词条
+
+- [线性量化](../linear_quant/term_linear_quant.md)：配套术语，KVCache Quant 通常与线性量化配合实现全量化方案。
+- [KV Smooth](../kv_smooth/term_kv_smooth.md)：配套术语，本算法可配合 KV Smooth 抑制 Key 离群值。
+- [FA3 Quant](../fa3_quant/term_fa3_quant.md)：配套术语，同属长序列推理的缓存/激活量化方案。
+- [MinMax](../minmax/term_minmax.md)：应用对象，缓存量化使用 MinMax 方法计算量化参数。
+
+---
+
+## 4. 参考文档
+
+1. 《[KVCache Quant 参数配置流程指南](./usage_kvcache_quant.md)》

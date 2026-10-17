@@ -1,0 +1,6 @@
+fragment_id: qwen3_moe_decoder_v1
+fragment_kind: model_decoder
+# MoE language layers and MTP predictor: shared attention + MoE FFN.
+include_fragments:
+  - qwen3_attention_v1
+  - qwen3_moe_ffn_v1

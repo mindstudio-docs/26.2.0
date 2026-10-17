@@ -1,0 +1,965 @@
+{
+  "method": "Static Markdown inline/reference and HTML href/src path scan; skips fenced code, external URLs and anchors. Not an exhaustive Markdown/HTML parser.",
+  "findings": [
+    {
+      "repository": "msagent",
+      "document": "docs/zh/example/msmonitor-review-run.html",
+      "line": 62,
+      "url": "index.html",
+      "target": "docs/zh/example/index.html",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/operator/ops-performance-tuning/references/cases/shmem/pr_shmem_alltoallv_mr152.md",
+      "line": 12,
+      "url": "../../optimize-shmem.md",
+      "target": "skills/operator/ops-performance-tuning/references/optimize-shmem.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/operator/ops-performance-tuning/references/cases/shmem/pr_shmem_reduce_scatter_serial.md",
+      "line": 12,
+      "url": "../../optimize-shmem.md",
+      "target": "skills/operator/ops-performance-tuning/references/optimize-shmem.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/operator/ops-performance-tuning/references/diagnose/diagnose-occupancy.md",
+      "line": 27,
+      "url": "case-routing.md#3-msopprof-跨版本采集先探测再选命令",
+      "target": "skills/operator/ops-performance-tuning/references/diagnose/case-routing.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/operator/ops-performance-tuning/references/diagnose/diagnose-roofline.md",
+      "line": 24,
+      "url": "case-routing.md#3-msopprof-跨版本采集先探测再选命令",
+      "target": "skills/operator/ops-performance-tuning/references/diagnose/case-routing.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/operator/ops-performance-tuning/references/optimize/optimize-catlass.md",
+      "line": 43,
+      "url": "cases/catlass/pr_catlass_swizzle_balance.md",
+      "target": "skills/operator/ops-performance-tuning/references/optimize/cases/catlass/pr_catlass_swizzle_balance.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/operator/ops-performance-tuning/references/optimize/optimize-catlass.md",
+      "line": 51,
+      "url": "cases/catlass/pr_catlass_mstuner_3p8x.md",
+      "target": "skills/operator/ops-performance-tuning/references/optimize/cases/catlass/pr_catlass_mstuner_3p8x.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/operator/ops-performance-tuning/references/optimize/optimize-shmem.md",
+      "line": 37,
+      "url": "optimize/optimize-data-copy.md",
+      "target": "skills/operator/ops-performance-tuning/references/optimize/optimize/optimize-data-copy.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/operator/ops-performance-tuning/references/optimize/optimize-tilelang.md",
+      "line": 17,
+      "url": "cases/tilelang/pr_tilelang_persistent_mqa_decode.md",
+      "target": "skills/operator/ops-performance-tuning/references/optimize/cases/tilelang/pr_tilelang_persistent_mqa_decode.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/operator/ops-performance-tuning/references/optimize/optimize-triton.md",
+      "line": 30,
+      "url": "cases/triton/pr_triton_atomic_simd_24x.md",
+      "target": "skills/operator/ops-performance-tuning/references/optimize/cases/triton/pr_triton_atomic_simd_24x.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/operator/ops-performance-tuning/references/optimize/optimize-triton.md",
+      "line": 35,
+      "url": "cases/triton/pr_triton_constexpr_recompile.md",
+      "target": "skills/operator/ops-performance-tuning/references/optimize/cases/triton/pr_triton_constexpr_recompile.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/quantizer/msmodelslim-adapter-verification/references/dit/README.md",
+      "line": 44,
+      "url": "../../msmodelslim-model-adapt/references/dit/inference_config_field_map.md",
+      "target": "skills/quantizer/msmodelslim-adapter-verification/msmodelslim-model-adapt/references/dit/inference_config_field_map.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/quantizer/msmodelslim-model-adapt/references/dit/architecture_patterns.md",
+      "line": 163,
+      "url": "../../../assets/dit/diagram_fallback.yaml",
+      "target": "skills/quantizer/assets/dit/diagram_fallback.yaml",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/quantizer/quant-tuning-history-append-dit/SKILL.md",
+      "line": 142,
+      "url": "../../quantization-accuracy-tuning-orchestrator/references/output_format.md",
+      "target": "skills/quantization-accuracy-tuning-orchestrator/references/output_format.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/quantizer/quant-tuning-history-append-dit/SKILL.md",
+      "line": 143,
+      "url": "../../quantization-accuracy-tuning-orchestrator/scripts/accuracy_append.py",
+      "target": "skills/quantization-accuracy-tuning-orchestrator/scripts/accuracy_append.py",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/quantizer/quant-tuning-history-append-dit/SKILL.md",
+      "line": 144,
+      "url": "../../quantization-expert-experience-tuning-rules/scripts/yaml_utils.py",
+      "target": "skills/quantization-expert-experience-tuning-rules/scripts/yaml_utils.py",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/quantizer/quantization-accuracy-tuning-orchestrator/SKILL.md",
+      "line": 202,
+      "url": "../../../docs/dit_tuning/README.md",
+      "target": "docs/dit_tuning/README.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/quantizer/quantization-accuracy-tuning-orchestrator/SKILL.md",
+      "line": 206,
+      "url": "../../../msagent/skills/quantizer/quantization-expert-experience-tuning-rules/structure-family-pitfalls.md",
+      "target": "msagent/skills/quantizer/quantization-expert-experience-tuning-rules/structure-family-pitfalls.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/quantizer/quantization-accuracy-tuning-orchestrator/SKILL.md",
+      "line": 208,
+      "url": "../../quant-tuning-evaluate/references/dit/evaluate_workflow.md",
+      "target": "skills/quant-tuning-evaluate/references/dit/evaluate_workflow.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/quantizer/quantization-accuracy-tuning-orchestrator/references/subagent_io_protocol.md",
+      "line": 25,
+      "url": "../../../quantization-expert-experience-tuning-rules/structure-family-pitfalls.md",
+      "target": "skills/quantization-expert-experience-tuning-rules/structure-family-pitfalls.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msagent",
+      "document": "skills/quantizer/quantization-accuracy-tuning-orchestrator/references/subagent_io_protocol.md",
+      "line": 157,
+      "url": "../../../quant-tuning-evaluate/references/dit/evaluate_workflow.md",
+      "target": "skills/quant-tuning-evaluate/references/dit/evaluate_workflow.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msboost",
+      "document": "README.md",
+      "line": 48,
+      "url": "docs/zh/contributing/contributing_guide.md",
+      "target": "docs/zh/contributing/contributing_guide.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msinsight",
+      "document": "CONTRIBUTING.md",
+      "line": 28,
+      "url": ".gitcode/PULL_REQUEST_TEMPLATE.md",
+      "target": ".gitcode/PULL_REQUEST_TEMPLATE.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "mskl",
+      "document": "docs/en/api_reference/mskl_api_reference.md",
+      "line": 414,
+      "url": "arg1,",
+      "target": "docs/en/api_reference/arg1,",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "mskl",
+      "document": "docs/en/api_reference/mskl_api_reference.md",
+      "line": 670,
+      "url": "arg1,",
+      "target": "docs/en/api_reference/arg1,",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "mskl",
+      "document": "docs/en/development_guide/architecture.md",
+      "line": 106,
+      "url": "args",
+      "target": "docs/en/development_guide/args",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "mskl",
+      "document": "docs/zh/api_reference/mskl_api_reference.md",
+      "line": 414,
+      "url": "arg1,",
+      "target": "docs/zh/api_reference/arg1,",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "mskl",
+      "document": "docs/zh/api_reference/mskl_api_reference.md",
+      "line": 670,
+      "url": "arg1,",
+      "target": "docs/zh/api_reference/arg1,",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "mskl",
+      "document": "docs/zh/development_guide/architecture.md",
+      "line": 106,
+      "url": "args",
+      "target": "docs/zh/development_guide/args",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "mskpp",
+      "document": "docs/en/development_guide/architecture.md",
+      "line": 761,
+      "url": "arg1,",
+      "target": "docs/en/development_guide/arg1,",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "mskpp",
+      "document": "docs/zh/development_guide/architecture.md",
+      "line": 761,
+      "url": "arg1,",
+      "target": "docs/zh/development_guide/arg1,",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msmemscope",
+      "document": "docs/en/index.md",
+      "line": 92,
+      "url": "./docs/zh/communication_guide/figures/ascend_assistant.jpg",
+      "target": "docs/en/docs/zh/communication_guide/figures/ascend_assistant.jpg",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msmemscope",
+      "document": "docs/zh/index.md",
+      "line": 96,
+      "url": "./docs/zh/communication_guide/figures/ascend_assistant.jpg",
+      "target": "docs/zh/docs/zh/communication_guide/figures/ascend_assistant.jpg",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "CONTRIBUTING.md",
+      "line": 520,
+      "url": "AGENTS.md",
+      "target": "AGENTS.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "README.md",
+      "line": 177,
+      "url": ".devcontainer/README.md",
+      "target": ".devcontainer/README.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "README.md",
+      "line": 182,
+      "url": "AGENTS.md",
+      "target": "AGENTS.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_device_config_skill_zh.md",
+      "line": 11,
+      "url": "../../.agents/skills/device_config/SKILL.md",
+      "target": ".agents/skills/device_config/SKILL.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_device_config_skill_zh.md",
+      "line": 275,
+      "url": "../../.agents/skills/device_config/SKILL.md",
+      "target": ".agents/skills/device_config/SKILL.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_optix_agent_mode_zh.md",
+      "line": 347,
+      "url": "../../.agents/skills/optix-assistant/SKILL.md",
+      "target": ".agents/skills/optix-assistant/SKILL.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_optix_agent_mode_zh.md",
+      "line": 348,
+      "url": "../../.agents/skills/optix-assistant/workflows/agent.md",
+      "target": ".agents/skills/optix-assistant/workflows/agent.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_optix_agent_mode_zh.md",
+      "line": 349,
+      "url": "../../.agents/skills/optix-assistant/references/agent-mode.md",
+      "target": ".agents/skills/optix-assistant/references/agent-mode.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_optix_agent_mode_zh.md",
+      "line": 350,
+      "url": "../../.agents/skills/optix-assistant/references/pso-mode.md",
+      "target": ".agents/skills/optix-assistant/references/pso-mode.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_optix_agent_mode_zh.md",
+      "line": 353,
+      "url": "../../.agents/skills/optix-assistant/scripts/estimation.py",
+      "target": ".agents/skills/optix-assistant/scripts/estimation.py",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_optix_deploy_skill_zh.md",
+      "line": 11,
+      "url": "../../.agents/skills/optix-deploy/SKILL.md",
+      "target": ".agents/skills/optix-deploy/SKILL.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_optix_deploy_skill_zh.md",
+      "line": 227,
+      "url": "../../.agents/skills/optix-deploy/SKILL.md",
+      "target": ".agents/skills/optix-deploy/SKILL.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_optix_param_recommend_skill_zh.md",
+      "line": 11,
+      "url": "../../.agents/skills/optix-assistant/SKILL.md",
+      "target": ".agents/skills/optix-assistant/SKILL.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_optix_param_recommend_skill_zh.md",
+      "line": 279,
+      "url": "../../.agents/skills/optix-assistant/SKILL.md",
+      "target": ".agents/skills/optix-assistant/SKILL.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_optix_param_recommend_skill_zh.md",
+      "line": 280,
+      "url": "../../.agents/skills/optix-assistant/references/input-schema.md",
+      "target": ".agents/skills/optix-assistant/references/input-schema.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_optix_param_recommend_skill_zh.md",
+      "line": 281,
+      "url": "../../.agents/skills/optix-assistant/references/parameter-rules.md",
+      "target": ".agents/skills/optix-assistant/references/parameter-rules.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_throughput_optimizer_executor_skill_zh.md",
+      "line": 11,
+      "url": "../../.agents/skills/throughput-optimizer-executor/SKILL.md",
+      "target": ".agents/skills/throughput-optimizer-executor/SKILL.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_throughput_optimizer_executor_skill_zh.md",
+      "line": 11,
+      "url": "../../.agents/skills/throughput-optimizer-explainer/SKILL.md",
+      "target": ".agents/skills/throughput-optimizer-explainer/SKILL.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_throughput_optimizer_explainer_skill_zh.md",
+      "line": 11,
+      "url": "../../.agents/skills/throughput-optimizer-explainer/SKILL.md",
+      "target": ".agents/skills/throughput-optimizer-explainer/SKILL.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/ai-native/README.md",
+      "line": 7,
+      "url": "../../AGENTS.md",
+      "target": "AGENTS.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/design/profiling_database_lifecycle.md",
+      "line": 5,
+      "url": "../../.agents/skills/profiling_database_lifecycle/SKILL.md",
+      "target": ".agents/skills/profiling_database_lifecycle/SKILL.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/design/profiling_database_lifecycle.md",
+      "line": 9,
+      "url": "../../.agents/skills/profiling_database_axis_density/SKILL.md",
+      "target": ".agents/skills/profiling_database_axis_density/SKILL.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/design/profiling_database_lifecycle.md",
+      "line": 10,
+      "url": "../../.agents/skills/profiling_database_axis_density/axis_collection_density.yaml",
+      "target": ".agents/skills/profiling_database_axis_density/axis_collection_density.yaml",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/design/profiling_database_lifecycle.md",
+      "line": 78,
+      "url": "../../.agents/skills/profiling_database_axis_density/axis_collection_density.yaml",
+      "target": ".agents/skills/profiling_database_axis_density/axis_collection_density.yaml",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/design/profiling_database_lifecycle.md",
+      "line": 80,
+      "url": "../../.agents/skills/profiling_database_axis_density/SKILL.md",
+      "target": ".agents/skills/profiling_database_axis_density/SKILL.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/perf_database/tutorial/OP_PLUGIN_MAPPING_TUTORIAL.md",
+      "line": 513,
+      "url": "../../../.agents/skills/op-mapping/SKILL.md",
+      "target": ".agents/skills/op-mapping/SKILL.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "scripts/README.md",
+      "line": 19,
+      "url": "../tests/README.md",
+      "target": "tests/README.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "scripts/README.md",
+      "line": 128,
+      "url": "../tests/README.md",
+      "target": "tests/README.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "spec/governance/source-of-truth-matrix.md",
+      "line": 60,
+      "url": "../../AGENTS.md",
+      "target": "AGENTS.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "spec/governance/source-of-truth-matrix.md",
+      "line": 110,
+      "url": "../../.agents/skills/sig-review/sig_ownership.json",
+      "target": ".agents/skills/sig-review/sig_ownership.json",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "tools/perf_data_collection/readme.md",
+      "line": 394,
+      "url": "../../tests/README.md",
+      "target": "tests/README.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "tools/perf_data_collection/readme_en.md",
+      "line": 366,
+      "url": "../../tests/README.md",
+      "target": "tests/README.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/iformat_integration_guide.md",
+      "line": 214,
+      "url": "../../../test/cases/format/compressed_tensors_format",
+      "target": "test/cases/format/compressed_tensors_format",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/iformat_integration_guide.md",
+      "line": 233,
+      "url": "../../../test/cases/format/compressed_tensors_format",
+      "target": "test/cases/format/compressed_tensors_format",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1463,
+      "url": "../../../msmodelslim/model/hunyuan_video",
+      "target": "msmodelslim/model/hunyuan_video",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/quarot.md",
+      "line": 378,
+      "url": "../../../../../msmodelslim/processor/quarot/common/hadamard_txt",
+      "target": "msmodelslim/processor/quarot/common/hadamard_txt",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/contributing/contributing_guide.md",
+      "line": 21,
+      "url": "../../../.gitcode/ISSUE_TEMPLATE",
+      "target": ".gitcode/ISSUE_TEMPLATE",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/contributing/contributing_guide.md",
+      "line": 28,
+      "url": "../../../.gitcode/PULL_REQUEST_TEMPLATE.md",
+      "target": ".gitcode/PULL_REQUEST_TEMPLATE.md",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/contributing/development_guide/docs_standards/00_common_checklist.md",
+      "line": 16,
+      "url": "相对路径",
+      "target": "docs/zh/contributing/development_guide/docs_standards/相对路径",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/contributing/development_guide/docs_standards/01_term_glossary_template.md",
+      "line": 41,
+      "url": "./term_xxx.md",
+      "target": "docs/zh/contributing/development_guide/docs_standards/term_xxx.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/contributing/development_guide/docs_standards/01_term_glossary_template.md",
+      "line": 81,
+      "url": "./term_xxx.md",
+      "target": "docs/zh/contributing/development_guide/docs_standards/term_xxx.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/contributing/development_guide/docs_standards/README.md",
+      "line": 195,
+      "url": "链接",
+      "target": "docs/zh/contributing/development_guide/docs_standards/链接",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/parallel/distributed_task_scheduler/term_distributed_task_scheduler.md",
+      "line": 13,
+      "url": "../../../../../msmodelslim/utils/distributed/task_scheduler/",
+      "target": "msmodelslim/utils/distributed/task_scheduler",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_format/ascendv1/ascendv1_usage.md",
+      "line": 70,
+      "url": "../../../../../msmodelslim/model/qwen3_next/",
+      "target": "msmodelslim/model/qwen3_next",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_format/ascendv1/ascendv1_usage.md",
+      "line": 71,
+      "url": "../../../../../msmodelslim/model/minimax_m2/",
+      "target": "msmodelslim/model/minimax_m2",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_format/iformat_integration_guide.md",
+      "line": 183,
+      "url": "../../../../test/cases/format/compressed_tensors_format",
+      "target": "test/cases/format/compressed_tensors_format",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "skills/README.md",
+      "line": 18,
+      "url": "tuning-loop-lib/",
+      "target": "skills/tuning-loop-lib",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "skills/README.md",
+      "line": 132,
+      "url": "相对路径",
+      "target": "skills/相对路径",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "skills/docs-management/references/link_check.md",
+      "line": 9,
+      "url": "../xx/yy.md",
+      "target": "skills/docs-management/xx/yy.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "skills/docs-management/references/link_check.md",
+      "line": 9,
+      "url": "./zz.md",
+      "target": "skills/docs-management/references/zz.md",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "skills/docs-management/scenarios/add-quantization-format.md",
+      "line": 44,
+      "url": "路径",
+      "target": "skills/docs-management/scenarios/路径",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "msmonitor",
+      "document": "docs/zh/advanced_features/monitor_feature.md",
+      "line": 122,
+      "url": "../../../test/st/test_dcmi_fa_comm_multistream.py",
+      "target": "test/st/test_dcmi_fa_comm_multistream.py",
+      "kind": "excluded_source"
+    },
+    {
+      "repository": "msoptuner",
+      "document": "tuner/README.md",
+      "line": 81,
+      "url": "../../examples/06_optimized_matmul/optimized_matmul.cpp",
+      "target": "../examples/06_optimized_matmul/optimized_matmul.cpp",
+      "kind": "outside_upstream_repository"
+    },
+    {
+      "repository": "msprof-analyze",
+      "document": "README.md",
+      "line": 29,
+      "url": "./msprof_analyze/advisor",
+      "target": "msprof_analyze/advisor",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "msprof-analyze",
+      "document": "README_EN.md",
+      "line": 29,
+      "url": "./msprof_analyze/advisor",
+      "target": "msprof_analyze/advisor",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "README_EN.md",
+      "line": 34,
+      "url": "analysis",
+      "target": "analysis",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "samples/README.md",
+      "line": 9,
+      "url": "./mstx_with_domain",
+      "target": "samples/mstx_with_domain",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/user_guide/samples_guide.md",
+      "line": 72,
+      "url": "../../../samples/callback_domain",
+      "target": "samples/callback_domain",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/user_guide/samples_guide.md",
+      "line": 73,
+      "url": "../../../samples/callback_mstx",
+      "target": "samples/callback_mstx",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/user_guide/samples_guide.md",
+      "line": 79,
+      "url": "../../../samples/mspti_activity",
+      "target": "samples/mspti_activity",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/user_guide/samples_guide.md",
+      "line": 80,
+      "url": "../../../samples/mspti_correlation",
+      "target": "samples/mspti_correlation",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/user_guide/samples_guide.md",
+      "line": 81,
+      "url": "../../../samples/mspti_external_correlation",
+      "target": "samples/mspti_external_correlation",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/user_guide/samples_guide.md",
+      "line": 82,
+      "url": "../../../samples/mspti_hccl_activity",
+      "target": "samples/mspti_hccl_activity",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/user_guide/samples_guide.md",
+      "line": 83,
+      "url": "../../../samples/mspti_mstx_activity_domain",
+      "target": "samples/mspti_mstx_activity_domain",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/user_guide/samples_guide.md",
+      "line": 89,
+      "url": "../../../samples/python_monitor",
+      "target": "samples/python_monitor",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/user_guide/samples_guide.md",
+      "line": 90,
+      "url": "../../../samples/python_mstx_monitor",
+      "target": "samples/python_mstx_monitor",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/zh/user_guide/samples_guide.md",
+      "line": 82,
+      "url": "../../../samples/callback_domain",
+      "target": "samples/callback_domain",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/zh/user_guide/samples_guide.md",
+      "line": 83,
+      "url": "../../../samples/callback_mstx",
+      "target": "samples/callback_mstx",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/zh/user_guide/samples_guide.md",
+      "line": 89,
+      "url": "../../../samples/mspti_activity",
+      "target": "samples/mspti_activity",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/zh/user_guide/samples_guide.md",
+      "line": 90,
+      "url": "../../../samples/mspti_correlation",
+      "target": "samples/mspti_correlation",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/zh/user_guide/samples_guide.md",
+      "line": 91,
+      "url": "../../../samples/mspti_external_correlation",
+      "target": "samples/mspti_external_correlation",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/zh/user_guide/samples_guide.md",
+      "line": 92,
+      "url": "../../../samples/mspti_hccl_activity",
+      "target": "samples/mspti_hccl_activity",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/zh/user_guide/samples_guide.md",
+      "line": 93,
+      "url": "../../../samples/mspti_mstx_activity_domain",
+      "target": "samples/mspti_mstx_activity_domain",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/zh/user_guide/samples_guide.md",
+      "line": 99,
+      "url": "../../../samples/python_monitor",
+      "target": "samples/python_monitor",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/zh/user_guide/samples_guide.md",
+      "line": 100,
+      "url": "../../../samples/python_mstx_monitor",
+      "target": "samples/python_mstx_monitor",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "samples/README.md",
+      "line": 23,
+      "url": "./callback_domain",
+      "target": "samples/callback_domain",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "samples/README.md",
+      "line": 24,
+      "url": "./callback_mstx",
+      "target": "samples/callback_mstx",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "samples/README.md",
+      "line": 25,
+      "url": "./mspti_activity",
+      "target": "samples/mspti_activity",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "samples/README.md",
+      "line": 26,
+      "url": "./mspti_correlation",
+      "target": "samples/mspti_correlation",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "samples/README.md",
+      "line": 27,
+      "url": "./mspti_external_correlation",
+      "target": "samples/mspti_external_correlation",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "samples/README.md",
+      "line": 28,
+      "url": "./mspti_hccl_activity",
+      "target": "samples/mspti_hccl_activity",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "samples/README.md",
+      "line": 29,
+      "url": "./mspti_mstx_activity_domain",
+      "target": "samples/mspti_mstx_activity_domain",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "samples/README.md",
+      "line": 30,
+      "url": "./python_monitor",
+      "target": "samples/python_monitor",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "samples/README.md",
+      "line": 31,
+      "url": "./python_mstx_monitor",
+      "target": "samples/python_mstx_monitor",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "samples/README.md",
+      "line": 35,
+      "url": "./common",
+      "target": "samples/common",
+      "kind": "upstream_directory_outside_scope"
+    },
+    {
+      "repository": "mstt",
+      "document": "docs/en/best_practices/general_performance_issue_troubleshooting_guide/solution_to_top1.md",
+      "line": 9,
+      "url": "../../figures/best_practices/general_performance_issue_troubleshooting_guide/cluster_step_trace_time-csv-deliverable-\\(comparison-between-a-normal-4-node-cluster-and-an-abnormal.png)",
+      "target": "docs/en/figures/best_practices/general_performance_issue_troubleshooting_guide/cluster_step_trace_time-csv-deliverable-\\(comparison-between-a-normal-4-node-cluster-and-an-abnormal.png)",
+      "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "mstt",
+      "document": "docs/en/best_practices/general_performance_issue_troubleshooting_guide/solution_to_top1.md",
+      "line": 294,
+      "url": "../../figures/best_practices/general_performance_issue_troubleshooting_guide/cluster_step_trace_time-csv-deliverable-(comparison-between-a-normal-4-node-cluster-and-an-abnormal.png)",
+      "target": "docs/en/figures/best_practices/general_performance_issue_troubleshooting_guide/cluster_step_trace_time-csv-deliverable-(comparison-between-a-normal-4-node-cluster-and-an-abnormal.png)",
+      "kind": "not_found_in_upstream_commit"
+    }
+  ]
+}

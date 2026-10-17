@@ -1,0 +1,396 @@
+# **内存采集**
+
+## 简介
+
+msMemScope工具提供内存事件的采集能力，支持自定义配置采集内存范围和采集项，精准采集关键数据，为后续分析提供可靠的支撑。
+
+- Python接口采集：通过Python接口，配置采集范围和采集项，支持采集内存事件和Python Trace事件。
+- 命令行采集：通过命令行方式，配置采集参数，实现内存事件采集。
+- mstx打点采集：结合mstx打点能力，可通过C脚本和Python脚本实现内存事件采集。
+
+## 使用前准备
+
+msMemScope工具的安装，请参见《[msMemScope工具安装指南](../install_guide/install_guide.md)》。
+
+## Python接口采集功能介绍
+
+### 功能说明
+
+通过Python接口采集内存事件和Python Trace事件，支持自定义配置采集内存范围和参数项，实现精准采集、高效分析。
+
+### 注意事项
+
+- 使用export方式设置环境变量仅在当前窗口有效。设置环境变量后，如果不再需要使用msMemScope工具的功能，建议将LD_PRELOAD、LD_LIBRARY_PATH恢复成设置前状态。
+- 当设置events="traceback"，采集Python Trace事件，开启后，将落盘csv文件，名称为python_trace_{*TID*}_{*timestamp*}.csv，具体信息可参见[输出文件说明](./output_file_spec.md)。
+- 如果需要关闭采集项，可使用`none`关键字。例如，关闭事件采集则设置events="none"；关闭分析功能则设置analysis="none"。
+- 使用Python接口方式自定义采集范围，支持设置多段采集范围。
+- `msmemscope.start()`开启采集后、`msmemscope.stop()`前，`msmemscope.config()`调用不生效，并打印warning提示；如需调整采集配置，请先执行`stop()`，调整后再重新`start()`。
+- **历史显存感知**：Python API模式下，`msmemscope.start()` 调用时会自动将调用前已分配且尚未释放的显存块（存量显存）一并记录到输出文件中。该机制可保证 start~stop 区间内的显存总量统计准确。历史显存块仅做数据记录（落盘），不参与泄漏分析、显存拆解、低效识别等分析流程。此机制对用户透明，无需额外配置。
+
+### 使用示例
+
+**Python接口采集**<a id="Python接口采集"></a>
+
+1. 设置环境变量。
+
+    执行以下命令，设置Python接口方式使用所需的环境变量。
+
+    ```shell
+    source msmemscope --load-api-env
+    ```
+
+    > [!WARNING]
+    >
+    > 当使用完毕msMemScope工具后，请及时使用命令`source msmemscope --unload-api-env`清除该环境变量，避免与后续操作产生冲突。若未及时清除该环境变量，后续执行set_env类操作，或手动设置`LD_PRELOAD`、`LD_LIBRARY_PATH`等LD类环境变量时，可能产生不可预知的错误。
+
+    **表 1**  参数说明<a id="参数说明"></a>
+
+    |参数|说明|
+    |--|--|
+    |--load-api-env[=npu\|host]|设置 API 方式使用所需的环境变量，必须通过`source`方式执行。可选值：<br> - **npu**：装配NPU钩子链，用于NPU显存采集与分析。不指定取值时默认为npu。<br> - **host**：仅装配Host堆内存泄漏检测钩子。Python接口方式设置analysis="host-leaks"前必须以该模式装载，具体参见[Host堆内存泄漏检测功能介绍](./memory_analysis.md#host堆内存泄漏检测功能介绍)。<br> npu与host互斥，后装载的模式会自动移除另一种模式已设置的`LD_PRELOAD`条目。|
+    |--unload-api-env|清除 msMemScope 相关的环境变量条目，保留其他工具的值，必须通过`source`方式执行。|
+
+2. 采集内存。
+
+    执行以下示例代码，采集内存事件。需要注意的是，请根据需求自行配置`msmemscope.config`的参数。支持设置device、level、events、call_stack、analysis、watch、output_path和format参数，可根据需求自行设置，具体参数信息可参见[命令行采集功能介绍](#命令行采集功能介绍)。
+
+    ```python
+    import msmemscope
+
+    msmemscope.config(call_stack="c:10,python:5", events="launch,alloc,free", level="0", device="npu", analysis="leaks,decompose", watch="op0,op1,full-content", format="db", output_path="/home/projects/output")
+    msmemscope.start()   # 开启采集
+    train()              # train()为用户代码
+    msmemscope.stop()    # 退出采集
+    ```
+
+    > [!NOTE]
+    >
+    > OOM情况一般会出现在内存采集区间，一旦出现，将会落盘OOM前后的快照信息，落盘的具体信息可参考《输出文件说明》中的“[memscope_dump_{timestamp}.csv文件说明](./output_file_spec.md#memscope_dump_timestampcsv文件说明)”，当Event为SNAPSHOT时，查看Attr字段信息和Call Stack字段信息。
+
+**Python Trace采集**
+
+- 默认采集
+
+    msMemScope工具支持通过Python接口采集Python代码的Trace数据，并与内存事件使用统一时间轴，帮助调优人员快速关联内存事件与全链路代码，精准定位问题。
+
+    > [!NOTE]
+    >
+    > Python Trace采集功能将于MindStudio 26.0.0版本下线，您可通过Python接口采集方式，自定义设置events="traceback"，采集Python Trace事件，可参见[Python接口采集](#Python接口采集)。
+
+    1. 在msMemScope工具中，增加Python接口，用以开启和关闭Tracer功能，在start和stop之间的Python代码，会落盘Trace数据。代码示例如下：
+
+        ```python
+        import msmemscope
+
+        msmemscope.tracer.start()  # 开启Tracer功能
+        train()                    # train()为用户代码
+        msmemscope.tracer.stop()   # 关闭Tracer功能
+        ```
+
+    2. 执行完成后，会生成名称为python_trace_{*TID*}_{*timestamp*}.csv的文件，具体文件信息可参见《[输出文件说明](./output_file_spec.md)》。
+
+- 自定义采集
+
+    msMemScope工具支持通过Python接口自定义Trace事件，可通过调用API接口自定义Trace事件，关注核心代码或代码块，避免落盘全量Trace事件，提高数据采集效率。自定义Trace事件可通过`msmemscope.RecordFunction`接口设置，支持上下文（标记函数）和装饰器两种模式（标记代码块）。
+
+    1. 在msMemScope工具中，使用`msmemscope.RecordFunction`接口，落盘自定义Trace事件数据。代码示例如下：
+
+        ```python
+        # 上下文模式，标记代码块
+        import msmemscope
+        with msmemscope.RecordFunction("forward_pass"):
+            output = model(input_data)
+
+        # 装饰器模式，标记函数
+        import msmemscope
+        @msmemscope.RecordFunction("forward_pass")
+        def forward_pass(data):
+            return model(data)
+        ```
+
+    2. 自定义Trace数据的落盘路径和默认采集的Trace数据落盘路径一致，具体文件信息可参见《[输出文件说明](./output_file_spec.md)》。
+
+**内存快照采集**
+
+支持采集当前系统内的显存分配器快照信息，例如设备总空闲内存、设备当前空闲内存等信息，便于客户高效获取。
+
+内存快照采集功能可通过两种方式开启，方式一为本节的自动开启，方式二为一键分析功能开启，具体操作可参见[一键分析功能介绍](./memory_analysis.md#一键分析功能介绍)。内存快照采集功能支持以下应用场景。
+
+|场景|说明|
+|----|-----|
+|训练|仅可使用本节介绍的方法开启内存快照。|
+|推理|可使用一键分析功能为vLLM推理框架开启内存快照，可一键记录推理过程中的load_weight、profile_run、kv_cache和activate等环节的内存占用。|
+|强化学习|强化学习（verl）涉及推理和训练两个阶段，其中一键分析功能目前仅支持在强化学习的推理过程中开启内存快照；训练过程则可使用本节介绍的方法启用内存快照功能。|
+
+执行以下示例代码，采集内存快照。
+
+`msmemscope.take_snapshot`可自行设置参数，支持的参数请参见[**表 2**  快照采集参数说明](#快照采集参数说明)。
+
+```python
+import msmemscope
+
+msmemscope.take_snapshot(device_mask=0)   # 采集一次内存快照
+```
+
+**表 2**  快照采集参数说明<a id="快照采集参数说明"></a>
+
+| 参数 | 说明 |
+| ----- | ----- |
+|device_mask|指定设备，默认值为NONE，表示会采集所有设备的内存使用信息。支持以下三种形式的参数传入：<br> - **num**：指定采集某个device_mask上的信息。示例：`msmemscope.take_snapshot(device_mask=0)` <br> - **list**：指定采集多个device_mask上的信息。示例：`msmemscope.take_snapshot(device_mask=[0, 1])` <br> - **tuple**：指定采集多个device_mask上的信息。示例：`msmemscope.take_snapshot(device_mask=(0, 1))`|
+|name|指定采集事件自定义名，默认值为"Memory Snapshot"。示例：`msmemscope.take_snapshot(name="test_tuple")`|
+
+采集完成后，结果会落盘至memscope_dump_{_timestamp_}.csv文件中。
+
+> [!NOTE]
+>
+> - `msmemscope.take_snapshot`接口支持独立调用以采集数据，不依赖`msmemscope.start`和`msmemscope.stop`的限制。
+> - `msmemscope.take_snapshot`接口可和`msmemscope.config`接口配合使用，当同时使用时，结果文件保存路径将使用第一次调用的值，不再改变。
+
+**Step采集**
+
+可通过添加Python接口，采集Step信息。推荐在Python场景下使用该方式采集Step信息。
+示例代码如下：
+
+```python
+import msmemscope
+
+msmemscope.config()
+msmemscope.start()  # 开启采集
+for i in range(10):
+    train()       # train()为用户代码
+    msmemscope.step() # 输入Step信息
+msmemscope.stop()  # 退出采集
+```
+
+### 输出说明
+
+内存采集的输出结果请参见《[输出文件说明](./output_file_spec.md)》。
+
+## 命令行采集功能介绍
+
+### 功能说明
+
+在非Python场景下，支持通过命令行方式执行内存采集和分析。
+
+### 注意事项
+
+- 环境变量TASK_QUEUE_ENABLE可自行配置，具体配置可参见[TASK_QUEUE_ENABLE](https://gitcode.com/Ascend/pytorch/blob/v2.7.1-7.3.0/docs/zh/environment_variable_reference/TASK_QUEUE_ENABLE.md)。当TASK_QUEUE_ENABLE配置为2时，开启task_queue算子下发队列Level 2优化，此时会采集workspace内存。
+- 使用root用户运行msMemScope工具时，系统会打印提示，跳过文件权限校验，存在安全风险，建议使用普通用户权限安装执行。
+- 使用msMemScope工具采集内存时，推荐使用自定义采集方式设置采集项，进行内存采集，具体可参见[Python接口采集功能介绍](#python接口采集功能介绍)。
+- 命令行采集方式不支持场景：VLLM-Ascend。
+
+### 命令格式
+
+通过执行以下命令，可以启动msMemScope工具，采集内存数据。
+
+- 方式一（推荐使用此方式）：_user_.sh为用户脚本
+
+        ```shell
+        msmemscope [options] bash user.sh
+        ```
+
+- 方式二
+
+        ```shell
+        msmemscope [options] -- <prog_name> [prog_options]
+        ```
+
+### 参数说明
+
+**表 3**  命令行参数说明
+
+|参数|说明|
+|--|--|
+|options|命令行参数，详细参数参见表4。|
+|prog_name|用户脚本名称，请保证自定义脚本的安全性。当开启内存对比功能时不需要输入此参数。|
+|prog_options|用户脚本参数，请保证自定义脚本参数的安全性。当开启内存对比功能时不需要输入此参数。|
+
+**表 4**  参数说明
+
+|参数|可选/必选|说明|
+|--|--|--|
+|--help, -h|可选|输出msMemScope帮助信息。|
+|--version, -V|可选|输出msMemScope版本信息。|
+|--verbose, -v|可选|设置日志级别为debug，等价于--log-level=debug。|
+|--quiet, -q|可选|设置日志级别为error，等价于--log-level=error。|
+|--debug|可选|设置日志级别为debug，等价于--log-level=debug。|
+|--steps|可选|选择要采集内存信息的Step ID，须配置为实际Step范围内的整数，可配置1个或多个，当前最多支持配置5个。输入的Step ID以逗号（全角半角逗号均可）分隔。如果不配置该参数，则默认采集所有Step的内存信息。示例：--steps=1,2,3。|
+|--device|可选|采集的设备信息。可选项有npu、npu:{*id*}和cpu，默认值为npu，取值不可为空，可同时选择多个，取值间以逗号（全角半角逗号均可）分隔，示例：--device=npu。<br>  如果取值中同时包含npu和npu:{*id*}，那么默认还是采集所有npu的内存信息，npu:{*id*}不生效。<br> - **npu**：采集所有的npu内存信息。<br> - **npu:{*id*}**：采集指定卡号的npu内存信息，其中id为指定的卡号，需输入有效id，取值范围为[0,31]，可采集多个卡的内存信息，取值间以逗号（全角半角逗号均可）分隔，示例：--device=npu:2,npu:7。<br> - **cpu**：采集cpu内存信息，包括offload锁页内存（pinned memory）和CPU tensor数据内存。CPU内存事件类型统一为HOST，输出到device_cpu/目录。锁页内存在Attr中标记pinned:true（不含total字段），CPU tensor数据内存在Attr中包含total字段（不含pinned:true标记）。CPU内存事件仅落盘，不参与泄漏分析等任何分析项。|
+|--level|可选|采集的算子信息。可选项有op和kernel，默认值为op，示例：--level=op。<br> - **op**：采集op算子的信息。<br> - **kernel**：采集kernel算子的信息。<br> 旧取值0和1仍兼容使用（0等价于op，1等价于kernel），但已废弃，使用时会提示弃用告警。|
+|--events|可选|采集事件。可选项有alloc、free、launch、access、traceback和none，默认值为alloc，free，launch，取值间以逗号（全角半角逗号均可）分隔。示例：--events=alloc,free,launch。<br> - **alloc**：采集内存申请事件。<br>- **free**：采集内存释放事件。<br> - **launch**：采集算子/kernel下发事件。<br> - **access**：采集内存访问事件。当前仅支持采集ATB和Ascend for PyTorch算子场景的内存访问事件。<br> - **traceback**：采集Python Trace事件。<br> - **none**：不采集任何事件类型。当`none`与其他事件类型值同时出现时，以`none`为准（清空所有事件类型），同时输出warning提示。<br>**需要注意的是**：<br>1. 如果`alloc`事件和`free`事件不成对配置，可能导致分配-释放配对信息缺失，影响数据在MindStudio Insight工具中的可视化效果（如内存时间线展示不完整、泄漏分析结果不准确等）。<br>2. --events=traceback仅支持通过API接口调用，无法在命令行环境中使用。|
+|--call-stack|可选|采集调用栈。可选项有python和c，可同时选择，以逗号（全角半角逗号均可）分隔。可设置调用栈的采集深度，在选项后输入数字，选项与数字以英文冒号间隔，表示采集深度，取值范围为[0,1000]，默认值为50，示例：--call-stack=python，--call-stack=c:20,python:10。<br> - **python**：采集python调用栈。<br> - **c**：采集c调用栈。|
+|--collect-mode|可选|内存采集方式。可选项有immediate和deferred，默认值为immediate，取值仅支持选择其一，示例：--collect-mode=immediate。<br> - **immediate**：立即采集，即用户脚本开始运行时，就开始采集内存信息，直到用户脚本运行结束；也可配合Python自定义采集接口控制采集范围。<br> - **deferred**：自定义采集，需配合Python自定义采集接口使用，等待msmemscope.start()脚本执行后，开始采集。如果仅设置--collect-mode=deferred，不使用Python自定义采集接口时，默认不采集任何数据（除少量系统数据）。|
+|--analysis|可选|启用相关内存分析功能。默认值为leaks，使用`none`关键字可不启用任何分析功能；可多选，取值间以逗号（全角半角逗号均可）分隔，示例：--analysis=leaks,decompose。<br> - **leaks**：识别内存泄漏事件。<br> - **inefficient**：识别低效内存，支持识别ATB LLM和Ascend for PyTorch单算子场景的低效内存，低效内存识别可通过接口设置，具体操作可参见[API参考](../api_reference/api.md)。<br> - **decompose**：开启内存拆解功能。<br> - **oom[:K]**：开启OOM详细分析功能，K为可选值，表示采集Top-K条未释放内存记录，默认值为10，取值范围[1,1000]，超出范围或非法取值时报错。当OOM发生时，自动采集触发OOM的操作信息（func、req_size、ret）、按时间排序的最近K条未释放记录，以及按大小排序的最大K条未释放记录。开启此功能后会自动联动开启alloc和free事件采集，无需额外配置--events参数。具体使用方式可参见[OOM分析功能介绍](./memory_analysis.md#oom分析功能介绍)。<br> - **host-leaks**：启用Host堆内存泄漏检测，检测区间内申请且未释放的Host堆内存块按调用栈聚合输出泄漏概览报告；与leaks、decompose、inefficient、oom互斥，同一配置中不可同时启用。详细参数与使用方式可参见[Host堆内存泄漏检测功能介绍](./memory_analysis.md#host堆内存泄漏检测功能介绍)。<br> - **none**：不启用任何分析功能。当`none`与其他分析类型值同时出现时，以`none`为准（清空所有分析类型），同时输出warning提示。|
+|--format|可选|输出的文件格式。可选项有db和csv，根据需求选择一种格式，取值不可为空，默认值为csv，示例：--format=db。<br> 当输出文件为db格式时，可使用MindStudio Insight工具展示，请参见[MindStudio Insight内存调优](https://gitcode.com/Ascend/msinsight/blob/26.2.0/docs/zh/user_guide/memory_tuning.md)。<br> - **db**：db格式文件。<br> - **csv**：csv格式文件。<br> 旧参数名--data-format仍兼容使用，但已废弃，使用时会有弃用告警提示。|
+|--watch|可选|内存块监测。可选项有start，out{*id*}，end和full-content，可多选，其中end为必选，取值间以逗号（全角半角逗号均可）分隔。参数设置格式为：--watch=start:out{*id*},end,full-content，示例：--watch=op0:out0,end,full-content。<br> - **start**：可选，字符串形式，表示一个算子，不同框架下格式不同。当需要设置out{*id*}时，start为必选。<br> - **out{*id*}**：可选，表示算子的output编号。当Tensor为一个列表时，可以指定需要落盘的Tensor，取值为Tensor在列表中的下标编号。<br> - **end**：必选，字符串形式，表示一个算子，不同框架下格式不同。<br> - **full-content**：可选，如果选择该值，表示落盘完整的Tensor数据，如果不选，则落盘Tensor对应的哈希值。|
+|--output-path|可选|指定输出文件落盘路径，路径最大输入长度为4096。默认的落盘目录为“memscopeDumpResults”。示例：--output-path=/home/projects/output。<br> 旧参数名--output仍兼容使用，但已废弃，使用时会有弃用告警提示。|
+|--log-level|可选|指定输出日志的级别，可选值有debug、info、warning、error，默认值为info。示例：--log-level=warning。<br> - **debug**：输出debug级别日志。<br> - **info**：输出info级别日志。<br> - **warning**：输出warning级别日志。<br> - **error**：输出error级别日志。<br> 旧取值warn仍兼容使用（等价于warning），但已废弃，使用时会有弃用告警提示。|
+|--compare|可选|开启Step间内存数据对比功能。仅当使用内存对比功能时，需要设置此参数。|
+|--input-path|可选|对比文件所在的绝对目录，需输入基线文件和对比文件的目录，以逗号（全角半角逗号均可）分隔，仅在compare功能开启时有效，路径最大输入长度为4096。示例：--input-path=/home/projects/input1,/home/projects/input2。<br> 仅当使用内存对比功能时，需要设置此参数。<br> 旧参数名--input仍兼容使用，但已废弃，使用时会有弃用告警提示。|
+|--pid, -p|可选|进程外控制通道附加模式：附加到已运行的目标进程（PID），进入交互式控制会话（支持tab补全），可下发启停、巡检、配置查看/修改等控制字。与--compare、直接启动命令互斥，不可同时使用。具体说明参见[进程外控制通道（动态附加）功能介绍](#进程外控制通道动态附加功能介绍)。|
+|--command, -c|可选|与--pid配合使用，单发一条控制字后退出，适合脚本化场景。示例：`msmemscope --pid 12345 --command "display memory summary"`。|
+
+> [!NOTE]
+>
+> - 当--events=launch，需要采集Aten算子下发与访问事件时，此时需要满足Ascend for PyTorch框架中的PyTorch版本大于或等于2.3.1，才可使用该功能。
+> - 当--analysis参数取值包含decompose时，memscope\_dump\_\{_timestamp_\}.csv文件中Attr参数中会包含显存类别和组件名称。
+> - 当--analysis参数取值包含decompose时，会开启内存分解功能，当前支持对Ascend for PyTorch框架、MindSpore框架和ATB算子框架的内存池进行分类，但是暂不支持对MindSpore框架和ATB算子框架的内存池进行细分类。在Ascend for PyTorch框架下，可支持对aten、weight、gradient、optimizer\_state进行细分类，其中weight、gradient、optimizer\_state仅限于PyTorch的训练场景（即调用optimizer.step\(\)接口的场景），aten是aten算子中申请的内存，需要同时满足PyTorch版本大于或等于2.3.1，--level参数取值中包含op。
+> - 当--analysis参数取值包含oom时，会自动联动开启alloc和free事件采集（仅影响采集行为，不影响--events参数的落盘配置）。OOM数据仅采集OOM发生时刻前后未释放的记录，不影响正常的malloc/free热路径性能。
+> - 当--device参数包含cpu时，CPU内存事件（Event Type为HOST）会落盘到device_cpu/目录。CPU内存事件仅落盘，不参与泄漏分析、低效内存识别、内存拆解、OOM分析等任何分析项。offload锁页内存与CPU tensor数据内存统一为HOST类型，通过Attr中pinned:true或total字段区分。CPU tensor采集依赖Python钩子，仅在start()后生效（命令行方式在NPU初始化后生效），start()前已存在的CPU tensor不在采集范围内。CPU tensor数据内存目前仅支持采集`torch.tensor`、`Tensor.to("cpu")`、`Tensor.cpu()`等常见入口创建的张量。
+> - 当参数--level=kernel，且使用Hugging Face的tokenizers库时，可能会遇到“当前发生进程fork，并行被禁用”的告警提示。这个告警信息本身不会影响功能，可以选择忽略。如果希望避免这类告警，可执行export TOKENIZERS\_PARALLELISM=false来关闭并行的行为。
+> - 当--collect-mode=deferred，且使用Python接口进行采集数据时，内存分析功能不可用，内存块监测、拆解和低效内存识别功能只对采集范围内的数据可用。
+> - MindStudio Insight工具仅支持展示db格式的内存数据文件，基本操作请参见[MindStudio Insight基础操作](https://gitcode.com/Ascend/msinsight/blob/26.2.0/docs/zh/user_guide/basic_operations.md)。
+
+### 输出说明
+
+内存采集的输出结果请参见《[输出文件说明](./output_file_spec.md)》。
+
+## mstx打点采集功能介绍
+
+### 功能说明
+
+msMemScope工具可以结合mstx打点能力进行内存采集，同时msMemScope工具能够在可视化Trace中标记打点位置，便于用户定位问题代码行。
+
+### 注意事项
+
+- 对于C脚本和Python脚本，mstx打点方式略有不同，具体信息可参考[MindStudio Tools Extension Library接口](https://gitcode.com/Ascend/mstx/blob/26.2.0/docs/zh/api_reference/README.md)。
+- 推荐使用C脚本示例进行mstx打点采集。
+
+### 使用示例
+
+下方分别以Python脚本和C脚本为例，展示msMemScope工具结合mstx执行的内存采集操作。
+
+- 请在训练推理脚本内的Step开始和结束处进行标记，并使用固化信息“step start”标识Step开始，Python脚本示例如下：
+
+    ```python
+    import mstx
+    for epoch in range(15):
+        id = mstx.range_start("step start", None) # 标识Step开始并开启内存分析功能
+        ....
+        ....
+        mstx.range_end(id)  # 标识Step结束
+    ```
+
+- C脚本示例如下：
+
+    ```cpp
+    #include <iostream>
+    #include "acl/acl.h"
+    #include "mstx/ms_tools_ext.h"
+    int main(void)
+    {
+        mstxMarkA("MarkA", nullptr);
+        uint64_t id_1 = mstxRangeStartA("step start", nullptr);
+        ....
+        mstxRangeEnd(id_1);
+        return 0;
+    }
+    ```
+
+> [!NOTE]
+>
+> - 仅支持采集单卡局部的内存数据。
+> - 在目标用户程序前可配置PYTHONMALLOC=malloc。PYTHONMALLOC=malloc是Python的环境变量，表示不采用Python的默认内存分配器，所有的内存分配均使用malloc，该配置对小内存申请有一定影响。
+
+### 输出说明
+
+内存采集的输出结果请参见《[输出文件说明](./output_file_spec.md)》。
+
+## 进程外控制通道（动态附加）功能介绍
+
+### 功能说明
+
+进程外控制通道允许对**已运行中的**目标进程进行动态附加与巡检，无需重启进程即可下发控制字：
+
+- 目标进程需已装载`libascend_leaks.so`（即通过msMemScope启动，或执行`source msmemscope --load-api-env[=npu|host]`后启动的进程，两种钩子链均会带入该so），随进程常驻控制监听线程（线程名`msmemscope_ctrl`）。
+- 附加成功后进入交互式控制会话（提示符`msmemscope>`，支持tab补全），可下发启停、巡检、配置查看/修改等控制字。
+- 控制字经目标进程内白名单校验后分派执行，控制端不直接接触目标进程内存；控制字与目标进程通过本机Unix域socket通信，socket文件（`/tmp/msmemscope_socket_<PID>`）仅在握手期存在，目标进程注册成功后即删除。
+
+### 使用示例
+
+1. 附加目标进程（PID为进程号），进入交互式会话。
+
+    ```shell
+    msmemscope --pid 12345
+    ```
+
+    附加前控制端校验目标进程存在、uid一致（使用root用户执行attach命令时不受uid限制）、已装载`libascend_leaks.so`且控制监听线程就绪，任一不满足即报错且不发信号。
+
+2. 在会话中下发控制字，例如查询内存概览、查询Host堆泄漏中间概览、停止检测。
+
+    ```text
+    msmemscope> display memory summary
+    msmemscope> display host_leak summary
+    msmemscope> stop
+    ```
+
+3. 脚本化场景使用`--command`单发控制字，执行后立即退出。
+
+    ```shell
+    msmemscope --pid 12345 --command "display memory summary"
+    msmemscope --pid 12345 --command "display memory block --pool hal --TOPN 20"
+    ```
+
+### 控制字说明
+
+交互会话支持的控制字如下表所示，非法控制字回显错误提示。
+
+|控制字|说明|
+|--|--|
+|start|开启采集/检测（等价于`msmemscope.start()`）。|
+|stop|停止采集/检测（等价于`msmemscope.stop()`；Host堆泄漏检测窗口随之闭窗并输出报告）。|
+|step|标记一个Step（等价于`msmemscope.step()`）。|
+|display hook|显示目标进程已装载的钩子类别（Host/NPU/None）。|
+|display analyzer|列出目标进程已注册的分析器。|
+|display config|显示目标进程当前生效配置。|
+|display memory summary|内存概览：按卡输出device_used/process_used/hal_current/hal_peak，以及锁页内存（Host pinned）、CPU tensor（Host tensor）、各内存池（pta/pta_workspace/mindspore/atb）的当前值与峰值（无数据不展示）。|
+|display memory block [--pool \<pool\>] [--TOPN \<N\>]|按大小降序输出TOP N个未释放内存块（addr/size/alloc_ts/allocation_id）。`--pool`可选，取值为host/hal/pta/pta_workspace/atb/mindspore，不指定表示全部池；`--TOPN`取值范围1~100，默认10。|
+|display host_leak summary|查询Host堆泄漏检测窗口的中间概览（窗口开启时有效，不闭窗、不影响记账）；窗口关闭时回显`no active window`。内容与标注详见[窗口内中间概览（巡检）](./memory_analysis.md#窗口内中间概览巡检)。|
+|set config \<参数\>|更新目标进程配置（CLI风格参数，如`--analysis=host-leaks --host-leak-mode=summary`），仅停止态（未在采集）可用，采集期间下发被拒绝。|
+|exit|退出会话并解除附加。|
+|help|显示全部控制字帮助。|
+
+### 注意事项
+
+- 附加模式与`--compare`、直接启动命令互斥，不可同时使用。
+- 对已附加的进程重复附加时，控制端报already attached；若socket残留但目标进程不再监听（如目标进程已退出），控制端自动清理后重建。
+- `set config`仅可在停止态（未采集）下发，采集期间下发被拒绝并提示先stop。
+- `display host_leak summary`仅在Host堆泄漏检测窗口开启时返回中间概览；未开窗时回显`no active window`。
+- 交互会话支持tab补全：唯一候选直接补全、多候选列示并保持输入、公共前缀先扩展；动态分析器名首次使用时自动拉取。
+- 会话退出（exit/Ctrl+C/Ctrl+D）时自动清理socket残留，无残留文件；目标进程退出后，会话回显目标进程已退出的提示。
+
+## 输出数据解读
+
+内存采集的输出文件记录了内存事件及事件时刻的显存统计信息，可用于绘制显存使用曲线。输出文件字段说明可参见《[输出文件说明](./output_file_spec.md)》。
+
+### 统计字段说明
+
+内存事件（MALLOC/FREE）的Attr字段中，除allocation_id、addr、size等基本属性外，还包含以下显存统计字段：
+
+|字段|含义|
+|--|--|
+|used|内存使用量。Event Type为HAL时，为本进程HAL维度显存使用量（工具采集到的HAL申请/释放累计值）；Event Type为PTA、MindSpore、ATB或PTA_WORKSPACE时，为内存池内已分配大小；Event Type为HOST且Attr中标记pinned:true时，为采集到的锁页内存块使用量。|
+|total|内存池总大小，内存池事件（Event Type为PTA、MindSpore、ATB或PTA_WORKSPACE）存在；Event Type为HOST且Attr中无pinned:true标记时（CPU tensor数据），表示活跃CPU tensor数据内存累计值。|
+|process_used|本进程显存占用。Event Type为HAL时，为本进程在该设备上的显存占用，与npu-smi info的Process memory(MB)一致；内存池事件含义相同；Event Type为HOST且Attr中标记pinned:true时，为本进程物理内存使用量（VmRSS）。|
+|device_used|整卡显存占用。Event Type为HAL时，为整卡显存占用，与npu-smi info的HBM-Usage(MB)一致；内存池事件含义相同；Event Type为HOST时不输出。|
+
+> [!NOTE]
+>
+> - 程序初始化阶段，设备上下文还未完成初始化，process_used和device_used可能采集不到（字段省略），属正常现象，初始化完成后可正常采集。
+> - 采集不到该值时（无卡、无驱动环境、权限不足等），process_used和device_used字段将被省略，不输出。
+> - 系统未安装systemd时，工具会跳过dcmi初始化以避免其挂起，process_used和device_used可能无法采集（字段省略）。
+
+### 整卡显存曲线
+
+取HAL事件（或内存池事件）的device_used字段对Timestamp(ns)绘图，即可得到整卡显存使用曲线。
+
+- device_used为事件时刻的整卡显存占用，与npu-smi info回显的HBM-Usage(MB)一致，可用于对照验证采集数据。
+- 曲线为事件驱动，无显存事件的空闲时间段无采样点。
+
+### 本进程显存曲线
+
+取HAL事件的process_used字段对Timestamp(ns)绘图，即可得到本进程在设备上的显存使用曲线。
+
+- process_used为本进程在该设备上的显存占用，与npu-smi info回显的Process memory(MB)一致，可用于对照验证采集数据。
+- 曲线反映本进程申请/释放显存后的实际占用变化；与used曲线（工具采集的HAL维度累计）对照，可区分工具采集不完整的部分。
+- 曲线数量级关系：HAL事件的used（工具采集累计）≤ process_used（驱动统计，含分配器碎片/缓存）≤ device_used（整卡，含其他进程及片上侧占用）。

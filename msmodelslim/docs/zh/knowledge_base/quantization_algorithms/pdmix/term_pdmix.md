@@ -1,0 +1,89 @@
+# PDMIX 阶段间混合量化算法 量化术语百科词条
+
+> **词条类别**：[量化算法](../README.md#2-量化算法)<br>
+> **英文名称**：pdmix<br>
+> **应用领域**：大语言模型量化压缩、推理加速<br>
+
+---
+
+## 1. 概述
+
+PDMIX（Prefill-Decode Mix）是一种根据推理阶段切换激活量化粒度的混合量化方法。它在 Prefill 阶段采用更能适应 token 动态范围的量化策略，在 Decode 阶段采用更利于运行效率的静态策略，以平衡精度和性能；核心特征是阶段自适应、共享量化权重和对 Prefill/Decode 数值分布差异的显式利用。
+
+---
+
+## 2. 词条介绍
+
+传统 W8A8 静态量化采用静态的激活量化参数，在长上下文或分布漂移场景中易产生较大量化误差，需要回退大量层才能控制精度损失，却因此损失性能收益。PDMIX 观察到，Prefilling 阶段对精度敏感、Decoding 阶段对性能敏感，因此按阶段分别采用动态与静态量化，用少量回退即可平衡精度与性能。
+
+### 2.1 核心思想
+
+PDMIX 的核心思想是“阶段自适应激活量化”：权重量化保持不变，激活量化在 Prefilling 阶段采用 per-token 动态量化（token 级颗粒度在线计算量化参数），在 Decoding 阶段采用 per-tensor 静态量化（离线计算量化参数、降低推理时延）。由于阶段间权重量化方式保持一致，只需存储一份量化权重。
+
+PDMIX 的核心收益是把“精度优先”和“解码延迟优先”放到最合适的阶段。
+
+### 2.2 工作机制
+
+大模型推理的 Prefilling 与 Decoding 具有明显不同的工作负载。Prefilling 一次处理较多 token，激活分布跨 token 差异较大，同时额外的 per-token 统计成本容易被大矩阵计算摊薄；因此动态 per-token 尺度能以较小相对成本获得更好的范围适配。Decoding 每步只有少量 token，延迟和小算子开销更敏感，如果每步都做动态归约求尺度，量化本身可能成为可见开销。
+
+PDMIX 因而让两个阶段共享同一套低比特权重表示，但激活采用不同策略：Prefill 使用动态、细粒度量化以优先保证精度；Decode 使用离线获得的静态、较粗粒度尺度以减少运行时统计。它不是“不同阶段换不同位宽”，而是针对阶段特征切换量化参数生成方式与共享粒度。
+
+### 2.3 数学描述
+
+设激活值为 $X$，Prefilling 阶段采用 per-token 动态量化：
+
+$$
+Q_{\text{prefill}} = \operatorname{clamp}\left(\operatorname{round}\left(\frac{X}{S_{\text{token}}}\right) + Z_{\text{token}}, \; Q_{\min}, Q_{\max}\right)
+$$
+
+Decoding 阶段采用 per-tensor 静态量化：
+
+$$
+Q_{\text{decode}} = \operatorname{clamp}\left(\operatorname{round}\left(\frac{X}{S_{\text{tensor}}}\right) + Z_{\text{tensor}}, \; Q_{\min}, Q_{\max}\right)
+$$
+
+- $X$：激活值
+- $S_{\text{token}}$：per-token 动态缩放因子（Prefilling 在线计算）
+- $Z_{\text{token}}$：per-token 动态零点
+- $S_{\text{tensor}}$：per-tensor 静态缩放因子（离线计算）
+- $Z_{\text{tensor}}$：per-tensor 静态零点
+- $Q_{\min}$、$Q_{\max}$：量化数值范围（INT8 的 $[-128, 127]$）
+
+整体上，PDMIX 等价于一种“Prefilling 动态、Decoding 静态”的分段量化方案，权重量化与 per-channel 结合。
+
+若动态尺度计算成本记为 $C_s$、主矩阵乘成本为 $C_g$，则额外相对开销可粗略看作 $C_s/C_g$。Prefill 随 token 数增加时 $C_g$ 很大，该比值通常较小；Decode 每步的 $C_g$ 下降，该比值可能显著增大。PDMIX 不改变 $q=\operatorname{round}(x/S)+Z$ 的基本形式，而是改变 $S,Z$ 在何时、以多细粒度估计。
+
+### 2.4 关键性质
+
+- **阶段自适应**：Prefilling 用 per-token、Decoding 用 per-tensor，兼顾精度与性能。
+- **单份权重**：阶段间权重量化方式一致，仅需存储一份量化权重。
+- **回退代价低**：相比静态量化，回退少量层即可控制精度损失。
+- **推理加速**：Decoding 阶段静态量化减少量化参数计算操作，提高吞吐量。
+- **阶段策略而非混合位宽**：核心差异在激活尺度生成与共享粒度，不要求 Prefill/Decode 使用不同位宽。
+
+风险主要来自静态 Decode 尺度的分布外输入：如果校准数据没有覆盖某些解码 token 的大幅值，静态 per-tensor 范围可能出现饱和。
+
+### 2.5 适用场景
+
+- 长上下文或分布漂移场景下，静态量化精度损失大、需要回退大量层的场景。
+- 生成式模型推理加速场景，希望在控制精度损失的同时获取静态量化的性能收益。
+
+### 2.6 使用限制
+
+- 当前仅支持 MindIE 推理部署。
+- 仅支持 W8A8 PDMIX 一种量化模式（激活 INT8 动态/静态混合，权重 per_channel INT8）。
+- PDMIX 的核心在于 Prefill 与 Decode 使用不同的激活量化粒度；若改变两阶段的粒度或对称性组合，就需要重新评估是否仍满足预期的精度与解码开销折中。
+
+---
+
+## 3. 关联词条
+
+- [线性量化](../linear_quant/term_linear_quant.md)：上位概念，PDMIX 是线性量化中激活值量化的一种方法。
+- [MinMax](../minmax/term_minmax.md)：应用对象，PDMIX 的量化参数基于 MinMax 算法计算。
+- [KVCache Quant](../kvcache_quant/term_kvcache_quant.md)：配套术语，同属生成式模型推理优化方案。
+
+---
+
+## 4. 参考文档
+
+1. 《[PDMIX 参数配置流程指南](./usage_pdmix.md)》

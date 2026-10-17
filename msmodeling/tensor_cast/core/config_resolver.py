@@ -1,0 +1,471 @@
+# _*_coding:utf-8_*_
+"""
+Resolves and configures model settings for tensor cast operations.
+"""
+
+import logging
+
+import torch
+
+from ..core.user_config import UserInputConfig
+from ..layers.attention import AttentionTensorCast
+from ..layers.quant_linear import TensorCastQuantLinear
+from ..model_config import (
+    DflashConfig,
+    DsparkConfig,
+    MlaConfig,
+    ModelConfig,
+    MtpConfig,
+    ParallelConfig,
+    QuantConfig,
+)
+from ..transformers.custom_model_registry import (
+    get_mla_module,
+    get_mla_module_name,
+    get_model_profile,
+    get_moe_config,
+    get_mtp_block_module_name,
+)
+from ..transformers.utils import AutoModelConfigLoader
+
+logger = logging.getLogger(__name__)
+
+
+def _resolve_model_dtype(hf_config) -> torch.dtype:
+    """Return the floating-point working dtype declared by a model config.
+
+    HuggingFace configurations use both the legacy ``torch_dtype`` field and
+    the newer ``dtype`` field.  For multimodal configurations the text model
+    can own that field, while the outer config does not.  TensorCast uses one
+    working dtype for the wrapped model, so prefer the outer declaration and
+    then the text declaration.  FP16 remains the backwards-compatible
+    fallback for absent or unsupported declarations.
+    """
+    configs = [hf_config]
+    get_text_config = getattr(hf_config, "get_text_config", None)
+    if callable(get_text_config):
+        text_config = get_text_config()
+        if text_config is not hf_config:
+            configs.append(text_config)
+    elif (text_config := getattr(hf_config, "text_config", None)) is not None:
+        configs.append(text_config)
+
+    aliases = {
+        "fp16": torch.float16,
+        "float16": torch.float16,
+        "half": torch.float16,
+        "bf16": torch.bfloat16,
+        "bfloat16": torch.bfloat16,
+        "fp32": torch.float32,
+        "float32": torch.float32,
+        "float": torch.float32,
+    }
+    supported_dtypes = set(aliases.values())
+    for config in configs:
+        for field_name in ("torch_dtype", "dtype"):
+            value = getattr(config, field_name, None)
+            if isinstance(value, torch.dtype):
+                if value in supported_dtypes:
+                    return value
+            elif isinstance(value, str):
+                dtype = aliases.get(value.lower().removeprefix("torch."))
+                if dtype is not None:
+                    return dtype
+            elif value is None:
+                continue
+
+            logger.warning(
+                "Ignoring unsupported model configuration %s=%r; trying the next dtype declaration.",
+                field_name,
+                value,
+            )
+
+    return torch.float16
+
+
+class ConfigResolver:
+    """
+    Resolves and configures model settings for tensor cast operations.
+
+    This class handles the configuration of various model components including
+    parallelization, quantization, MoE (Mixture of Experts), MLA (Multihead Latent Attention),
+    and MTP (Multi-Token Prediction) settings. It loads the HuggingFace model configuration
+    and applies user-specified overrides.
+
+    Attributes:
+        model_id: The identifier of the model to configure.
+        hf_config: The loaded HuggingFace model configuration.
+        user_input: User-provided input configuration.
+        model_config: The resolved model configuration containing all settings.
+    """
+
+    def __init__(
+        self,
+        model_id: str = "",
+        user_input: UserInputConfig = None,
+        parallel_config: ParallelConfig = None,
+        quant_config: QuantConfig = None,
+    ):
+        """
+        Initialize the ConfigResolver.
+
+        Args:
+            model_id: The identifier of the model to configure. If empty, will use user_input.model_id.
+            user_input: User-provided input configuration. If None, parallel_config and quant_config must be provided.
+            parallel_config: Parallelization configuration. Required if user_input is None.
+            quant_config: Quantization configuration. Required if user_input is None.
+
+        Raises:
+            ValueError: If user_input is None and either parallel_config or quant_config is None.
+        """
+        self.model_id = model_id or user_input.model_id
+        auto_loader = AutoModelConfigLoader()
+        self.hf_config = auto_loader.load_config(self.model_id, remote_source=user_input.remote_source)
+        self.user_input = user_input
+
+        if user_input is not None:
+            quant_config = user_input.get_quant_config()
+            parallel_config = user_input.get_parallel_config()
+        else:
+            if parallel_config is None or quant_config is None:
+                raise ValueError("When the user input is None,quant_config and parallel_config can not be None")
+
+        self.model_config = ModelConfig(
+            parallel_config,
+            quant_config,
+            dtype=_resolve_model_dtype(self.hf_config),
+            attention_cls=AttentionTensorCast,
+            quant_linear_cls=TensorCastQuantLinear,
+        )
+        self.model_config.hf_config = self.hf_config
+        self.model_config.trust_remote_code = not auto_loader.is_transformers_natively_supported
+
+    def resolve(self) -> ModelConfig:
+        """
+        Resolve and apply all configuration updates.
+
+        Updates the model configuration with user-specified settings for
+        repetition, hidden layers, MoE, MLA, and MTP features.
+
+        Returns:
+            ModelConfig: The fully resolved model configuration.
+        """
+        # Modeling aux is synthesized from last_hidden (see DflashWrapper), so
+        # representative layer reuse stays enabled under Dflash/DSpark + --compile.
+        enable_repetition = not self.user_input.disable_repetition
+        self.update_hf_config(
+            enable_repetition=enable_repetition,
+            num_hidden_layers_override=self.user_input.num_hidden_layers_override,
+        )
+        self.update_moe_config(
+            enable_redundant_experts=self.user_input.enable_redundant_experts,
+            enable_shared_expert_tp=self.user_input.enable_shared_expert_tp,
+            enable_external_shared_experts=self.user_input.enable_external_shared_experts,
+            host_external_shared_experts=self.user_input.host_external_shared_experts,
+        )
+        self.update_mla_config(
+            enable_dsa_cp=self.user_input.enable_sequence_parallel and self._has_dsa_structure(),
+        )
+        self.update_mtp_config(num_mtp_tokens=self.user_input.num_mtp_tokens)
+        draft_block = self.user_input.draft_block_size()
+        if self.user_input.speculative_method == "dspark" and draft_block >= 2:
+            self.update_dspark_config(
+                dspark=True,
+                dspark_block_size=draft_block,
+                num_draft_layers=self.user_input.num_draft_layers,
+                dspark_acceptance_length=self.user_input.acceptance_length,
+                draft_model_config_path=self.user_input.draft_model_config_path,
+                context_length=self.user_input.context_length,
+                markov_rank=int(self.user_input.dspark_markov_rank),
+                markov_head_type=str(self.user_input.dspark_markov_head or "vanilla"),
+            )
+        elif self.user_input.speculative_method == "dflash" and draft_block >= 2:
+            self.update_dflash_config(
+                dflash=True,
+                dflash_block_size=draft_block,
+                num_draft_layers=self.user_input.num_draft_layers,
+                dflash_acceptance_length=self.user_input.acceptance_length,
+                draft_model_config_path=self.user_input.draft_model_config_path,
+                context_length=self.user_input.context_length,
+            )
+        self.update_parallel_config()
+        self.validate_moe_parallel_config()
+        # Apply remote source configuration
+        self.model_config.remote_source = self.user_input.remote_source
+        return self.model_config
+
+    def update_moe_config(
+        self,
+        model_type: str = "",
+        enable_redundant_experts: bool = False,
+        enable_shared_expert_tp: bool = False,
+        enable_external_shared_experts: bool = False,
+        host_external_shared_experts: bool = False,
+    ):
+        """Update the Mixture of Experts (MoE) configuration.
+
+        Args:
+            model_type: The type of the model. If empty, uses the loaded model's type.
+            enable_redundant_experts: Pad routing-expert count to a multiple of EP
+                size so that every rank hosts the same number of experts.
+            enable_shared_expert_tp: Apply tensor-parallelism to shared experts
+                across the EP group.  Requires ``expert_parallel_size > 1``.
+                Mutually exclusive with ``host_external_shared_experts``.
+            enable_external_shared_experts: Allocate dedicated ranks within the EP
+                group to run shared experts, separating them from routing experts.
+            host_external_shared_experts: Place external shared experts on the host
+                (CPU) side.  Mutually exclusive with ``enable_shared_expert_tp``.
+
+        Legal combinations (when both relate to shared experts)::
+
+            enable_shared_expert_tp  | host_external_shared_experts | OK?
+            -------------------------+------------------------------+-----
+            False                    | False                        | Yes
+            True                     | False                        | Yes (needs EP > 1)
+            False                    | True                         | Yes
+            True                     | True                         | NO — ValueError
+        """
+        if not model_type:
+            model_type = self.hf_config.model_type
+        moe_config = get_moe_config(model_type)
+        if moe_config is not None:
+            moe_config.enable_redundant_experts = enable_redundant_experts
+            moe_config.enable_shared_expert_tp = enable_shared_expert_tp
+            moe_config.enable_external_shared_experts = enable_external_shared_experts
+            moe_config.host_external_shared_experts = host_external_shared_experts
+        self.model_config.moe_config = moe_config
+
+    def update_mla_config(self, model_type: str = "", enable_dsa_cp: bool = False):
+        """
+        Update the Multihead Latent Attention (MLA) configuration.
+
+        Args:
+            model_type: The type of the model. If empty, uses the loaded model's type.
+            enable_dsa_cp: Whether to use the DSA-CP MLA projection layout.
+        """
+        if not model_type:
+            model_type = self.hf_config.model_type
+        mla_module_name = get_mla_module_name(model_type)
+        if mla_module_name is not None:
+            # Get field_names (including mla_field_names_override) from ModelProfile first
+            # Otherwise, use the default MlaFieldNames
+            profile = get_model_profile(model_type)
+            if profile is not None:
+                mla_config = profile.build_mla_config()
+                if mla_config is not None:
+                    mla_config.mla_cls = get_mla_module(model_type)
+                    mla_config.enable_dsa_cp = enable_dsa_cp
+                    self.model_config.mla_config = mla_config
+            else:
+                mla_config = MlaConfig(
+                    module_name=mla_module_name,
+                    mla_cls=get_mla_module(model_type),
+                    enable_dsa_cp=enable_dsa_cp,
+                )
+                self.model_config.mla_config = mla_config
+
+    def update_mtp_config(self, model_type: str = "", num_mtp_tokens: int = 0):
+        """
+        Update the Multi-Token Prediction (MTP) configuration.
+
+        Args:
+            model_type: The type of the model. If empty, uses the loaded model's type.
+            num_mtp_tokens: Number of MTP tokens to enable.
+        """
+        if not model_type:
+            model_type = self.hf_config.model_type
+        mtp_block_module_name = get_mtp_block_module_name(model_type)
+        if num_mtp_tokens > 0:
+            mtp_config = MtpConfig(
+                num_mtp_layers=num_mtp_tokens,
+                mtp_block_module_name=mtp_block_module_name,
+            )
+            self.model_config.mtp_config = mtp_config
+
+    def _has_dsa_structure(self) -> bool:
+        """Return whether the model text config describes a DSA indexer.
+
+        ``index_topk`` is the checkpoint-facing field used by DSA's lightning
+        indexer.  Model adapters may normalize it to ``topk_limit``; in that
+        form ``index_n_heads`` is also required so an unrelated top-k setting
+        is not mistaken for DSA.
+
+        Composite Hugging Face configs keep language-model fields under
+        ``text_config``.  Compatibility loaders may expose the same object as
+        ``hf_text_config``, while text-only configs keep the fields at the
+        root.  Prefer those locations in that order.  This structural check is
+        intentional: a model-type allowlist would miss compatible derivatives.
+        If upstream renames the indexer fields or changes config nesting, keep
+        this predicate aligned with the corresponding model adapter.
+        """
+        text_config = getattr(self.hf_config, "text_config", None) or getattr(self.hf_config, "hf_text_config", None)
+        config = text_config or self.hf_config
+        return hasattr(config, "index_topk") or (hasattr(config, "topk_limit") and hasattr(config, "index_n_heads"))
+
+    def update_dflash_config(
+        self,
+        dflash: bool = False,
+        dflash_block_size: int = 0,
+        num_draft_layers: int = 0,
+        dflash_acceptance_length: float = 5.0,
+        draft_model_config_path=None,
+        context_length: int = 0,
+    ):
+        """Enable unified Dflash only when ``dflash`` is True; block/layers are overrides."""
+        if not dflash:
+            return
+        cli_block_size = int(dflash_block_size) if int(dflash_block_size or 0) >= 2 else None
+        if self.model_config.mtp_config is not None:
+            raise ValueError("Dflash and MTP are mutually exclusive")
+
+        from tensor_cast.layers.dflash import apply_cli_overrides_to_source_and_dcfg
+
+        # Placeholder >=2 for DflashConfig validation; builtin/path wins when CLI omits block size.
+        initial_block = cli_block_size if cli_block_size is not None else 8
+        dcfg = DflashConfig(
+            dflash_block_size=initial_block,
+            num_draft_layers=int(num_draft_layers) if int(num_draft_layers or 0) > 0 else 6,
+            dflash_acceptance_length=float(dflash_acceptance_length),
+            draft_model_config_path=draft_model_config_path,
+            context_length=int(context_length or 0),
+        )
+        apply_cli_overrides_to_source_and_dcfg(
+            dcfg,
+            cli_block_size=cli_block_size,
+            cli_num_draft_layers=int(num_draft_layers) if int(num_draft_layers or 0) > 0 else None,
+        )
+        self.model_config.dflash_config = dcfg
+
+    def update_dspark_config(
+        self,
+        dspark: bool = False,
+        dspark_block_size: int = 0,
+        num_draft_layers: int = 0,
+        dspark_acceptance_length: float = 5.0,
+        draft_model_config_path=None,
+        context_length: int = 0,
+        markov_rank: int = 256,
+        markov_head_type: str = "vanilla",
+        enable_confidence_head: bool = True,
+        confidence_head_with_markov: bool = True,
+    ):
+        """Enable DSpark only when ``dspark`` is True (mutually exclusive with Dflash/MTP)."""
+        if not dspark:
+            return
+        if self.model_config.mtp_config is not None:
+            raise ValueError("DSpark and MTP are mutually exclusive")
+        if self.model_config.dflash_config is not None:
+            raise ValueError("DSpark and Dflash are mutually exclusive")
+        head_type = str(markov_head_type or "vanilla")
+        if head_type not in ("vanilla", "gated", "rnn"):
+            raise ValueError(f"markov_head_type must be one of vanilla/gated/rnn, got {head_type!r}")
+
+        from tensor_cast.layers.dspark import apply_cli_overrides_to_dspark_config
+
+        cli_block_size = int(dspark_block_size) if int(dspark_block_size or 0) >= 2 else None
+        initial_block = cli_block_size if cli_block_size is not None else 8
+        scfg = DsparkConfig(
+            dspark_block_size=initial_block,
+            num_draft_layers=int(num_draft_layers) if int(num_draft_layers or 0) > 0 else 6,
+            dspark_acceptance_length=float(dspark_acceptance_length),
+            draft_model_config_path=draft_model_config_path,
+            context_length=int(context_length or 0),
+            markov_rank=int(markov_rank),
+            markov_head_type=head_type,
+            enable_confidence_head=bool(enable_confidence_head),
+            confidence_head_with_markov=bool(confidence_head_with_markov),
+        )
+        apply_cli_overrides_to_dspark_config(
+            scfg,
+            cli_block_size=cli_block_size,
+            cli_num_draft_layers=int(num_draft_layers) if int(num_draft_layers or 0) > 0 else None,
+        )
+        self.model_config.dspark_config = scfg
+
+    def update_hf_config(self, enable_repetition: bool = False, num_hidden_layers_override: int = 0):
+        """
+        Update the HuggingFace configuration settings.
+
+        Args:
+            enable_repetition: Whether to enable repetition in the model.
+            num_hidden_layers_override: Override the number of hidden layers.
+        """
+        self.model_config.enable_repetition = enable_repetition
+        self.model_config.num_hidden_layers_override = num_hidden_layers_override
+        if hasattr(self.hf_config, "vision_config"):
+            # This update of the dtype in the configuration ensures that the visual and language modules
+            # use the same dtype during both initialization and execution,
+            # thereby avoiding dtype mismatches in subsequent execution paths.
+            dtype = self.model_config.dtype
+            for sub_config_key in self.hf_config.sub_configs:
+                sub_config = getattr(self.hf_config, sub_config_key)
+                sub_config.dtype = dtype
+
+    def update_parallel_config(self):
+        if self.model_config.moe_config is None:
+            self.model_config.parallel_config.expert_parallel_size = 1
+            self.model_config.parallel_config.moe_tensor_parallel_size = 1
+            self.model_config.parallel_config.moe_data_parallel_size = self.model_config.parallel_config.world_size
+
+    def validate_moe_parallel_config(self):
+        """Validate MoE-related parallel configuration constraints.
+
+        Raises:
+            ValueError: If enable_shared_expert_tp is True but EP size <= 1.
+            ValueError: If enable_shared_expert_tp and host_external_shared_experts
+                are both True (mutually exclusive).
+            ValueError: If EP > 1 and EP * MOE-DP != TP * DP while sequence
+                parallel or dispatch_ffn_combine is enabled (EP token-domain
+                conservation, issue #456; moe_tp > 1 with EP stays legal on
+                other model paths).
+        """
+        moe_config = self.model_config.moe_config
+        if moe_config is None:
+            return
+
+        expert_parallel_size = self.model_config.parallel_config.expert_parallel_size
+        if moe_config.enable_shared_expert_tp and expert_parallel_size <= 1:
+            raise ValueError(
+                "When enable_shared_expert_tp=True, expert_parallel_size must be "
+                "greater than 1. Either set enable_shared_expert_tp=False or "
+                "set expert_parallel_size > 1."
+            )
+
+        if moe_config.enable_shared_expert_tp and moe_config.host_external_shared_experts:
+            raise ValueError(
+                "enable_shared_expert_tp and host_external_shared_experts are "
+                "mutually exclusive. enable_shared_expert_tp applies TP to shared "
+                "experts across the EP group, while host_external_shared_experts "
+                "dedicates separate ranks to run shared experts. Set at most one."
+            )
+
+        # EP token-domain conservation (issue #456): with expert parallelism
+        # enabled, the EP group must span the whole attention token world
+        # (vLLM derives EP = TP x DP, i.e. moe_tp == 1), otherwise the MoE
+        # DP-domain transform in tensor_cast/layers/moe_layer.py is
+        # inconsistent and SP prefill fails with a residual broadcast error in
+        # torch.compile. Enforce it ONLY for the model path that actually
+        # fails on domain-broken EP shapes (sequence parallel /
+        # dispatch_ffn_combine): moe_tp > 1 with EP remains a formal contract
+        # elsewhere (cli/registry/validators.py moe_product_eq_num_devices).
+        user_input = getattr(self, "user_input", None)
+        ep_domain_enforced = bool(user_input) and bool(
+            getattr(user_input, "enable_sequence_parallel", False)
+            or getattr(user_input, "enable_dispatch_ffn_combine", False)
+        )
+        if expert_parallel_size > 1 and ep_domain_enforced:
+            parallel_config = self.model_config.parallel_config
+            token_world = parallel_config.tensor_parallel_size * parallel_config.data_parallel_size
+            ep_token_world = expert_parallel_size * parallel_config.moe_data_parallel_size
+            if ep_token_world != token_world:
+                raise ValueError(
+                    "Invalid expert-parallel domain for sequence parallel / dispatch_ffn_combine: "
+                    "EP "
+                    f"({expert_parallel_size}) x MOE-DP ({parallel_config.moe_data_parallel_size}) "
+                    "must equal TP "
+                    f"({parallel_config.tensor_parallel_size}) x DP ({parallel_config.data_parallel_size}) "
+                    f"when EP > 1 (vLLM semantics: EP = TP x DP). Got EP x MOE-DP = {ep_token_world} "
+                    f"vs TP x DP = {token_world}. Set --moe-tp-size 1 (the default when --moe-tp-size is "
+                    "omitted) or scale --ep-sizes/--moe-dp-sizes together so that EP x MOE-DP = TP x DP; "
+                    "e.g. with TP=2 and DP=4, use EP=8 with MOE-DP=1, or EP=4 with MOE-DP=2."
+                )

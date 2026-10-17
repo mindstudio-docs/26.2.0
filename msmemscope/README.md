@@ -1,0 +1,152 @@
+<h1 align="center">MindStudio MemScope</h1>
+
+<div align="center">
+<p><b><span style="font-size:24px;">昇腾 AI 内存调试调优利器</span></b></p>
+
+ [![快速入门](https://badgen.net/badge/快速入门/QuickStart/blue)](./docs/zh/quick_start/quick_start.md)
+ [![AI问答(DeepWiki)](https://badgen.net/badge/AI问答/DeepWiki/blue)](https://deepwiki.com/mindstudio-docs/master)
+ [![AI问答(ZRead)](https://badgen.net/badge/AI问答/ZRead/blue)](https://zread.ai/mindstudio-docs/master)
+ [![精确搜索](https://badgen.net/badge/精确搜索/ReadTheDocs/blue)](https://mindstudio-docs-master.readthedocs.io)
+ [![昇腾社区](https://badgen.net/badge/昇腾社区/Community/blue)](https://www.hiascend.com/cn/developer/software/mindstudio)
+ [![报告问题](https://badgen.net/badge/报告问题/Issues/blue)](https://gitcode.com/Ascend/msmemscope/issues/new)
+
+</div>
+
+简体中文 | [English](./README_EN.md)
+
+## ✨ 最新消息
+
+<span style="font-size:14px;">
+
+🔹 **[2026.04.29]**：MindStudio Memscope 26.0.0版本上线！支持OOM场景采集显存快照。
+
+🔹 **[2026.04.08]**：MindStudio Memscope 26.0.beta.1版本上线！显存占用一键拆解功能新增支持vllm、mindspeed场景。
+
+🔹 **[2026.02.01]**：MindStudio Memscope 26.0.0-alpha.1版本上线！ 支持Python API采集方式使用、支持Ascend for PyTorch框架下采集内存快照、支持识别显存页表属性并进行落盘、支持获取Driver新增的显存分配接口。
+
+🔹 **[2025.12.30]**：MindStudio Memscope 项目首次上线
+
+</span>
+
+## ℹ️ 简介
+
+MindStudio MemScope（内存分析工具，msMemScope）是基于昇腾硬件开发，用于模型训练与推理过程中的内存问题定位的工具。该工具提供内存泄漏检测、内存对比、内存块监测、内存拆解和低效内存识别等功能，帮助用户完成问题定位与处理。
+
+## ⚙️ 功能介绍
+
+msMemScope 工具提供内存采集、内存分析两大功能。
+
+<table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+  <thead>
+    <tr>
+      <th>功能</th>
+      <th>功能说明</th>
+      <th>详细功能</th>
+      <th>使用场景及说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- 内存采集 -->
+    <tr>
+      <td rowspan="2">
+        <a href="./docs/zh/user_guide/memory_profile.md">内存采集</a>
+      </td>
+      <td rowspan="2">
+        msMemScope 工具提供内存事件的采集能力，允许自定义设置采集内存范围和采集项，为后续分析提供原始数据。
+      </td>
+      <td>Python 接口方式采集</td>
+      <td>支持通过 Python 接口采集信息，提供自定义设置采集内存范围和采集项，采集内存事件和 Python Trace 事件能力，实现精准采集、高效分析。</td>
+    </tr>
+    <tr>
+      <td>命令行方式采集</td>
+      <td>支持通过命令行方式采集信息，提供在非 Python 场景下采集内存事件与内存分析能力。</td>
+    </tr>
+    <!-- 内存分析 -->
+    <tr>
+      <td rowspan="5">
+        <a href="./docs/zh/user_guide/memory_analysis.md">内存分析</a>
+      </td>
+      <td rowspan="5">
+        msMemScope 工具基于采集的内存数据，提供泄漏、对比、监测、拆解、低效内存识别五项分析能力，帮助开发者快速诊断和优化内存问题。
+      </td>
+      <td>内存泄漏分析</td>
+      <td>针对内存长时间未释放和内存泄漏等问题，需要进行内存分析时，msMemScope 工具提供内存泄漏分析和 kernelLaunch 粒度的内存变化分析功能，进行告警定位与分析。</td>
+    </tr>
+    <tr>
+      <td>内存对比分析</td>
+      <td>当两个 Step 内存使用存在差异时，可能会导致内存使用过多，甚至出现 OOM（Out of Memory，内存溢出）的问题，则需要使用 msMemScope 工具的内存对比分析功能来定位并分析问题。</td>
+    </tr>
+    <tr>
+      <td>内存块监测</td>
+      <td>在大模型场景中，当遇到内存踩踏定位困难时，msMemScope 工具支持通过 Python 接口和命令行两种方式，在算子执行前后对指定的内存块进行监测。根据内存块数据的变化，快速确定算子间内存踩踏的范围或具体位置。</td>
+    </tr>
+    <tr>
+      <td>内存拆解</td>
+      <td>msMemScope 工具提供内存拆解功能，支持对 CANN 层和 Ascend for PyTorch 框架的内存使用情况进行拆解，输出模型权重、激活值、梯度，以及优化器等组件的内存占用情况。</td>
+    </tr>
+    <tr>
+      <td>低效内存识别</td>
+      <td>在训练推理模型过程中，可能会存在部分内存块申请后未立即使用，或使用完毕后未及时释放的低效情况。msMemScope 工具可帮助识别这种低效内存的使用现象，从而优化训练推理模型。</td>
+    </tr>
+  </tbody>
+</table>
+
+## 🚀 快速入门
+
+快速入门旨在帮助用户快速熟悉 msMemScope 工具，通过一个简单的PyTorch脚本介绍msMemScope工具的使用方法以及功能。详情请参见 《[msMemScope 快速入门](./docs/zh/quick_start/quick_start.md)》。
+
+## 📦 安装指南
+
+msMemScope 工具支持在线安装、离线安装和源码安装三种方式进行安装，可根据实际需求选择合适的安装方式，请参见 《[msMemScope 安装指南](./docs/zh/install_guide/install_guide.md)》。
+
+msMemScope 工具当前支持 CANN、Ascend for PyTorch、MindSpore 以及 Aten 算子的内存采集，具体版本支持情况如下表所示。
+
+| 产品 | 说明 |
+|------|------|
+| CANN | CANN 8.2.RC1 及之后版本的 ATB 算子（Ascend Transformers Boost）。 |
+| Ascend for PyTorch | Ascend for PyTorch 7.0.0 及之后版本。 |
+| MindSpore | MindSpore 2.7.0 及之后版本。 |
+| Aten 算子 | 当采集 Aten 算子下发与访问事件时，需使用 PyTorch 2.3.1 或更高版本。 |
+
+## 📘 使用指南
+
+工具的详细使用方法，请参见 《[msMemScope 使用指南](./docs/zh/user_guide/memory_analysis.md)》。
+
+## 💡 典型案例
+
+通过典型问题场景帮助用户理解并掌握工具使用，请参见 《[msMemScope 典型案例](./docs/zh/best_practices/msmemscope_basic_cases.md)》。
+
+## 📚 API 参考
+
+msMemScope 工具提供 API 接口，便于快速分析内存情况，请参见 《[API 参考](./docs/zh/api_reference/api.md)》。
+
+## 🛠️ 贡献指南
+
+欢迎参与项目贡献，请参见 《[贡献指南](./docs/zh/development_guide/contributing_guide.md)》。
+
+## 🌌 智能检索
+
+为提升文档查阅效率，我们提供多种高效检索方式：
+
+- **[精确搜索（ReadTheDocs）](https://mindstudio-operator-tools-docs.readthedocs.io/zh-cn/latest/)**：全量文档毫秒级结构化检索，精准触达底层配置与 API 细节
+- **[AI 智能问答（DeepWiki）](https://deepwiki.com/mindstudio-docs/master)**：基于上下文的 AI 研发助手，自然语言提问，秒级获取答复
+
+## ⚖️ 相关说明
+
+🔹 《[版本说明](https://gitcode.com/Ascend/msmemscope/releases)》<br>
+🔹 《[许可证声明](./docs/zh/legal/license_notice.md)》<br>
+🔹 《[安全声明](./docs/zh/legal/security_statement.md)》<br>
+🔹 《[免责声明](./docs/zh/legal/disclaimer.md)》<br>
+
+## 🤝 建议与交流
+
+欢迎大家为社区做贡献。如果有任何疑问或建议，请提交 [Issues](https://gitcode.com/Ascend/msmemscope/issues)，我们会尽快回复。感谢您的支持。
+
+|                                                                         即时互动（微信群）                                                                          |                                                                               官方资讯（公众号）                                                                                | 深度支持（助手/论坛）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+|:----------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <img src="https://raw.gitcode.com/Ascend/docs/files/master/common/Writing_Template/figures/qr_code_wechat_work.png" width="120"><br><sub>*扫码加入技术交流群*</sub> | <img src="https://raw.gitcode.com/Ascend/docs/files/master/common/Writing_Template/figures/qr_code_wechat_official_account.png" width="120"><br><sub>*扫码关注官方公众号*</sub> | 扫码入群并关注公众号，直达 MindStudio 用户与开发者最快捷的交流平台：<br> **快速提问：** 与社区小伙伴即时探讨技术问题<br>**掌握动态：** 第一时间获取版本发布与功能更新通知<br> **经验共享：** 与广大开发者交流最佳实践与实战心得  <br> <br> **更多支持渠道**：👉 昇腾助手：[![WeChat](https://img.shields.io/badge/WeChat-07C160?style=flat-square&logo=wechat&logoColor=white)](https://gitcode.com/Ascend/msit/blob/master/docs/zh/figures/readme/xiaozhushou.png) 👉 昇腾论坛：[![Website](https://img.shields.io/badge/Website-%231e37ff?style=flat-square&logo=RSS&logoColor=white)](https://www.hiascend.com/forum/) |
+
+## 🙏 致谢
+
+本工具由华为技术有限公司与开发者联合贡献。
+感谢来自社区的每一个PR，欢迎贡献。

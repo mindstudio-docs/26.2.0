@@ -1,0 +1,81 @@
+# Gemma4-MoE 量化说明
+
+## 模型介绍
+
+[Gemma 4](https://ai.google.dev/gemma) 是 Google DeepMind 推出的开源多模态模型系列。其中 [gemma-4-26B-A4B-it](https://huggingface.co/google/gemma-4-26B-A4B-it) 为指令微调的 Mixture-of-Experts（MoE）变体：
+
+- **稀疏 MoE 架构**：总参数约 26B，每 token 激活约 4B（A4B）。
+- **多模态理解**：原生支持文本与图像输入，生成文本输出。
+- **长上下文**：上下文窗口最长可达 256K tokens。
+- **3D 融合专家权重**：浮点权重中 `experts.gate_up_proj` / `experts.down_proj` 以 3D 张量存储，量化前需拆分为 per-expert `nn.Linear`。
+
+> [!NOTE]
+>
+> 本适配器面向 `enable_moe_block=True` 的 MoE 检查点。密集版 Gemma4（如 gemma-4-31B-it）请使用对应 dense 适配器，不要使用 `--model_type gemma-4-26B-A4B-it`。
+
+## 使用前准备
+
+- 安装 msModelSlim 工具，详情请参见《[msModelSlim工具安装指南](../../../docs/zh/install_guide/install_guide.md)》。
+- 针对 Gemma4-MoE，transformers 版本需为 5.5.3，安装命令如下：
+
+  ```bash
+  pip install transformers==5.5.3
+  ```
+
+## Gemma4-MoE 模型当前已验证的量化方法
+
+| 模型 | 原始浮点权重 | 量化方式 | 推理框架支持情况 | 量化命令 |
+|------|-------------|---------|----------------|---------|
+| gemma-4-26B-A4B-it | [gemma-4-26B-A4B-it](https://huggingface.co/google/gemma-4-26B-A4B-it) | W8A8 动态量化（MoE experts） | vLLM Ascend 支持 | [W8A8 动态量化](#gemma-4-26b-a4b-it-w8a8-动态量化) |
+| gemma-4-26B-A4B-it | [gemma-4-26B-A4B-it](https://huggingface.co/google/gemma-4-26B-A4B-it) | MXFP8 / MXFP4 混合量化 | vLLM Ascend（仅支持Ascend 950PR&950DT 系列产品） | [MXFP8/MXFP4 混合量化](#gemma-4-26b-a4b-it-mxfp8mxfp4-混合量化) |
+
+**说明：** 点击量化命令列中的链接可跳转到对应的具体量化命令。
+
+## 校准数据说明
+
+校准数据支持的方式，详见[校准数据路径配置（参考）](../../../docs/zh/knowledge_base/ptq/vlm/usage_vision_transformer_quantization.md#dataset---校准数据路径配置)。
+
+- **当前 W8A8 动态 / MXFP8·MXFP4 实践**：data-free，可不依赖校准前向。
+- **混合/静态激活量化**：每条样本需同时提供 `image` 与 `text`；缺项样本暂不支持。
+
+## 生成量化权重
+
+### <span id="gemma-4-26b-a4b-it-w8a8-动态量化">gemma-4-26B-A4B-it W8A8 动态量化</span>
+
+该模型的量化已集成至一键量化，示例参数详见文档《一键量化使用指南》中的“[参数列表](../../../docs/zh/api_reference/cli/msmodelslim_quant.md#3-参数列表)”章节。实践配置见《[gemma4_moe_w8a8.yaml](../../../lab_practice/gemma4_moe/gemma4_moe_w8a8.yaml)》。
+
+```shell
+msmodelslim quant \
+    --model_path /path/to/gemma-4-26B-A4B-it \
+    --save_path /path/to/gemma4_moe_w8a8 \
+    --device npu \
+    --model_type gemma-4-26B-A4B-it \
+    --quant_type w8a8 \
+    --trust_remote_code true
+```
+
+### <span id="gemma-4-26b-a4b-it-mxfp8mxfp4-混合量化">gemma-4-26B-A4B-it MXFP8/MXFP4 混合量化</span>
+
+实践配置见 [`gemma4_moe_mxfp8_mxfp4.yaml`](../../../lab_practice/gemma4_moe/gemma4_moe_mxfp8_mxfp4.yaml)。可通过 `--quant_type w4a4`（匹配 `label.w_bit/a_bit=4`）。
+
+```shell
+msmodelslim quant \
+    --model_path /path/to/gemma-4-26B-A4B-it \
+    --save_path /path/to/gemma4_moe_mxfp8_mxfp4 \
+    --device npu \
+    --model_type gemma-4-26B-A4B-it \
+    --quant_type w4a4 \
+    --trust_remote_code true
+```
+
+> [!NOTE]
+>
+> MXFP4/MXFP8 量化优先在Ascend 950PR&950DT 系列产品上结合 vLLM Ascend 推理框架验证；其他硬件请以实际 CANN / 推理框架版本为准。
+
+## 附录
+
+### 相关资源
+
+- 《[multimodal_vlm_modelslim_v1 配置说明](../../../docs/zh/api_reference/config/quant/multimodal_vlm_modelslim_v1.md)》。
+- 《[实践配置 gemma4_moe_w8a8.yaml](../../../lab_practice/gemma4_moe/gemma4_moe_w8a8.yaml)》。
+- 《[实践配置 gemma4_moe_mxfp8_mxfp4.yaml](../../../lab_practice/gemma4_moe/gemma4_moe_mxfp8_mxfp4.yaml)》。

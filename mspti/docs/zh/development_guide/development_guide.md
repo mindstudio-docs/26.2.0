@@ -1,0 +1,305 @@
+# msPTI 开发指南
+
+## 1. 编译环境准备
+
+### 1.1 方式一：devcontainer 一键开发环境（推荐）
+
+mspti 已内置 [devcontainer](https://containers.dev/) 开发环境配置，开发者通过 VS Code 打开仓库后可一键进入标准化容器，无需手工安装任何依赖。容器自动完成以下准备：
+
+- Python 3 环境与编译工具链（GCC 11.2.0、CMake 3.14+）
+- 系统依赖安装（python3-devel、pip 包）
+- 三方依赖预下载（googletest、mockcpp、boost、securec）
+- pre-commit 自动启用（含 gitleaks 密钥扫描）
+- clangd C++ 语言服务就绪
+- Git 身份同步
+
+**前置条件：**
+
+| 环境 | 要求 |
+|------|------|
+| PC | VS Code，安装 Dev Containers 插件和 Remote-SSH 插件 |
+| Linux 服务器 | Docker 服务运行中 |
+
+**使用步骤：**
+
+1. 将 mspti 仓库 clone 到 Linux 服务器。
+2. VS Code 通过 Remote-SSH 连接服务器，打开仓库目录。
+3. VS Code 自动检测到 `.devcontainer` 配置，点击左下角 **"Reopen in Container"**。
+4. 容器启动后自动执行 `post-create.sh` 完成初始化（约 1-2 分钟）。
+5. 按 `Ctrl+Shift+P` → `Tasks: Run Task` 选择构建任务。
+
+**VS Code 内置任务：**
+
+| 任务 | 快捷键 | 说明 |
+|------|--------|------|
+| `Build: Release Mode` | `Ctrl+Shift+B` | 一键 Release 构建（等同 `bash scripts/build.sh`） |
+| `Build: Debug Mode` | — | Debug 编译（带调试符号） |
+| `Test: Run Unit Tests` | — | 运行全量 C++ 单元测试 |
+| `Clean: All Workspace` | — | 清理所有构建产物（build/、prefix/、output/、test/build_llt/ 等） |
+
+**代码智能跳转：**
+
+- C++：构建后通过 clangd 实现跨文件跳转（F12）、查找引用（Shift+F12）、代码补全
+- Python：Pylance 提供语义跳转和类型推导
+
+**图形化调试：**
+
+- 打开 Python 源文件，按 `F5` 选择 `Python: Debug Active File` 进入 debugpy 调试
+- 断点、变量查看、调用栈等功能均可正常使用
+
+### 1.2 方式二：手动环境配置
+
+按照《[msPTI工具安装指南 — 编译环境准备](../install_guide/mspti_install_guide.md#231-环境准备)》章节完成编译和测试环境的搭建。
+
+> **说明：** 环境镜像的构建方法及配套软件版本由 MindStudio 统一镜像制作指南维护，本仓库不重复定义。
+
+## 2. 开发步骤
+
+### 2.1 代码下载
+
+在编译容器环境中，执行以下命令进行代码下载：
+
+```bash
+git clone https://gitcode.com/Ascend/mspti.git
+cd mspti
+```
+
+### 2.2 项目结构说明
+
+当前仓库主要由以下几部分组成：
+
+| 目录 | 说明 |
+| --- | --- |
+| `csrc` | C/C++ 核心实现 |
+| `csrc/activity` | Activity 数据采集与解析 |
+| `csrc/callback` | Callback 订阅与回调管理 |
+| `csrc/common` | 公共基础能力 |
+| `csrc/include` | msPTI C API 头文件 |
+| `mspti` | Python 封装 |
+| `mspti/csrc` | Python 扩展绑定实现 |
+| `mspti/monitor` | Kernel / HCCL / MSTX Monitor |
+| `samples` | C++ / Python 样例 |
+| `scripts` | 构建、打包、安装、测试脚本 |
+| `test/mspti_cpp` | C++ 测试 |
+| `docs/zh` | 中文文档 |
+
+### 2.3 C/C++ 核心能力开发
+
+`csrc` 是 msPTI 的核心实现目录。开发时可按功能关注以下路径：
+
+| 路径 | 说明 |
+| --- | --- |
+| `csrc/activity` | Activity API 的采集、缓冲、解析逻辑 |
+| `csrc/callback` | Callback API 的订阅、回调、domain 管理 |
+| `csrc/common` | 共享工具、适配层和公共能力 |
+| `csrc/include` | 对外暴露的 C API 头文件 |
+
+适用场景：
+
+1. 新增 Activity 类型或附加字段。
+2. 调整 Callback 订阅和回调流程。
+3. 修改公共数据结构或接口定义。
+4. 扩展对外 C API。
+
+### 2.4 Python 接口开发
+
+`mspti` 目录提供 Python 封装和监控能力，开发时重点关注：
+
+| 路径 | 说明 |
+| --- | --- |
+| `mspti/csrc` | Python 扩展绑定 |
+| `mspti/monitor` | `KernelMonitor`、`HcclMonitor`、`MstxMonitor`、`CommunicationMonitor` 等 |
+| `mspti/activity_data.py` | Activity 数据封装 |
+| `mspti/constant.py` | 常量定义 |
+| `mspti/utils.py` | 通用工具函数 |
+
+适用场景：
+
+1. 新增 Python Monitor 能力。
+2. 增加 Python 封装接口。
+3. 调整 Python 层数据结构或返回格式。
+4. 扩展 Python 样例能力。
+
+### 2.5 样例开发
+
+`samples` 目录用于演示典型接口用法。当前样例覆盖：
+
+- Callback API
+- Activity API
+- Correlation 场景
+- HCCL 活动采集
+- Python Monitor
+- Python MSTX Monitor
+
+若新增接口或增强接口能力，建议同步补充样例，并更新：
+
+- `samples/README.md`
+- `docs/zh/README.md`
+
+### 2.6 常见开发场景
+
+#### 2.6.1 开发 Activity API
+
+若本次改动涉及 Activity API：
+
+1. 优先检查 `csrc/activity`。
+2. 确认是否需要同步修改 `csrc/include` 对外头文件。
+3. 补充对应样例和文档说明。
+4. 验证 `samples/mspti_activity`、`samples/mspti_hccl_activity` 等相关样例。
+
+#### 2.6.2 开发 Callback API
+
+若本次改动涉及 Callback API：
+
+1. 优先检查 `csrc/callback`。
+2. 核对 domain、callback 注册和回调执行逻辑。
+3. 验证 `samples/callback_domain`、`samples/callback_mstx`。
+4. 同步更新 C API 文档。
+
+#### 2.6.3 开发 Python Monitor
+
+若本次改动涉及 Python Monitor：
+
+1. 优先检查 `mspti/monitor` 和 `mspti/csrc`。
+2. 核对 Python 层导出的接口名称和参数。
+3. 验证 `samples/python_monitor`、`samples/python_mstx_monitor`。
+4. 同步更新 Python API 文档。
+
+## 3. 构建与安装
+
+### 3.1 三方依赖
+
+仓库提供 `scripts/download_thirdparty.sh` 用于下载构建所需依赖。在首次构建前建议先执行：
+
+```bash
+bash scripts/download_thirdparty.sh
+```
+
+### 3.2 构建 run 包
+
+仓库提供 `scripts/build.sh` 统一构建脚本。该脚本会：
+
+1. 下载第三方依赖。
+2. 执行 CMake 配置和编译。
+3. 安装到临时前缀目录。
+4. 调用 `scripts/make_run.sh` 生成 run 包。
+
+常用命令如下：
+
+```bash
+# 默认 Release 构建
+bash scripts/build.sh
+
+# Debug 构建
+bash scripts/build.sh Debug
+
+# 指定版本号构建
+bash scripts/build.sh v1.2.3
+```
+
+构建完成后，会在 `output` 目录下生成：
+
+```text
+mindstudio-profiler-tools-interface_<version>_<arch>.run
+```
+
+### 3.3 安装验证
+
+```bash
+chmod +x mindstudio-profiler-tools-interface_<version>_<arch>.run
+./mindstudio-profiler-tools-interface_<version>_<arch>.run --install
+```
+
+安装完成后，建议至少验证：
+
+1. CANN 目录下已生成 msPTI 相关文件。
+2. `samples` 目录样例可正常运行。
+3. C API 和 Python API 的基础调用正常。
+
+## 4. 测试与验证
+
+### 4.1 单元测试构建
+
+仓库提供 `scripts/execute_test_case.sh` 用于构建 C++ 单元测试：
+
+```bash
+bash scripts/execute_test_case.sh
+```
+
+该脚本会：
+
+1. 下载第三方依赖。
+2. 在 `test/build_llt` 下执行 CMake 构建。
+3. 以 `PACKAGE=ut` 构建测试目标。
+
+### 4.2 C++ 覆盖率
+
+若需要生成 C++ 覆盖率报告，可执行：
+
+```bash
+bash scripts/generate_coverage_cpp.sh
+```
+
+执行完成后，会在以下目录生成报告：
+
+```text
+test/build_llt/output/cpp_coverage/result
+```
+
+若需要比较增量覆盖率，可执行：
+
+```bash
+bash scripts/generate_coverage_cpp.sh diff
+```
+
+### 4.3 典型测试目标
+
+根据覆盖率脚本，当前重点测试目标包括：
+
+- `activity_utest`
+- `mspti_channel_utest`
+- `dev_task_utest`
+- `mspti_parser_utest`
+- `mspti_reporter_utest`
+- `callback_utest`
+- `context_manager_utest`
+- `function_loader_utest`
+- `mspti_utils_utest`
+- `mspti_adapter_utest`
+
+### 4.4 样例验证
+
+功能开发完成后，建议至少验证一个对应样例。典型命令如下：
+
+```bash
+source ${install_path}/set_env.sh
+cd ${install_path}/tools/mspti/samples/callback_domain
+bash sample_run.sh
+```
+
+${install_path}请替换为CANN实际安装路径，如 /usr/local/Ascend/cann
+
+如开发的是 Python Monitor，建议额外验证：
+
+- `samples/python_monitor`
+- `samples/python_mstx_monitor`
+
+## 5. 文档联动更新
+
+功能开发完成后，若改动影响接口、样例、安装方式或行为说明，需要同步更新文档。
+
+| 改动类型 | 需同步更新的文档 |
+| --- | --- |
+| 安装、打包、卸载 | 《[msPTI工具安装指南](../install_guide/mspti_install_guide.md)》 |
+| 工具介绍 | 《[msPTI工具样例指南](../user_guide/samples_guide.md)》|
+| C API 变更 | 《[C API总体说明](../api_reference/c_api/README.md)》及其子文档 |
+| Python API 变更 | 《[Python API总体说明](../api_reference/python_api/README.md)》及其子文档 |
+| 样例更新 | 《[msPTI样例说明](../../../samples/README.md)》 |
+| 版本发布信息 | 《[版本说明](https://gitcode.com/Ascend/mspti/releases)》 |
+
+## 6. 提交流程建议
+
+1. 功能开发完成后，先完成本地构建验证。
+2. 若涉及对外接口变化，优先补充头文件、样例和文档。
+3. 至少完成相关 C++ 测试构建，必要时生成覆盖率报告。
+4. 若涉及用户可见行为变化，同步更新安装说明、API 文档和样例说明。

@@ -1,0 +1,104 @@
+# FouroverSix 自适应块缩放量化算法 量化术语百科词条
+
+> **词条类别**：[量化算法](../README.md#2-量化算法)<br>
+> **英文名称**：fouroversix<br>
+> **应用领域**：MXFP4 权重量化、低比特量化精度优化<br>
+
+---
+
+## 1. 概述
+
+FouroverSix（4-over-6）是一种面向 MXFP4 per-block 权重量化的自适应块缩放算法。它在不同候选缩放方式之间比较量化重构误差，并为每个块选择更优方案，以缓解统一缩放对不同数值分布的适应不足；核心特征是块级双候选评估、MSE 择优和 shared exponent 自适应选择。
+
+---
+
+## 2. 词条介绍
+
+传统的 mxFP4 量化方法在处理不同分布的数据块时，统一使用固定的缩放因子（通常将最大值缩放到 FP4 的上限 6），可能导致部分块的量化误差较大。FouroverSix 观察到，当数据块内存在离群值或分布不均匀时，使用较小的缩放因子（如缩放到 4）可以显著降低量化误差，因此通过 per-block 自适应选择最优缩放方案。
+
+### 2.1 核心思想
+
+FouroverSix 的核心思想是“每个数据块自适应选择缩放目标”：对每个数据块同时尝试两种缩放方案——方案 A（Scale-to-6）将块内最大值缩放到 FP4 格式的最大值 6 以充分利用动态范围，方案 B（Scale-to-4）将块内最大值缩放到 4 以提供更多余量——计算两种方案的均方误差（MSE），选择误差较小的方案作为该块的最终量化方案。
+
+该方法利用的是低精度浮点“非均匀格点”的结构，而不是普通均匀整数网格。
+
+### 2.2 工作机制
+
+MXFP4 的数值格点并非实数轴上的均匀间隔，尤其在可表示范围高端，相邻 FP4 数值的间距会明显增大。因此“把块内最大值刚好映射到格式最大值”并不总是能最小化整个块的误差。Four Over Six 为每个块构造两种尺度候选：一种让最大值按接近 6 的满范围方案缩放，另一种让其按接近 4 的更保守目标缩放。
+
+两种候选经过同一 FP4 编码/反编码后直接比较块内 MSE。Scale-to-6 更充分使用动态范围，但高端粗糙格点可能使接近最大值的一批元素误差较大；Scale-to-4 会改变这些元素落在 FP4 格点上的位置，有时虽然牺牲部分名义范围，却获得更密集或更合适的有效表示。算法最终只是为每个块选择二者中重构更好的尺度路径，不改变底层 FP4 数据格式。
+
+### 2.3 数学描述
+
+方案 A（Scale-to-6）与方案 B（Scale-to-4）的缩放因子：
+
+$$
+\text{scale\_a} = \frac{\max\_per\_block}{6.0}, \quad \text{scale\_b} = \frac{\max\_per\_block}{4.0}
+$$
+
+- $\max\_per\_block$：block 内权重绝对值的最大值
+
+两种实数尺度还需要映射到 e8m0 可表示的共享尺度。记映射后的尺度为 $\tilde{s}_a$、$\tilde{s}_b$；该过程本质上把连续尺度约束到 2 的整数次幂附近，因此尺度本身也会引入离散化误差。
+
+分别计算两种方案的 MSE：
+
+$$
+\text{MSE}_a = \frac{1}{N}\sum_{i=1}^{N}(w_i - \hat{w}_i^{(a)})^2, \quad \text{MSE}_b = \frac{1}{N}\sum_{i=1}^{N}(w_i - \hat{w}_i^{(b)})^2
+$$
+
+- $w_i$：block 内权重值
+- $\hat{w}_i^{(a)}$、$\hat{w}_i^{(b)}$：方案 A/B 量化-反量化后的值
+- $N$：block 内元素个数
+
+最终选择 MSE 较小的方案：
+
+$$
+s^* = \begin{cases} \tilde{s}_a & \text{if } \text{MSE}_a \le \text{MSE}_b \\ \tilde{s}_b & \text{otherwise} \end{cases}
+$$
+
+指数舍入策略（e8m0 格式）：尾数 > 0.5 时指数加 1，尾数 < 0.5 时指数保持不变，尾数 == 0.5 时采用银行家舍入规则（偶数进 1、奇数不进）。
+
+令 FP4 可表示集合为 $\mathcal F$，e8m0 尺度投影为 $P_E(\cdot)$。两个候选可以更一般地写为：
+
+$$
+\tilde s_t=P_E\left(\frac{a}{t}\right),\qquad \hat w_i^{(t)}=\tilde s_t\,P_{\mathcal F}\left(\frac{w_i}{\tilde s_t}\right),\quad t\in\{4,6\},
+$$
+
+其中 $a=\max_i|w_i|$，$P_{\mathcal F}$ 表示最近 FP4 码点投影。最终选择 $\sum_i(w_i-\hat w_i^{(t)})^2$ 更小的 $t$。这个表达式把“目标值”和“实际可存储尺度”区分开来。
+
+### 2.4 关键性质
+
+- **自适应缩放**：每个 block 在 6 与 4 之间智能选择缩放目标。
+- **双路径评估**：同时评估 Scale-to-6 与 Scale-to-4 两种方案的量化误差。
+- **银行家舍入**：e8m0 指数采用最近邻舍入（含银行家舍入规则），确保精度。
+- **格式兼容**：保持 mxFP4 量化格式不变，仅优化缩放策略。
+- **格式保持**：改变的是块尺度候选选择，不需要改变 FP4 码表本身。
+
+从误差与适用边界看，它的优势是搜索空间极小：每块只需比较两个 QDQ 结果，就能捕获相当一部分尺度取整带来的误差差异；代价也相对可控。局限在于候选只有两个，若最优尺度远离两种预设目标，仍可能留下可改进空间；此外收益依赖具体 FP4 码表和 shared-scale 规则，不能直接外推到均匀 INT4。
+
+### 2.5 适用场景
+
+- 对精度要求较高的 mxFP4 量化场景，特别适合处理数据分布不均匀的模型。
+- 注意力层和前馈网络层权重分布差异较大的 Transformer 模型，以及多模态模型。
+
+### 2.6 使用限制
+
+- 仅支持 mxFP4 格式的 per_block 对称量化。
+- 权重必须为 2D 张量。
+- 需要对每个块执行两次量化/反量化并计算 MSE，计算量略高于传统 mxFP4 量化。
+
+---
+
+## 3. 关联词条
+
+- [线性量化](../linear_quant/term_linear_quant.md)：应用对象，FouroverSix 作为线性量化的权重量化方法使用。
+- [Ceil_X](../ceil_x/term_ceil_x.md)：同类算法，同为 MXFP4 格式的缩放策略优化算法。
+- [MSE_Round](../mse_round/term_mse_round.md)：同类算法，同为 per-block 双候选择优的量化算法（针对 MXFP8）。
+- [MinMax](../minmax/term_minmax.md)：对比算法，FouroverSix 是 MinMax MXFP4 量化的自适应优化。
+
+---
+
+## 4. 参考文档
+
+1. 《[FouroverSix 参数配置流程指南](./usage_fouroversix.md)》
+2. Cook J, Guo J, Xiao G, Lin Y, Han S. “Four Over Six: More Accurate NVFP4 Quantization with Adaptive Block Scaling.” arXiv preprint arXiv:2512.02010, 2025. <https://arxiv.org/abs/2512.02010>

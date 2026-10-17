@@ -1,0 +1,713 @@
+# Copyright Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
+# _*_coding:utf-8_*_
+"""
+ModelRuner
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import time
+from dataclasses import dataclass, field
+from typing import Callable, Dict, List, Optional, TYPE_CHECKING
+
+import torch
+
+from ..device import DeviceProfile
+from ..layers.sampler import Sampler
+from ..performance_model.analytic import AnalyticPerformanceModel
+from ..performance_model.calibrated_analytic import CalibratedAnalyticPerformanceModel
+from ..performance_model.calibration import ProfileCalibrationDataSource
+from ..performance_model.empirical import (
+    EmpiricalOpRecord,
+    EmpiricalPerformanceModel,
+    PROFILING_SOURCE_SCOPE,
+    summarize_empirical_records,
+)
+from ..performance_model.memory_tracker import MemoryTracker
+from ..performance_model.profiling_database import InterpolatingDataSource, ProfilingDataSource
+from ..performance_model.utils import bytes_of_tensor
+from ..pipeline_parallel import PipelineModel, PipelineProfile, PipelineRunResult, PipelineRunner
+from ..runtime import Runtime
+from ..transformers.custom_model_registry import get_visual
+from .input_generator import dcp_kv_token_capacity_factor
+from .input_generator import kv_cache_excluded_layer_indices
+from .input_generator import (
+    generate_inputs_varlen,
+    get_inputs_num_bytes,
+    get_kv_cache_info,
+    RequestInfo,
+)
+from .model_builder import build_model
+
+if TYPE_CHECKING:
+    from ..performance_model import PerformanceModel
+    from .user_config import UserInputConfig
+
+
+logger = logging.getLogger(__name__)
+
+
+def _primary_model_output(output: object) -> object:
+    """Unwrap ``(primary, side_outputs...)`` used to keep compile residency edges.
+
+    Dflash Prefill returns ``(target_logits, draft_logits)`` so the draft subgraph
+    remains a formal graph output under ``torch.compile``. Dflash/DSpark Decode may
+    return ``(draft_tokens, next_tokens[, confidence])`` so verify / ConfidenceHead
+    paths are not DCE'd. Callers only consume the primary tensor — Decode primary is
+    token ids, not sampler logits (see ``_spec_decode_skips_runner_sampler``).
+    """
+    if isinstance(output, (tuple, list)) and output:
+        return output[0]
+    return output
+
+
+def _spec_decode_skips_runner_sampler(model: object, input_kwargs: dict) -> bool:
+    """True when DFlash/DSpark/MTP Decode already sampled inside the wrapper.
+
+    Decode primary is ``draft_tokens`` (DFlash) or ``token_ids`` (MTP), not vocab
+    logits — do not feed it to the runner sampler.
+    """
+    from ..layers.dflash import DflashWrapper
+    from ..layers.mtp import MtpWrapper
+
+    # For PipelineModel, the wrapper sits on the last stage's model, not on
+    # the top-level PipelineModel (which has no ``_inner``). Delegate to it.
+    if hasattr(model, "stages"):
+        stages = list(getattr(model, "stages", []))
+        if stages:
+            last_stage_model = getattr(stages[-1], "model", None)
+            if last_stage_model is not None:
+                model = last_stage_model
+
+    # Start at ``model`` itself: wrappers may be the top node or nested under
+    # ``TransformerModel._inner``. Skipping straight to ``_inner`` would miss a
+    # bare wrapper and incorrectly keep the runner sampler on Decode.
+    node = model
+    seen: set[int] = set()
+    while node is not None and id(node) not in seen:
+        seen.add(id(node))
+        if isinstance(node, DflashWrapper):
+            return DflashWrapper._is_decode_step(input_kwargs)
+        if isinstance(node, MtpWrapper):
+            # MTP always samples internally (self.sampler = Sampler() in __init__).
+            # Its forward returns [batch, num_mtp_layers+1] token IDs, not logits.
+            return True
+        node = getattr(node, "_inner", None)
+    return False
+
+
+class ModelRunner:
+    """
+    corresponding to one data-parallel partition ('dp_rank')
+    """
+
+    def __init__(self, user_input: UserInputConfig):
+        self.user_input = user_input
+
+        # ---------- 1. init device profile and performance_model ----------
+        if user_input.device not in DeviceProfile.all_device_profiles:
+            logger.error(
+                "Unsupported device: %s. Available devices: %s",
+                user_input.device,
+                list(DeviceProfile.all_device_profiles.keys()),
+            )
+            raise ValueError(f"Device '{user_input.device}' not recognized.")
+
+        logger.info("Loading device profile")
+        self.device_profile = DeviceProfile.all_device_profiles[user_input.device]
+        logger.debug("Device profile loaded: %s", self.device_profile)
+
+        logger.info("Initializing performance model")
+        self.perf_models = self.create_performance_models(user_input, self.device_profile)
+        logger.debug("Performance models initialized: %s", self.perf_models)
+
+        #  ---------- 2. generate default request from user config----------
+        logger.info("Generating request information")
+        if user_input.num_queries != 0:
+            self.request_info_default = [user_input.get_request_info()]
+            logger.debug("Request configured: %s", self.request_info_default)
+        else:
+            logger.debug("No default requests configured (num_queries = 0)")
+            self.request_info_default = None
+
+        # ---------- 3. build model ----------
+        logger.info("Building model architecture")
+        self.model = build_model(user_input).eval()
+        logger.debug("Model built:_%s", self.model)
+
+        # ---------- 4. static_memory ----------
+        self.total_device_memory_gb = self.device_profile.memory_size_bytes / 1024**3
+        self.model_weight_size_gb = self.model.weight_size / 1024**3
+
+        logger.info("Initializing Sampler")
+        self.sampler = Sampler()
+        logger.debug("Sampler initialized: %s", self.sampler)
+
+    @staticmethod
+    def create_performance_models(
+        user_input: "UserInputConfig",
+        device_profile: DeviceProfile,
+    ) -> List["PerformanceModel"]:
+        """Create performance models without building a model graph.
+
+        Workload-reuse callers use this factory to bind an already captured runtime
+        workload to another device profile. Keeping the construction here ensures
+        the replay path uses exactly the same analytic/profiling setup as
+        ``ModelRunner``'s direct path.
+        """
+        perf_model_types: List[str] = getattr(user_input, "performance_model", ["analytic"])
+        if isinstance(perf_model_types, str):
+            perf_model_types = [perf_model_types]
+        profiling_database = getattr(user_input, "profiling_database", None)
+        perf_models: List[PerformanceModel] = []
+        for perf_model_type in perf_model_types:
+            if perf_model_type == "profiling":
+                if not profiling_database:
+                    raise ValueError("--profiling-database must be specified when using --performance-model profiling")
+                data_source = ProfilingDataSource(
+                    profiling_database,
+                    device_profile,
+                    parallel_config=user_input.get_parallel_config(),
+                )
+                if not getattr(user_input, "disable_profiling_interpolation", False):
+                    data_source = InterpolatingDataSource(data_source)
+                perf_models.append(
+                    EmpiricalPerformanceModel(
+                        device_profile,
+                        data_source=data_source,
+                        fallback_model=AnalyticPerformanceModel(device_profile),
+                    )
+                )
+            elif perf_model_type == "analytic":
+                analytic_model = AnalyticPerformanceModel(device_profile)
+                perf_models.append(analytic_model)
+            elif perf_model_type == "calibrated":
+                calibration_profile = getattr(user_input, "analytic_calibration_profile", None)
+                if not calibration_profile:
+                    raise ValueError(
+                        "--analytic-calibration-profile must be specified when using --performance-model calibrated"
+                    )
+                perf_models.append(
+                    CalibratedAnalyticPerformanceModel(
+                        AnalyticPerformanceModel(device_profile),
+                        ProfileCalibrationDataSource(
+                            calibration_profile,
+                            device_name=device_profile.name,
+                            software_stack=getattr(user_input, "analytic_calibration_stack", None),
+                            device_compute_efficiency=device_profile.compute_efficiency,
+                        ),
+                    )
+                )
+            else:
+                raise ValueError(f"Unsupported performance model: {perf_model_type}")
+        return perf_models
+
+    def _check_peak_memory_usage_gb(
+        self,
+        peak_memory_usage_gb: float,
+        kv_cache_size_gb: float,
+        requests: Optional[List[RequestInfo]],
+    ) -> float:
+        """
+        Check peak memory usage against device limits.
+
+        Args:
+            peak_memory_usage_gb: Current peak memory usage in GB
+            kv_cache_size_gb: Size of KV cache in GB
+            requests: List of RequestInfo objects
+
+        Returns:
+            float: Adjusted peak memory usage in GB
+        """
+        model_activation_size_gb = peak_memory_usage_gb - kv_cache_size_gb - self.model_weight_size_gb
+        device_memory_available_gb = (
+            self.total_device_memory_gb - peak_memory_usage_gb - self.user_input.reserved_memory_gb
+        )
+        query_lens = [request.query_len for request in requests if not request.is_decode]
+
+        if device_memory_available_gb < 0 and len(set(query_lens)) > 1:
+            if model_activation_size_gb <= 0:
+                return self.model_weight_size_gb + kv_cache_size_gb
+            # Empirical calibration for heterogeneous multi-sequence Prefill batches.
+            peak_memory_usage_gb = 0.1 * model_activation_size_gb + self.model_weight_size_gb + kv_cache_size_gb
+            logger.warning("Adjusting peak memory usage")
+
+        return peak_memory_usage_gb
+
+    # -----------------------------------------------------
+    # public API
+    # -----------------------------------------------------
+    def _calculate_single_card_tps(self, execution_time_s: float) -> float:
+        if not execution_time_s or execution_time_s <= 0:
+            raise ValueError("execution_time_s must be positive")
+        return (self.user_input.num_queries * self.user_input.query_len) / (
+            execution_time_s * self.user_input.world_size
+        )
+
+    def run_inference(
+        self,
+        requests: Optional[List[RequestInfo]] = None,
+        generate_inputs_func: Callable = generate_inputs_varlen,
+        with_sampler: bool = False,
+        runtime_observer: Optional[Callable[[Runtime], None]] = None,
+    ) -> ModelRunnerMetrics:
+        empirical_record_offsets = {
+            id(perf_model): len(perf_model.op_records)
+            for perf_model in self.perf_models
+            if isinstance(perf_model, EmpiricalPerformanceModel)
+        }
+        data_parallel_size = self.model.model_config.parallel_config.data_parallel_size
+        logger.debug("data_parallel_size: %s", data_parallel_size)
+
+        batch_size = (self.user_input.num_queries + data_parallel_size - 1) // data_parallel_size
+        logger.debug("batch_size: %s", batch_size)
+
+        if requests is None:
+            requests = self.request_info_default
+        logger.debug("requests: %s", requests)
+
+        input_kwargs = generate_inputs_func(
+            self.model,
+            requests,
+            block_size=self.user_input.block_size,
+        )
+
+        run_start = time.perf_counter()
+        if isinstance(self.model, PipelineModel):
+            pipeline_runner = PipelineRunner(
+                model=self.model,
+                perf_models=self.perf_models,
+                device_profile=self.device_profile,
+                user_input=self.user_input,
+            )
+            # Guard against double-sampling when MTP/DFlash already sampled
+            # internally — mirrors the non-PP path's check at line 261.
+            skip_sampler = _spec_decode_skips_runner_sampler(self.model, input_kwargs)
+            pipeline_result = pipeline_runner.run(
+                input_kwargs,
+                with_sampler=with_sampler and not skip_sampler,
+                sampler=self.sampler,
+                runtime_observer=runtime_observer,
+            )
+            run_end = time.perf_counter()
+            empirical_records = self._new_empirical_records(empirical_record_offsets)
+            type(self)._log_empirical_model_stats(empirical_records)
+            profiling_source_times_s, profiling_miss_reasons = summarize_empirical_records(empirical_records)
+            if self.user_input.chrome_trace:
+                PipelineRunner.export_chrome_trace(self.user_input.chrome_trace, pipeline_result.trace_events)
+            return self._build_pipeline_metrics(
+                pipeline_result,
+                batch_size=batch_size,
+                run_time_s=run_end - run_start,
+                profiling_source_times_s=profiling_source_times_s,
+                profiling_miss_reasons=profiling_miss_reasons,
+            )
+
+        with (
+            Runtime(
+                self.perf_models,
+                self.device_profile,
+                memory_tracker=MemoryTracker(self.device_profile),
+            ) as runtime,
+            torch.no_grad(),
+        ):
+            primary = _primary_model_output(self.model.forward(**input_kwargs))
+            if with_sampler and not _spec_decode_skips_runner_sampler(self.model, input_kwargs):
+                _ = self.sampler(primary, input_kwargs["sampling_metadata"])
+        run_end = time.perf_counter()
+
+        # Log empirical model stats if using profiling mode
+        empirical_records = self._new_empirical_records(empirical_record_offsets)
+        type(self)._log_empirical_model_stats(empirical_records)
+        profiling_source_times_s, profiling_miss_reasons = summarize_empirical_records(empirical_records)
+
+        all_execution_time_s = runtime.total_execution_time_s()
+        run_time_s = run_end - run_start
+
+        calibrated_result_count = 0
+        calibrated_fallback_count = 0
+        for event in runtime.event_list:
+            result = event.perf_results.get("calibrated")
+            if result is None:
+                continue
+            calibration = result.statistics.get("calibration", {})
+            if calibration.get("profile_id"):
+                calibrated_result_count += 1
+            else:
+                calibrated_fallback_count += 1
+        if "calibrated" in all_execution_time_s:
+            logger.info(
+                "Analytic calibration summary: hits=%d fallbacks=%d",
+                calibrated_result_count,
+                calibrated_fallback_count,
+            )
+
+        table_result = runtime.table_averages(
+            group_by_input_shapes=self.user_input.dump_input_shapes,
+            dump_op_bound_results=self.user_input.dump_op_bound_results,
+        )
+
+        perf_model_name = self.perf_models[0].name if self.perf_models else None
+        runtime_event_list = self._aggregate_runtime_events(runtime.event_list, perf_model_name=perf_model_name)
+
+        # Calculate TPS for each model
+        tps_per_model: Dict[str, float] = {}
+        for model_name, exec_time in all_execution_time_s.items():
+            if exec_time and exec_time > 0:
+                tps_per_model[model_name] = self._calculate_single_card_tps(exec_time)
+
+        peak_memory_usage_gb = runtime.memory_tracker.peak_mem_usage() / 1024**3
+
+        # linear_attention 层占位张量不计入 KV cache 字节（判定集中维护于
+        # kv_cache_excluded_layer_indices，确保 kv_cache_bytes 与 kv_cache_per_token 口径一致）。
+        excluded_layers = kv_cache_excluded_layer_indices(self.model)
+        kv_cache_bytes = sum(
+            bytes_of_tensor(kv_cache)
+            for layer_idx, kv_cache in input_kwargs["kv_cache_by_layers"].items()
+            if layer_idx not in excluded_layers
+        )
+        indexer_cache_bytes = sum(
+            bytes_of_tensor(kv_cache) for kv_cache in input_kwargs.get("indexer_cache_by_layers", {}).values()
+        )
+        kv_cache_size_gb = (kv_cache_bytes + indexer_cache_bytes) / 1024**3
+        kv_cache_per_token_gb = (
+            input_kwargs["kv_cache_per_token"] + input_kwargs.get("indexer_cache_per_token", 0)
+        ) / 1024**3
+        # DCP shards the KV cache along the token dimension, so a card can hold more
+        # tokens for the same byte budget where that shard is a real saving (``dcp``
+        # for MLA latent KV, capped by TP KV replication for GQA, 1 for SFA). The
+        # per-token cost above stays the true physical cost; the capacity gain is
+        # surfaced as a multiplier that warmup() applies to ``num_blocks``.
+        kv_cache_token_capacity_factor = dcp_kv_token_capacity_factor(self.model)
+        if get_visual(self.model) and input_kwargs.get("pixel_values") is None:
+            # If there is no image input, the visual part does not participate
+            # in the calculation and needs to be removed
+            visual_weight_size_gb = self.model.get_weight_size_nested([get_visual(self.model)]) / 1024**3
+            self.model_weight_size_gb = self.model_weight_size_gb - visual_weight_size_gb
+
+        peak_memory_usage_gb = self._check_peak_memory_usage_gb(
+            peak_memory_usage_gb,
+            kv_cache_size_gb,
+            requests,
+        )
+        model_activation_size_gb = peak_memory_usage_gb - kv_cache_size_gb - self.model_weight_size_gb
+        if model_activation_size_gb < 0:
+            logger.warning(
+                "Negative activation memory estimate (peak=%.6f GB, weight=%.6f GB, kv=%.6f GB); "
+                "this may indicate inconsistent peak memory, model weight, or cache accounting. "
+                "Clamping activation to 0 and adjusting peak for consistency.",
+                peak_memory_usage_gb,
+                self.model_weight_size_gb,
+                kv_cache_size_gb,
+            )
+            model_activation_size_gb = 0.0
+            peak_memory_usage_gb = self.model_weight_size_gb + kv_cache_size_gb
+        device_memory_available_gb = (
+            self.total_device_memory_gb - peak_memory_usage_gb - self.user_input.reserved_memory_gb
+        )
+
+        if self.user_input.chrome_trace:
+            runtime.export_chrome_trace(self.user_input.chrome_trace)
+
+        if runtime_observer is not None:
+            runtime_observer(runtime)
+
+        return ModelRunnerMetrics(
+            total_device_memory_gb=self.total_device_memory_gb,
+            model_weight_size_gb=self.model_weight_size_gb,
+            peak_memory_usage_gb=peak_memory_usage_gb,
+            kv_cache_size_gb=kv_cache_size_gb,
+            kv_cache_per_token_gb=kv_cache_per_token_gb,
+            kv_cache_token_capacity_factor=kv_cache_token_capacity_factor,
+            indexer_cache_size_gb=indexer_cache_bytes / 1024**3,
+            indexer_cache_per_token_gb=input_kwargs.get("indexer_cache_per_token", 0) / 1024**3,
+            model_activation_size_gb=model_activation_size_gb,
+            reserved_memory_gb=self.user_input.reserved_memory_gb,
+            device_memory_available_gb=device_memory_available_gb,
+            execution_time_s=all_execution_time_s,
+            tps_per_model=tps_per_model,
+            run_time_s=run_time_s,
+            batch_size=batch_size,
+            table_result=table_result,
+            breakdowns=runtime.get_breakdowns(),
+            runtime_event_list=runtime_event_list,
+            perf_model_name=perf_model_name,
+            profiling_source_times_s=profiling_source_times_s,
+            profiling_miss_reasons=profiling_miss_reasons,
+        )
+
+    def _build_pipeline_metrics(
+        self,
+        pipeline_result: PipelineRunResult,
+        *,
+        batch_size: int,
+        run_time_s: float,
+        profiling_source_times_s: Optional[Dict[str, float]] = None,
+        profiling_miss_reasons: Optional[Dict[str, int]] = None,
+    ) -> ModelRunnerMetrics:
+        all_execution_time_s = pipeline_result.execution_time_s
+        tps_per_model = {
+            model_name: self._calculate_single_card_tps(exec_time)
+            for model_name, exec_time in all_execution_time_s.items()
+            if exec_time and exec_time > 0
+        }
+
+        peak_memory_usage_gb = pipeline_result.peak_memory_usage_bytes / 1024**3
+        model_weight_size_gb = (
+            pipeline_result.model_weight_size_bytes / 1024**3
+            if pipeline_result.model_weight_size_bytes > 0
+            else self.model_weight_size_gb
+        )
+        kv_cache_bytes = pipeline_result.kv_cache_size_bytes
+        indexer_cache_bytes = pipeline_result.indexer_cache_size_bytes
+        kv_cache_size_gb = (kv_cache_bytes + indexer_cache_bytes) / 1024**3
+        kv_cache_per_token_gb = (
+            pipeline_result.kv_cache_per_token_bytes + pipeline_result.indexer_cache_per_token_bytes
+        ) / 1024**3
+        if pipeline_result.model_activation_size_bytes is not None:
+            # PP path: activation was computed in _build_run_result for the
+            # selected summary stage, using its stage-local runtime peak -
+            # weight - kv - indexer (all terms same rank, so it is non-negative
+            # and never needs clamping). Use it directly instead of the
+            # cross-stage `peak - kv - weight` subtraction below, which can mix
+            # different ranks and fabricate a non-existent rank.
+            model_activation_size_gb = pipeline_result.model_activation_size_bytes / 1024**3
+        else:
+            model_activation_size_gb = peak_memory_usage_gb - kv_cache_size_gb - model_weight_size_gb
+            if model_activation_size_gb < 0:
+                logger.warning(
+                    "Negative activation memory estimate (peak=%.6f GB, weight=%.6f GB, kv=%.6f GB); "
+                    "this may indicate inconsistent peak memory, model weight, or cache accounting. "
+                    "Clamping activation to 0 and adjusting peak for consistency.",
+                    peak_memory_usage_gb,
+                    model_weight_size_gb,
+                    kv_cache_size_gb,
+                )
+                model_activation_size_gb = 0.0
+                peak_memory_usage_gb = model_weight_size_gb + kv_cache_size_gb
+        device_memory_available_gb = (
+            self.total_device_memory_gb - peak_memory_usage_gb - self.user_input.reserved_memory_gb
+        )
+        perf_model_name = self.perf_models[0].name if self.perf_models else None
+
+        return ModelRunnerMetrics(
+            total_device_memory_gb=self.total_device_memory_gb,
+            model_weight_size_gb=model_weight_size_gb,
+            peak_memory_usage_gb=peak_memory_usage_gb,
+            kv_cache_size_gb=kv_cache_size_gb,
+            kv_cache_per_token_gb=kv_cache_per_token_gb,
+            indexer_cache_size_gb=indexer_cache_bytes / 1024**3,
+            indexer_cache_per_token_gb=pipeline_result.indexer_cache_per_token_bytes / 1024**3,
+            model_activation_size_gb=model_activation_size_gb,
+            reserved_memory_gb=self.user_input.reserved_memory_gb,
+            device_memory_available_gb=device_memory_available_gb,
+            execution_time_s=all_execution_time_s,
+            tps_per_model=tps_per_model,
+            run_time_s=run_time_s,
+            batch_size=batch_size,
+            table_result=pipeline_result.table_result,
+            breakdowns=pipeline_result.breakdowns,
+            runtime_event_list=pipeline_result.runtime_event_list,
+            perf_model_name=perf_model_name,
+            stage_latency_breakdown=pipeline_result.stage_latency_breakdown,
+            stage_memory_breakdown=pipeline_result.stage_memory_breakdown,
+            pipeline_profile=pipeline_result.pipeline_profile,
+            profiling_source_times_s=profiling_source_times_s or {},
+            profiling_miss_reasons=profiling_miss_reasons or {},
+        )
+
+    def _new_empirical_records(self, record_offsets: Dict[int, int]) -> List[EmpiricalOpRecord]:
+        records = []
+        for perf_model in self.perf_models:
+            if isinstance(perf_model, EmpiricalPerformanceModel):
+                records.extend(perf_model.op_records[record_offsets.get(id(perf_model), 0) :])
+        return records
+
+    @staticmethod
+    def _log_empirical_model_stats(records: List[EmpiricalOpRecord]) -> None:
+        if not records:
+            return
+        from ..performance_model.metrics_collector import MetricsCollector
+
+        collector = MetricsCollector()
+        collector.collect_from_records(records)
+        collector.log_stats()
+
+    def get_inputs_num_bytes(self, requests: List[RequestInfo]) -> int:
+        return get_inputs_num_bytes(self.model, requests, self.user_input.block_size)
+
+    def get_kv_cache_num_bytes(self, num_tokens: int) -> int:
+        return get_kv_cache_info(self.model, 1, 1) * num_tokens
+
+    def _aggregate_runtime_events(self, event_list, perf_model_name: Optional[str] = None) -> List[Dict]:
+        aggregated: Dict[str, Dict[str, float]] = {}
+        for event in event_list:
+            name = str(event.op_invoke_info.func)
+            entry = aggregated.setdefault(name, {"total": 0.0, "count": 0})
+            entry["count"] += 1
+            if perf_model_name is None:
+                continue
+            result = event.perf_results.get(perf_model_name)
+            if result is not None:
+                entry["total"] += result.execution_time_s
+
+        items: List[Dict] = []
+        for name, entry in aggregated.items():
+            count = entry["count"]
+            total = entry["total"]
+            items.append(
+                {
+                    "name": name,
+                    "perf_model": perf_model_name,
+                    "perf_total": total,
+                    "perf_avg": total / count if count else 0.0,
+                    "call_times": count,
+                }
+            )
+        items.sort(key=lambda x: x["perf_total"], reverse=True)
+        return items
+
+
+@dataclass
+class ModelRunnerMetrics:
+    total_device_memory_gb: float
+    model_weight_size_gb: float
+    peak_memory_usage_gb: float
+    kv_cache_size_gb: float
+    kv_cache_per_token_gb: float
+    model_activation_size_gb: float
+    reserved_memory_gb: float
+    device_memory_available_gb: float
+    execution_time_s: Dict[str, float]
+    """Execution time per performance model, keyed by model name."""
+    tps_per_model: Dict[str, float]
+    """TPS per performance model, keyed by model name."""
+    run_time_s: float
+    batch_size: int
+    kv_cache_token_capacity_factor: int = 1
+    """Per-card KV token capacity multiplier from DCP (1 when DCP is off, and when the
+    token shard buys no real per-card saving). warmup() multiplies ``num_blocks`` by
+    this; see ``dcp_kv_token_capacity_factor``."""
+    indexer_cache_size_gb: float = 0.0
+    indexer_cache_per_token_gb: float = 0.0
+    table_result: str = ""
+    breakdowns: Dict[str, Dict[str, float]] = field(default_factory=dict)
+    runtime_event_list: List[Dict] = field(default_factory=list)
+    perf_model_name: Optional[str] = None
+    stage_latency_breakdown: List[Dict] = field(default_factory=list)
+    stage_memory_breakdown: List[Dict] = field(default_factory=list)
+    pipeline_profile: Optional[PipelineProfile] = None
+    profiling_source_times_s: Dict[str, float] = field(default_factory=dict)
+    profiling_miss_reasons: Dict[str, int] = field(default_factory=dict)
+
+    def print_info(self):
+        print(f"Number of Queries per DP rank: {self.batch_size}")
+        print(f"Model compilation and execution time: {self.run_time_s:.3f} s")
+        print(self.table_result)
+        for model_name, exec_time in self.execution_time_s.items():
+            print(f"[{model_name}] Execution time: {exec_time:.6f} s")
+            tps = self.tps_per_model.get(model_name)
+            if tps is not None:
+                print(f"[{model_name}] TPS/Device: {tps:.4g} token/s")
+
+        if self.stage_latency_breakdown:
+            print("Pipeline stage latency breakdown:")
+            for stage in self.stage_latency_breakdown:
+                for model_name, compute_time_s in stage["compute_time_s"].items():
+                    outgoing_comm_time_s = stage["outgoing_comm_time_s"].get(model_name, 0.0)
+                    total_time_s = stage["total_time_s"].get(
+                        model_name,
+                        compute_time_s + outgoing_comm_time_s,
+                    )
+                    print(
+                        f"  [{model_name}] stage {stage['stage_id']} "
+                        f"(layers {stage['layer_start']}:{stage['layer_end']}): "
+                        f"compute={compute_time_s:.6f} s  "
+                        f"outgoing_comm={outgoing_comm_time_s:.6f} s  "
+                        f"total={total_time_s:.6f} s"
+                    )
+
+        print(f"Total device memory: {self.total_device_memory_gb:.3f} GB")
+        print(f"  Model weight size: {self.model_weight_size_gb:.3f} GB")
+        print(f"  KV cache: {self.kv_cache_size_gb:.3f} GB")
+        if self.indexer_cache_size_gb > 0:
+            print(f"    Main KV cache: {self.kv_cache_size_gb - self.indexer_cache_size_gb:.3f} GB")
+            print(f"    Indexer cache: {self.indexer_cache_size_gb:.3f} GB")
+            print(f"    Indexer cache per token: {self.indexer_cache_per_token_gb:.6f} GB")
+        print(f"  Model activation size: {self.model_activation_size_gb:.3f} GB")
+        print(f"  Reserved memory: {self.reserved_memory_gb:.3f} GB")
+        print(f"  Memory available: {self.device_memory_available_gb:.3f} GB")
+        if self.stage_memory_breakdown:
+            gib = 1024**3
+            print("Pipeline stage memory breakdown (per-rank):")
+            for stage in self.stage_memory_breakdown:
+                print(
+                    f"  stage {stage['stage_id']} (layers {stage['layer_start']}:{stage['layer_end']}): "
+                    f"weight={stage['weight_bytes'] / gib:.3f} GB  "
+                    f"kv={stage['kv_cache_bytes'] / gib:.6f} GB  "
+                    f"indexer={stage['indexer_cache_bytes'] / gib:.6f} GB  "
+                    f"peak={stage['peak_bytes'] / gib:.3f} GB  "
+                    f"activation={stage['activation_bytes'] / gib:.3f} GB"
+                )
+
+        print("Stats breakdowns:")
+        for breakdown_name, breakdown in self.breakdowns.items():
+            total = sum(breakdown.values())
+            if total == 0:
+                continue
+            formatted = ", ".join(f"{key}: {val * 100 / total:.2f}" for key, val in breakdown.items())
+            print(f"  {breakdown_name}: {formatted}")
+        profiling_total_s = sum(self.profiling_source_times_s.values())
+        if profiling_total_s > 0:
+            formatted = ", ".join(
+                f"{source}: {latency_s * 100 / profiling_total_s:.2f}"
+                for source, latency_s in self.profiling_source_times_s.items()
+            )
+            print(f"  profiling_sources [scope={PROFILING_SOURCE_SCOPE}]: {formatted}")
+            if self.profiling_miss_reasons:
+                misses = ", ".join(
+                    f"{reason}: {count}"
+                    for reason, count in sorted(
+                        self.profiling_miss_reasons.items(),
+                        key=lambda item: (-item[1], item[0]),
+                    )
+                )
+                print(f"  profiling_misses: {misses}")
+
+    def dump_json(self, path: str) -> None:
+        breakdowns_percent: Dict[str, Dict[str, float]] = {}
+        for name, breakdown in self.breakdowns.items():
+            total = sum(breakdown.values())
+            if total == 0:
+                continue
+            breakdowns_percent[name] = {k: round(v * 100 / total, 4) for k, v in breakdown.items()}
+        payload = {
+            "batch_size": self.batch_size,
+            "run_time_s": self.run_time_s,
+            "execution_time_s": dict(self.execution_time_s),
+            "tps_per_model": dict(self.tps_per_model),
+            "memory_gb": {
+                "total_device": self.total_device_memory_gb,
+                "model_weight": self.model_weight_size_gb,
+                "peak_usage": self.peak_memory_usage_gb,
+                "kv_cache": self.kv_cache_size_gb,
+                "kv_cache_per_token": self.kv_cache_per_token_gb,
+                "kv_cache_token_capacity_factor": self.kv_cache_token_capacity_factor,
+                "model_activation": self.model_activation_size_gb,
+                "reserved": self.reserved_memory_gb,
+                "available": self.device_memory_available_gb,
+            },
+            "breakdowns_raw": {k: dict(v) for k, v in self.breakdowns.items()},
+            "breakdowns_percent": breakdowns_percent,
+            "perf_model_name": self.perf_model_name,
+            "profiling_source_scope": PROFILING_SOURCE_SCOPE,
+            "profiling_source_times_s": dict(self.profiling_source_times_s),
+            "profiling_miss_reasons": dict(self.profiling_miss_reasons),
+            "runtime_event_list": self.runtime_event_list,
+            "pipeline_stage_latency": self.stage_latency_breakdown,
+            "pipeline_stage_memory": self.stage_memory_breakdown,
+        }
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2, ensure_ascii=False)

@@ -1,0 +1,157 @@
+{
+  "repo_notes": [
+    {
+      "content": "This repository contains documentation for the MindStudio 26.2.0 toolchain for Ascend AI developers. The wiki should primarily explain the tools, their capabilities, supported scenarios, usage workflows, and documented relationships. Organize the overview around training development, inference development, and operator development, following the toolchain-oriented presentation of the 26.1.0 wiki. Explain the documentation-collection nature of the repository briefly rather than making aggregation infrastructure its main subject."
+    },
+    {
+      "content": "Use the root README.md tool table as the entry point and canonical tool ordering. There are 22 imported tool repositories, each containing README.md and its top-level docs/ tree. Cover every tool listed in the pages array using its own README.md and docs/, including the available Chinese and English guides. Do not limit coverage to the first few directories or the largest repositories. The page list is complete; the overview and three workflow pages synthesize the individual tool pages rather than replace them."
+    },
+    {
+      "content": "The source content is pinned to upstream 26.2.0 branches. The collection scope is aligned with the actual 26.1.0 documentation aggregate, but the documents are not copies of the 26.1.0 release. Historical version tables and links to master or older releases inside imported documents do not change the source branch. Explain compatibility and version requirements only where supported by the relevant tool documentation."
+    },
+    {
+      "content": "SOURCES.md and .sync/*.json are provenance records and verification results, not an executable synchronization engine or a MindStudio product subsystem. They may be consulted to verify scope and source commits, but must not become the focus of the overview or receive dedicated wiki pages. Likewise, do not create pages about MkDocs, Read the Docs configuration, hooks/, tests/, repository maintenance, or docs/superpowers/."
+    },
+    {
+      "content": "msagent, msinsight, and msopmodeling are not included in the current collection. Do not create pages for them or imply their source trees are present. If an imported guide mentions an external visualization tool or another excluded component, explain that relationship only as documented and identify it as an external reference. msmonitor is the single canonical monitoring directory; the historical msmonitor-dyno and msmonitor-whl names are not separate imported tools here."
+    },
+    {
+      "content": "For each tool, prioritize purpose, appropriate scenarios, prerequisites, installation or quick start, main workflows and outputs, documented API or CLI entry points, and troubleshooting when those topics are available. Cite actual files under that tool's README.md and docs/. This is a documentation collection, so do not invent implementation classes, source files, dependencies, or runnable examples. Describe architecture and inter-tool data flows only where the supplied documentation supports them."
+    },
+    {
+      "content": "Parent assignments group pages for navigation and do not imply exclusive usage or runtime dependencies. Precision debugging, profiling, memory analysis, monitoring, and instrumentation may serve both training and inference. Explain cross-scenario use based on the corresponding guides and link to the shared tool page instead of duplicating or narrowing its capabilities."
+    }
+  ],
+  "pages": [
+    {
+      "title": "MindStudio Full-Process Toolchain Overview",
+      "purpose": "Introduce the MindStudio 26.2.0 toolchain through its three development workflows: training, inference, and operator development. Use README.md and every imported tool README to explain user goals, tool selection, and documented relationships between collection, analysis, debugging, optimization, and instrumentation. Provide a complete tool directory map and reading path. Keep repository aggregation and provenance details brief.",
+      "parent": null
+    },
+    {
+      "title": "Training Toolchain",
+      "purpose": "Explain the training development workflow using mstt/README.md and mstt/docs/, then connect documented precision, performance, memory, monitoring, and host optimization scenarios to msprobe, msprof, msprof-analyze, msmemscope, mspti, msmonitor, and msboost. Help users select tools and follow the available guides; do not infer dependencies from the navigation grouping.",
+      "parent": "MindStudio Full-Process Toolchain Overview"
+    },
+    {
+      "title": "Inference Toolchain",
+      "purpose": "Explain the inference development workflow from msit/README.md and msit/docs/: analysis and verification, model quantization with msmodelslim, service performance analysis with msserviceprofiler, and performance modeling with msmodeling. Reference shared precision, profiling, memory, and monitoring tools where documented. Use only the README.md and docs/ content actually included in this collection.",
+      "parent": "MindStudio Full-Process Toolchain Overview"
+    },
+    {
+      "title": "Operator Development Toolchain",
+      "purpose": "Explain the operator development workflow from msot/README.md and msot/docs/, covering performance prediction, project generation, kernel invocation, native debugging, anomaly detection, profiling, tiling optimization, common components, and instrumentation through the corresponding imported tools. Distinguish the role of each tool and describe only documented integration paths.",
+      "parent": "MindStudio Full-Process Toolchain Overview"
+    },
+    {
+      "title": "mstt",
+      "purpose": "Document the training tools suite from mstt/README.md and mstt/docs/. Explain the available migration, precision debugging, and performance troubleshooting workflows, quick-start paths, and how users move from a training symptom to the relevant specialized tool.",
+      "parent": "Training Toolchain"
+    },
+    {
+      "title": "msit",
+      "purpose": "Document the inference tools suite from msit/README.md and msit/docs/. Explain inference development scenarios, model analysis and verification, prerequisites, quick-start workflows, and documented relationships with compression and performance tools.",
+      "parent": "Inference Toolchain"
+    },
+    {
+      "title": "msot",
+      "purpose": "Document the operator tools suite from msot/README.md and msot/docs/. Explain its entry points, prerequisites, development stages, and documented selection of operator design, generation, debugging, checking, and profiling tools.",
+      "parent": "Operator Development Toolchain"
+    },
+    {
+      "title": "msboost",
+      "purpose": "Document MindStudio Boost from msboost/README.md and msboost/docs/. Explain HostBound optimization, thread affinity and scheduling capabilities, installation, and supported training or inference usage based on the included guides.",
+      "parent": "Training Toolchain"
+    },
+    {
+      "title": "msprobe",
+      "purpose": "Document precision debugging from msprobe/README.md and msprobe/docs/. Explain supported framework and training/inference scenarios, data collection, tensor comparison, anomaly localization, available visualization workflows, and how to choose a debugging procedure.",
+      "parent": "Training Toolchain"
+    },
+    {
+      "title": "msprof",
+      "purpose": "Document performance data collection and parsing from msprof/README.md and msprof/docs/. Explain supported collection entry points, configuration, output data, troubleshooting, and the documented handoff to analysis tools in training and inference scenarios.",
+      "parent": "Training Toolchain"
+    },
+    {
+      "title": "msprof-analyze",
+      "purpose": "Document performance analysis from msprof-analyze/README.md and msprof-analyze/docs/. Explain required input data, single-card and cluster analysis where supported, comparison workflows, reports, and how findings help locate performance bottlenecks.",
+      "parent": "Training Toolchain"
+    },
+    {
+      "title": "msmemscope",
+      "purpose": "Document memory collection and analysis from msmemscope/README.md and msmemscope/docs/. Explain supported training/inference scenarios, leak analysis, memory comparison, monitoring, decomposition, inefficient-memory identification, APIs, and relevant examples where documented.",
+      "parent": "Training Toolchain"
+    },
+    {
+      "title": "mspti",
+      "purpose": "Document the Profiling Tools Interface from mspti/README.md and mspti/docs/. Explain its purpose, supported collection mechanisms, C and Python APIs, lifecycle and usage requirements, and documented integration with performance tooling.",
+      "parent": "Training Toolchain"
+    },
+    {
+      "title": "msmonitor",
+      "purpose": "Document online monitoring and dynamic performance collection from msmonitor/README.md and msmonitor/docs/. Explain supported deployment and collection workflows, metrics and outputs, and documented use with profiling interfaces. Treat msmonitor as one tool, not as separate dyno and whl repositories.",
+      "parent": "Training Toolchain"
+    },
+    {
+      "title": "msmodelslim",
+      "purpose": "Document model compression and quantization from msmodelslim/README.md and msmodelslim/docs/. Explain supported model scenarios, quantization choices, calibration, configuration and CLI workflows, precision/performance trade-offs, and model adaptation guidance where available.",
+      "parent": "Inference Toolchain"
+    },
+    {
+      "title": "msserviceprofiler",
+      "purpose": "Document service-oriented performance tooling from msserviceprofiler/README.md and msserviceprofiler/docs/. Explain collection and instrumentation, request or model-execution analysis, outputs, and service parameter optimization where supported by the included guides.",
+      "parent": "Inference Toolchain"
+    },
+    {
+      "title": "msmodeling",
+      "purpose": "Document performance modeling from msmodeling/README.md and msmodeling/docs/. Explain supported model and serving scenarios, modeling inputs and assumptions, performance prediction, deployment parameter exploration, and interpretation of results. Distinguish documented design proposals from implemented or supported capabilities.",
+      "parent": "Inference Toolchain"
+    },
+    {
+      "title": "mskpp",
+      "purpose": "Document operator performance prediction from mskpp/README.md and mskpp/docs/. Explain supported operator descriptions, prediction inputs, assumptions, usage workflow, and interpretation of predicted performance limits.",
+      "parent": "Operator Development Toolchain"
+    },
+    {
+      "title": "msopgen",
+      "purpose": "Document operator project generation from msopgen/README.md and msopgen/docs/. Explain prerequisites, supported generation inputs and commands, generated project structure, and the subsequent development steps documented by the tool.",
+      "parent": "Operator Development Toolchain"
+    },
+    {
+      "title": "mskl",
+      "purpose": "Document kernel invocation and validation from mskl/README.md and mskl/docs/. Explain supported interfaces, prerequisites, kernel launch workflows, inputs and outputs, and how the tool assists operator validation.",
+      "parent": "Operator Development Toolchain"
+    },
+    {
+      "title": "mssanitizer",
+      "purpose": "Document operator anomaly detection from mssanitizer/README.md and mssanitizer/docs/. Explain supported memory, race, initialization, and synchronization checks, invocation workflows, report interpretation, limitations, and troubleshooting.",
+      "parent": "Operator Development Toolchain"
+    },
+    {
+      "title": "msdebug",
+      "purpose": "Document Ascend native debugging from msdebug/README.md and msdebug/docs/. Explain installation, prerequisites, supported debugging workflows, variable inspection and execution control, and core-dump analysis where documented. Do not infer capabilities from an absent LLVM source tree.",
+      "parent": "Operator Development Toolchain"
+    },
+    {
+      "title": "msopprof",
+      "purpose": "Document operator profiling from msopprof/README.md and msopprof/docs/. Explain supported on-device and simulation collection workflows, metrics and outputs, bottleneck analysis, and documented use of external visualization tools.",
+      "parent": "Operator Development Toolchain"
+    },
+    {
+      "title": "msopcom",
+      "purpose": "Document operator-tool common components from msopcom/README.md and msopcom/docs/. Explain supported interception, injection, and common interface capabilities, prerequisites, and relationships with other operator tools only where explicitly documented.",
+      "parent": "Operator Development Toolchain"
+    },
+    {
+      "title": "msoptuner",
+      "purpose": "Document tiling parameter tuning from msoptuner/README.md and msoptuner/docs/. Explain supported operator/template scenarios, search-space configuration, tuning and measurement workflows, and interpretation of results.",
+      "parent": "Operator Development Toolchain"
+    },
+    {
+      "title": "mstx",
+      "purpose": "Document extended instrumentation from mstx/README.md and mstx/docs/. Explain supported markers, ranges, domains, and memory-related APIs, installation and API usage, and documented integration with profiling or anomaly detection tools across relevant scenarios.",
+      "parent": "Operator Development Toolchain"
+    }
+  ]
+}

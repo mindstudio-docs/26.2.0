@@ -1,17 +1,8 @@
 {
   "status": "passed",
-  "upstream_repositories_verified": 24,
-  "files_verified": 6557,
-  "bytes_verified": 922776757,
-  "lfs_payloads_verified": 5,
-  "root_document_links_verified": 53,
-  "line_ending_preservation": "all imported files have Git text attribute unset",
-  "git_visibility": "all imported files are visible to Git",
-  "case_collisions": 0,
-  "upstream_link_scan_findings": {
-    "not_found_in_upstream_commit": 42,
-    "excluded_source": 35,
-    "upstream_directory_outside_scope": 42,
-    "outside_upstream_repository": 1
-  }
+  "branch": "26.2.0",
+  "upstream_repositories_verified": 22,
+  "files_verified": 3857,
+  "bytes_verified": 458384935,
+  "lfs_payloads_verified": 5
 }

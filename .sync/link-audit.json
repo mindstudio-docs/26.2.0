@@ -1,174 +1,6 @@
 {
-  "method": "Static Markdown inline/reference and HTML href/src path scan; skips fenced code, external URLs and anchors. Not an exhaustive Markdown/HTML parser.",
+  "method": "Static Markdown/HTML paths, restricted to aligned scope; external URLs and anchors are not validated.",
   "findings": [
-    {
-      "repository": "msagent",
-      "document": "docs/zh/example/msmonitor-review-run.html",
-      "line": 62,
-      "url": "index.html",
-      "target": "docs/zh/example/index.html",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/operator/ops-performance-tuning/references/cases/shmem/pr_shmem_alltoallv_mr152.md",
-      "line": 12,
-      "url": "../../optimize-shmem.md",
-      "target": "skills/operator/ops-performance-tuning/references/optimize-shmem.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/operator/ops-performance-tuning/references/cases/shmem/pr_shmem_reduce_scatter_serial.md",
-      "line": 12,
-      "url": "../../optimize-shmem.md",
-      "target": "skills/operator/ops-performance-tuning/references/optimize-shmem.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/operator/ops-performance-tuning/references/diagnose/diagnose-occupancy.md",
-      "line": 27,
-      "url": "case-routing.md#3-msopprof-跨版本采集先探测再选命令",
-      "target": "skills/operator/ops-performance-tuning/references/diagnose/case-routing.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/operator/ops-performance-tuning/references/diagnose/diagnose-roofline.md",
-      "line": 24,
-      "url": "case-routing.md#3-msopprof-跨版本采集先探测再选命令",
-      "target": "skills/operator/ops-performance-tuning/references/diagnose/case-routing.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/operator/ops-performance-tuning/references/optimize/optimize-catlass.md",
-      "line": 43,
-      "url": "cases/catlass/pr_catlass_swizzle_balance.md",
-      "target": "skills/operator/ops-performance-tuning/references/optimize/cases/catlass/pr_catlass_swizzle_balance.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/operator/ops-performance-tuning/references/optimize/optimize-catlass.md",
-      "line": 51,
-      "url": "cases/catlass/pr_catlass_mstuner_3p8x.md",
-      "target": "skills/operator/ops-performance-tuning/references/optimize/cases/catlass/pr_catlass_mstuner_3p8x.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/operator/ops-performance-tuning/references/optimize/optimize-shmem.md",
-      "line": 37,
-      "url": "optimize/optimize-data-copy.md",
-      "target": "skills/operator/ops-performance-tuning/references/optimize/optimize/optimize-data-copy.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/operator/ops-performance-tuning/references/optimize/optimize-tilelang.md",
-      "line": 17,
-      "url": "cases/tilelang/pr_tilelang_persistent_mqa_decode.md",
-      "target": "skills/operator/ops-performance-tuning/references/optimize/cases/tilelang/pr_tilelang_persistent_mqa_decode.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/operator/ops-performance-tuning/references/optimize/optimize-triton.md",
-      "line": 30,
-      "url": "cases/triton/pr_triton_atomic_simd_24x.md",
-      "target": "skills/operator/ops-performance-tuning/references/optimize/cases/triton/pr_triton_atomic_simd_24x.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/operator/ops-performance-tuning/references/optimize/optimize-triton.md",
-      "line": 35,
-      "url": "cases/triton/pr_triton_constexpr_recompile.md",
-      "target": "skills/operator/ops-performance-tuning/references/optimize/cases/triton/pr_triton_constexpr_recompile.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/quantizer/msmodelslim-adapter-verification/references/dit/README.md",
-      "line": 44,
-      "url": "../../msmodelslim-model-adapt/references/dit/inference_config_field_map.md",
-      "target": "skills/quantizer/msmodelslim-adapter-verification/msmodelslim-model-adapt/references/dit/inference_config_field_map.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/quantizer/msmodelslim-model-adapt/references/dit/architecture_patterns.md",
-      "line": 163,
-      "url": "../../../assets/dit/diagram_fallback.yaml",
-      "target": "skills/quantizer/assets/dit/diagram_fallback.yaml",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/quantizer/quant-tuning-history-append-dit/SKILL.md",
-      "line": 142,
-      "url": "../../quantization-accuracy-tuning-orchestrator/references/output_format.md",
-      "target": "skills/quantization-accuracy-tuning-orchestrator/references/output_format.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/quantizer/quant-tuning-history-append-dit/SKILL.md",
-      "line": 143,
-      "url": "../../quantization-accuracy-tuning-orchestrator/scripts/accuracy_append.py",
-      "target": "skills/quantization-accuracy-tuning-orchestrator/scripts/accuracy_append.py",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/quantizer/quant-tuning-history-append-dit/SKILL.md",
-      "line": 144,
-      "url": "../../quantization-expert-experience-tuning-rules/scripts/yaml_utils.py",
-      "target": "skills/quantization-expert-experience-tuning-rules/scripts/yaml_utils.py",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/quantizer/quantization-accuracy-tuning-orchestrator/SKILL.md",
-      "line": 202,
-      "url": "../../../docs/dit_tuning/README.md",
-      "target": "docs/dit_tuning/README.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/quantizer/quantization-accuracy-tuning-orchestrator/SKILL.md",
-      "line": 206,
-      "url": "../../../msagent/skills/quantizer/quantization-expert-experience-tuning-rules/structure-family-pitfalls.md",
-      "target": "msagent/skills/quantizer/quantization-expert-experience-tuning-rules/structure-family-pitfalls.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/quantizer/quantization-accuracy-tuning-orchestrator/SKILL.md",
-      "line": 208,
-      "url": "../../quant-tuning-evaluate/references/dit/evaluate_workflow.md",
-      "target": "skills/quant-tuning-evaluate/references/dit/evaluate_workflow.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/quantizer/quantization-accuracy-tuning-orchestrator/references/subagent_io_protocol.md",
-      "line": 25,
-      "url": "../../../quantization-expert-experience-tuning-rules/structure-family-pitfalls.md",
-      "target": "skills/quantization-expert-experience-tuning-rules/structure-family-pitfalls.md",
-      "kind": "not_found_in_upstream_commit"
-    },
-    {
-      "repository": "msagent",
-      "document": "skills/quantizer/quantization-accuracy-tuning-orchestrator/references/subagent_io_protocol.md",
-      "line": 157,
-      "url": "../../../quant-tuning-evaluate/references/dit/evaluate_workflow.md",
-      "target": "skills/quant-tuning-evaluate/references/dit/evaluate_workflow.md",
-      "kind": "not_found_in_upstream_commit"
-    },
     {
       "repository": "msboost",
       "document": "README.md",
@@ -178,12 +10,76 @@
       "kind": "not_found_in_upstream_commit"
     },
     {
-      "repository": "msinsight",
-      "document": "CONTRIBUTING.md",
-      "line": 28,
-      "url": ".gitcode/PULL_REQUEST_TEMPLATE.md",
-      "target": ".gitcode/PULL_REQUEST_TEMPLATE.md",
-      "kind": "excluded_source"
+      "repository": "msdebug",
+      "document": "README.md",
+      "line": 15,
+      "url": "README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msdebug",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE.TXT",
+      "target": "LICENSE.TXT",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msdebug",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE.TXT",
+      "target": "LICENSE.TXT",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msit",
+      "document": "README.md",
+      "line": 15,
+      "url": "./README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msit",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msit",
+      "document": "docs/en/quick_start/msit_quick_start.md",
+      "line": 29,
+      "url": "../../../msprechecker/README_EN.md#quick-start",
+      "target": "msprechecker/README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msit",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msit",
+      "document": "docs/zh/quick_start/msit_quick_start.md",
+      "line": 29,
+      "url": "../../../msprechecker/README.md#快速入门",
+      "target": "msprechecker/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mskl",
+      "document": "README.md",
+      "line": 15,
+      "url": "README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mskl",
@@ -211,6 +107,14 @@
     },
     {
       "repository": "mskl",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mskl",
       "document": "docs/zh/api_reference/mskl_api_reference.md",
       "line": 414,
       "url": "arg1,",
@@ -234,6 +138,22 @@
       "kind": "not_found_in_upstream_commit"
     },
     {
+      "repository": "mskl",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mskpp",
+      "document": "README.md",
+      "line": 15,
+      "url": "README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
       "repository": "mskpp",
       "document": "docs/en/development_guide/architecture.md",
       "line": 761,
@@ -243,11 +163,35 @@
     },
     {
       "repository": "mskpp",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mskpp",
       "document": "docs/zh/development_guide/architecture.md",
       "line": 761,
       "url": "arg1,",
       "target": "docs/zh/development_guide/arg1,",
       "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "mskpp",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmemscope",
+      "document": "README.md",
+      "line": 15,
+      "url": "./README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmemscope",
@@ -259,6 +203,30 @@
     },
     {
       "repository": "msmemscope",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 3,
+      "url": "../../../License",
+      "target": "License",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmemscope",
+      "document": "docs/en/quick_start/quick_start.md",
+      "line": 50,
+      "url": "../../../example/example_api.py",
+      "target": "example/example_api.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmemscope",
+      "document": "docs/en/quick_start/quick_start.md",
+      "line": 51,
+      "url": "../../../example/example_cmd.py",
+      "target": "example/example_cmd.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmemscope",
       "document": "docs/zh/index.md",
       "line": 96,
       "url": "./docs/zh/communication_guide/figures/ascend_assistant.jpg",
@@ -266,12 +234,44 @@
       "kind": "not_found_in_upstream_commit"
     },
     {
+      "repository": "msmemscope",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 3,
+      "url": "../../../License",
+      "target": "License",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmemscope",
+      "document": "docs/zh/quick_start/quick_start.md",
+      "line": 54,
+      "url": "../../../example/example_api.py",
+      "target": "example/example_api.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmemscope",
+      "document": "docs/zh/quick_start/quick_start.md",
+      "line": 55,
+      "url": "../../../example/example_cmd.py",
+      "target": "example/example_cmd.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
       "repository": "msmodeling",
-      "document": "CONTRIBUTING.md",
-      "line": 520,
-      "url": "AGENTS.md",
-      "target": "AGENTS.md",
-      "kind": "excluded_source"
+      "document": "README.md",
+      "line": 15,
+      "url": "./README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "README.md",
+      "line": 173,
+      "url": "CONTRIBUTING.md",
+      "target": "CONTRIBUTING.md",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -279,7 +279,7 @@
       "line": 177,
       "url": ".devcontainer/README.md",
       "target": ".devcontainer/README.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -287,7 +287,7 @@
       "line": 182,
       "url": "AGENTS.md",
       "target": "AGENTS.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -295,7 +295,15 @@
       "line": 11,
       "url": "../../.agents/skills/device_config/SKILL.md",
       "target": ".agents/skills/device_config/SKILL.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_device_config_skill_zh.md",
+      "line": 274,
+      "url": "../../tensor_cast/device.py",
+      "target": "tensor_cast/device.py",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -303,7 +311,135 @@
       "line": 275,
       "url": "../../.agents/skills/device_config/SKILL.md",
       "target": ".agents/skills/device_config/SKILL.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_en.md",
+      "line": 52,
+      "url": "../../tensor_cast/core/user_config.py",
+      "target": "tensor_cast/core/user_config.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_en.md",
+      "line": 58,
+      "url": "../../tensor_cast/core/config_resolver.py",
+      "target": "tensor_cast/core/config_resolver.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_en.md",
+      "line": 65,
+      "url": "../../tensor_cast/core/model_runner.py",
+      "target": "tensor_cast/core/model_runner.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_en.md",
+      "line": 71,
+      "url": "../../tensor_cast/core/model_builder.py",
+      "target": "tensor_cast/core/model_builder.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_en.md",
+      "line": 77,
+      "url": "../../tensor_cast/core/input_generator.py",
+      "target": "tensor_cast/core/input_generator.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_en.md",
+      "line": 120,
+      "url": "../../tensor_cast/transformers/utils.py",
+      "target": "tensor_cast/transformers/utils.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_en.md",
+      "line": 129,
+      "url": "../../tensor_cast/transformers/utils.py",
+      "target": "tensor_cast/transformers/utils.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_en.md",
+      "line": 132,
+      "url": "../../tensor_cast/transformers/utils.py",
+      "target": "tensor_cast/transformers/utils.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_zh.md",
+      "line": 52,
+      "url": "../../tensor_cast/core/user_config.py",
+      "target": "tensor_cast/core/user_config.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_zh.md",
+      "line": 58,
+      "url": "../../tensor_cast/core/config_resolver.py",
+      "target": "tensor_cast/core/config_resolver.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_zh.md",
+      "line": 65,
+      "url": "../../tensor_cast/core/model_runner.py",
+      "target": "tensor_cast/core/model_runner.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_zh.md",
+      "line": 71,
+      "url": "../../tensor_cast/core/model_builder.py",
+      "target": "tensor_cast/core/model_builder.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_zh.md",
+      "line": 77,
+      "url": "../../tensor_cast/core/input_generator.py",
+      "target": "tensor_cast/core/input_generator.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_zh.md",
+      "line": 120,
+      "url": "../../tensor_cast/transformers/utils.py",
+      "target": "tensor_cast/transformers/utils.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_zh.md",
+      "line": 129,
+      "url": "../../tensor_cast/transformers/utils.py",
+      "target": "tensor_cast/transformers/utils.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/RFC/rfc_general_model_config_loader_zh.md",
+      "line": 132,
+      "url": "../../tensor_cast/transformers/utils.py",
+      "target": "tensor_cast/transformers/utils.py",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -311,7 +447,7 @@
       "line": 347,
       "url": "../../.agents/skills/optix-assistant/SKILL.md",
       "target": ".agents/skills/optix-assistant/SKILL.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -319,7 +455,7 @@
       "line": 348,
       "url": "../../.agents/skills/optix-assistant/workflows/agent.md",
       "target": ".agents/skills/optix-assistant/workflows/agent.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -327,7 +463,7 @@
       "line": 349,
       "url": "../../.agents/skills/optix-assistant/references/agent-mode.md",
       "target": ".agents/skills/optix-assistant/references/agent-mode.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -335,7 +471,7 @@
       "line": 350,
       "url": "../../.agents/skills/optix-assistant/references/pso-mode.md",
       "target": ".agents/skills/optix-assistant/references/pso-mode.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -343,7 +479,7 @@
       "line": 353,
       "url": "../../.agents/skills/optix-assistant/scripts/estimation.py",
       "target": ".agents/skills/optix-assistant/scripts/estimation.py",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -351,7 +487,7 @@
       "line": 11,
       "url": "../../.agents/skills/optix-deploy/SKILL.md",
       "target": ".agents/skills/optix-deploy/SKILL.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -359,7 +495,7 @@
       "line": 227,
       "url": "../../.agents/skills/optix-deploy/SKILL.md",
       "target": ".agents/skills/optix-deploy/SKILL.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -367,7 +503,7 @@
       "line": 11,
       "url": "../../.agents/skills/optix-assistant/SKILL.md",
       "target": ".agents/skills/optix-assistant/SKILL.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -375,7 +511,7 @@
       "line": 279,
       "url": "../../.agents/skills/optix-assistant/SKILL.md",
       "target": ".agents/skills/optix-assistant/SKILL.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -383,7 +519,7 @@
       "line": 280,
       "url": "../../.agents/skills/optix-assistant/references/input-schema.md",
       "target": ".agents/skills/optix-assistant/references/input-schema.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -391,7 +527,7 @@
       "line": 281,
       "url": "../../.agents/skills/optix-assistant/references/parameter-rules.md",
       "target": ".agents/skills/optix-assistant/references/parameter-rules.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -399,7 +535,7 @@
       "line": 11,
       "url": "../../.agents/skills/throughput-optimizer-executor/SKILL.md",
       "target": ".agents/skills/throughput-optimizer-executor/SKILL.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -407,7 +543,7 @@
       "line": 11,
       "url": "../../.agents/skills/throughput-optimizer-explainer/SKILL.md",
       "target": ".agents/skills/throughput-optimizer-explainer/SKILL.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -415,7 +551,7 @@
       "line": 11,
       "url": "../../.agents/skills/throughput-optimizer-explainer/SKILL.md",
       "target": ".agents/skills/throughput-optimizer-explainer/SKILL.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -423,7 +559,31 @@
       "line": 7,
       "url": "../../AGENTS.md",
       "target": "AGENTS.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/ai-native/README.md",
+      "line": 8,
+      "url": "../../spec/README.md",
+      "target": "spec/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/design/glm52-empirical-operator-simulation-design.md",
+      "line": 27,
+      "url": "../../tensor_cast/transformers/builtin_model/glm5.py",
+      "target": "tensor_cast/transformers/builtin_model/glm5.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/design/model_diagnostics_design.md",
+      "line": 1204,
+      "url": "../../tools/model_diagnostics/README.md",
+      "target": "tools/model_diagnostics/README.md",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -431,7 +591,7 @@
       "line": 5,
       "url": "../../.agents/skills/profiling_database_lifecycle/SKILL.md",
       "target": ".agents/skills/profiling_database_lifecycle/SKILL.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -439,7 +599,7 @@
       "line": 9,
       "url": "../../.agents/skills/profiling_database_axis_density/SKILL.md",
       "target": ".agents/skills/profiling_database_axis_density/SKILL.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -447,7 +607,7 @@
       "line": 10,
       "url": "../../.agents/skills/profiling_database_axis_density/axis_collection_density.yaml",
       "target": ".agents/skills/profiling_database_axis_density/axis_collection_density.yaml",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -455,7 +615,7 @@
       "line": 78,
       "url": "../../.agents/skills/profiling_database_axis_density/axis_collection_density.yaml",
       "target": ".agents/skills/profiling_database_axis_density/axis_collection_density.yaml",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -463,7 +623,39 @@
       "line": 80,
       "url": "../../.agents/skills/profiling_database_axis_density/SKILL.md",
       "target": ".agents/skills/profiling_database_axis_density/SKILL.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/en/user_guide/msmodeling_tensor_cast_user_guide.md",
+      "line": 216,
+      "url": "../../../tensor_cast/device_profiles/README.md",
+      "target": "tensor_cast/device_profiles/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/en/user_guide/msmodeling_throughput_optimizer_user_guide.md",
+      "line": 133,
+      "url": "../../../tensor_cast/runtime_configs/draft_configs/README.md",
+      "target": "tensor_cast/runtime_configs/draft_configs/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/en/user_guide/msmodeling_throughput_optimizer_user_guide.md",
+      "line": 445,
+      "url": "../../../tensor_cast/runtime_configs/draft_configs/README.md",
+      "target": "tensor_cast/runtime_configs/draft_configs/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/en/user_guide/optix_plugin_user_guide.md",
+      "line": 16,
+      "url": "../../../optix/deploy_env.py",
+      "target": "optix/deploy_env.py",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
@@ -471,55 +663,127 @@
       "line": 513,
       "url": "../../../.agents/skills/op-mapping/SKILL.md",
       "target": ".agents/skills/op-mapping/SKILL.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodeling",
-      "document": "scripts/README.md",
+      "document": "docs/zh/use_cases/optix_pd_disaggregation.md",
+      "line": 17,
+      "url": "../../../optix/config.toml",
+      "target": "optix/config.toml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/zh/user_guide/msmodeling_optix_plugin_user_guide.md",
+      "line": 16,
+      "url": "../../../optix/deploy_env.py",
+      "target": "optix/deploy_env.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/zh/user_guide/msmodeling_serving_cast_simulation_user_guide.md",
+      "line": 96,
+      "url": "../../../serving_cast/example/pd_disaggregation/README.md",
+      "target": "serving_cast/example/pd_disaggregation/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/zh/user_guide/msmodeling_tensor_cast_user_guide.md",
+      "line": 100,
+      "url": "../../../tensor_cast/runtime_configs/draft_configs/README.md",
+      "target": "tensor_cast/runtime_configs/draft_configs/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/zh/user_guide/msmodeling_tensor_cast_user_guide.md",
+      "line": 275,
+      "url": "../../../tensor_cast/device_profiles/README.md",
+      "target": "tensor_cast/device_profiles/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/zh/user_guide/msmodeling_tensor_cast_user_guide.md",
+      "line": 353,
+      "url": "../../../tensor_cast/runtime_configs/draft_configs/README.md",
+      "target": "tensor_cast/runtime_configs/draft_configs/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/zh/user_guide/msmodeling_throughput_optimizer_user_guide.md",
+      "line": 133,
+      "url": "../../../tensor_cast/runtime_configs/draft_configs/README.md",
+      "target": "tensor_cast/runtime_configs/draft_configs/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodeling",
+      "document": "docs/zh/user_guide/msmodeling_throughput_optimizer_user_guide.md",
+      "line": 498,
+      "url": "../../../tensor_cast/runtime_configs/draft_configs/README.md",
+      "target": "tensor_cast/runtime_configs/draft_configs/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "README.md",
       "line": 19,
-      "url": "../tests/README.md",
-      "target": "tests/README.md",
-      "kind": "excluded_source"
+      "url": "./README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "msmodeling",
-      "document": "scripts/README.md",
-      "line": 128,
-      "url": "../tests/README.md",
-      "target": "tests/README.md",
-      "kind": "excluded_source"
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/iformat_integration_guide.md",
+      "line": 23,
+      "url": "../../../msmodelslim/format/interface.py",
+      "target": "msmodelslim/format/interface.py",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "msmodeling",
-      "document": "spec/governance/source-of-truth-matrix.md",
-      "line": 60,
-      "url": "../../AGENTS.md",
-      "target": "AGENTS.md",
-      "kind": "excluded_source"
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/iformat_integration_guide.md",
+      "line": 43,
+      "url": "../../../msmodelslim/format/base.py",
+      "target": "msmodelslim/format/base.py",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "msmodeling",
-      "document": "spec/governance/source-of-truth-matrix.md",
-      "line": 110,
-      "url": "../../.agents/skills/sig-review/sig_ownership.json",
-      "target": ".agents/skills/sig-review/sig_ownership.json",
-      "kind": "excluded_source"
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/iformat_integration_guide.md",
+      "line": 82,
+      "url": "../../../msmodelslim/format/compressed_tensors_format/compressed_tensors.py",
+      "target": "msmodelslim/format/compressed_tensors_format/compressed_tensors.py",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "msmodeling",
-      "document": "tools/perf_data_collection/readme.md",
-      "line": 394,
-      "url": "../../tests/README.md",
-      "target": "tests/README.md",
-      "kind": "excluded_source"
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/iformat_integration_guide.md",
+      "line": 132,
+      "url": "../../../msmodelslim/format/compressed_tensors_format/compressed_tensors.py",
+      "target": "msmodelslim/format/compressed_tensors_format/compressed_tensors.py",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "msmodeling",
-      "document": "tools/perf_data_collection/readme_en.md",
-      "line": 366,
-      "url": "../../tests/README.md",
-      "target": "tests/README.md",
-      "kind": "excluded_source"
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/iformat_integration_guide.md",
+      "line": 136,
+      "url": "../../../msmodelslim/format/registry.py",
+      "target": "msmodelslim/format/registry.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/iformat_integration_guide.md",
+      "line": 155,
+      "url": "../../../msmodelslim/format/registry.py",
+      "target": "msmodelslim/format/registry.py",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
@@ -527,7 +791,47 @@
       "line": 214,
       "url": "../../../test/cases/format/compressed_tensors_format",
       "target": "test/cases/format/compressed_tensors_format",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/iformat_integration_guide.md",
+      "line": 228,
+      "url": "../../../msmodelslim/format/interface.py",
+      "target": "msmodelslim/format/interface.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/iformat_integration_guide.md",
+      "line": 229,
+      "url": "../../../msmodelslim/format/base.py",
+      "target": "msmodelslim/format/base.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/iformat_integration_guide.md",
+      "line": 230,
+      "url": "../../../msmodelslim/format/registry.py",
+      "target": "msmodelslim/format/registry.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/iformat_integration_guide.md",
+      "line": 231,
+      "url": "../../../msmodelslim/processor/save/processor.py",
+      "target": "msmodelslim/processor/save/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/iformat_integration_guide.md",
+      "line": 232,
+      "url": "../../../msmodelslim/format/compressed_tensors_format",
+      "target": "msmodelslim/format/compressed_tensors_format",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
@@ -535,7 +839,95 @@
       "line": 233,
       "url": "../../../test/cases/format/compressed_tensors_format",
       "target": "test/cases/format/compressed_tensors_format",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1239,
+      "url": "../../../config/config.ini",
+      "target": "config/config.ini",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1271,
+      "url": "../../../lab_calib",
+      "target": "lab_calib",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1295,
+      "url": "../../../lab_practice/wan2_2/wan2_2_w8a8f8_mxfp_t2v.yaml",
+      "target": "lab_practice/wan2_2/wan2_2_w8a8f8_mxfp_t2v.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1295,
+      "url": "../../../lab_practice/hunyuan_video/hunyuan_video_w8a8f8_mxfp.yaml",
+      "target": "lab_practice/hunyuan_video/hunyuan_video_w8a8f8_mxfp.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1371,
+      "url": "../../../lab_practice/wan2_2/wan2_2_w8a8f8_mxfp_i2v.yaml",
+      "target": "lab_practice/wan2_2/wan2_2_w8a8f8_mxfp_i2v.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1371,
+      "url": "../../../lab_practice/wan2_2/wan2_2_w8a8f8_mxfp_ti2v.yaml",
+      "target": "lab_practice/wan2_2/wan2_2_w8a8f8_mxfp_ti2v.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1401,
+      "url": "../../../example/multimodal_sd/Wan2_2/README.md",
+      "target": "example/multimodal_sd/Wan2_2/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1457,
+      "url": "../../../msmodelslim/core/quant_service/multimodal_sd_v1/quant_service.py",
+      "target": "msmodelslim/core/quant_service/multimodal_sd_v1/quant_service.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1459,
+      "url": "../../../msmodelslim/core/quant_service/multimodal_sd_v1/pipeline_interface.py",
+      "target": "msmodelslim/core/quant_service/multimodal_sd_v1/pipeline_interface.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1459,
+      "url": "../../../msmodelslim/core/quant_service/multimodal_sd_v1/legacy_pipeline_interface.py",
+      "target": "msmodelslim/core/quant_service/multimodal_sd_v1/legacy_pipeline_interface.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1461,
+      "url": "../../../msmodelslim/core/quant_service/multimodal_sd_v1/quant_config.py",
+      "target": "msmodelslim/core/quant_service/multimodal_sd_v1/quant_config.py",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
@@ -543,7 +935,415 @@
       "line": 1463,
       "url": "../../../msmodelslim/model/hunyuan_video",
       "target": "msmodelslim/model/hunyuan_video",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1465,
+      "url": "../../../msmodelslim/model/wan2_2",
+      "target": "msmodelslim/model/wan2_2",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1467,
+      "url": "../../../lab_practice/hunyuan_video/hunyuan_video_w8a8f8_mxfp.yaml",
+      "target": "lab_practice/hunyuan_video/hunyuan_video_w8a8f8_mxfp.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_generation_model.md",
+      "line": 1467,
+      "url": "../../../lab_practice/wan2_2/wan2_2_w8a8f8_mxfp_t2v.yaml",
+      "target": "lab_practice/wan2_2/wan2_2_w8a8f8_mxfp_t2v.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_understanding_model.md",
+      "line": 64,
+      "url": "../../../msmodelslim/model",
+      "target": "msmodelslim/model",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/development_guide/integrating_multimodal_understanding_model.md",
+      "line": 473,
+      "url": "../../../lab_calib",
+      "target": "lab_calib",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 7,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/auto_precision_tuning/usage.md",
+      "line": 63,
+      "url": "../../../../../config/config.ini",
+      "target": "config/config.ini",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/auto_precision_tuning/usage.md",
+      "line": 65,
+      "url": "../../../../../config/config.ini",
+      "target": "config/config.ini",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/quick_quantization_v1/group.md",
+      "line": 31,
+      "url": "../../../../../msmodelslim/processor/container/group.py",
+      "target": "msmodelslim/processor/container/group.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/quick_quantization_v1/usage.md",
+      "line": 30,
+      "url": "../../../../../lab_practice/",
+      "target": "lab_practice",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/quick_quantization_v1/usage.md",
+      "line": 546,
+      "url": "../../../../../config/config.ini",
+      "target": "config/config.ini",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/quick_quantization_v1/usage.md",
+      "line": 681,
+      "url": "../../../../../lab_calib/",
+      "target": "lab_calib",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/quick_quantization_v1/usage.md",
+      "line": 697,
+      "url": "../../../../../lab_practice/wan2_1/wan2_1_w8a8_dynamic.yaml",
+      "target": "lab_practice/wan2_1/wan2_1_w8a8_dynamic.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/quick_quantization_v1/usage.md",
+      "line": 698,
+      "url": "../../../../../lab_practice/wan2_2/wan2_2_w8a8f8_mxfp_t2v.yaml",
+      "target": "lab_practice/wan2_2/wan2_2_w8a8f8_mxfp_t2v.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/quick_quantization_v1/usage.md",
+      "line": 699,
+      "url": "../../../../../lab_practice/wan2_2/wan2_2_w8a8f8_mxfp_i2v.yaml",
+      "target": "lab_practice/wan2_2/wan2_2_w8a8f8_mxfp_i2v.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/quick_quantization_v1/usage.md",
+      "line": 700,
+      "url": "../../../../../lab_practice/wan2_2/wan2_2_w8a8f8_mxfp_ti2v.yaml",
+      "target": "lab_practice/wan2_2/wan2_2_w8a8f8_mxfp_ti2v.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/quick_quantization_v1/usage.md",
+      "line": 701,
+      "url": "../../../../../lab_practice/hunyuan_video/hunyuan_video_w8a8f8_mxfp.yaml",
+      "target": "lab_practice/hunyuan_video/hunyuan_video_w8a8f8_mxfp.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/sensitive_layer_analysis/usage.md",
+      "line": 136,
+      "url": "../../../../../lab_calib/",
+      "target": "lab_calib",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/traditional_quantization_v0/foundation_model_quantization_and_calibration.md",
+      "line": 593,
+      "url": "../../../../../example/Qwen/quant_qwen.py",
+      "target": "example/Qwen/quant_qwen.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/traditional_quantization_v0/foundation_model_quantization_and_calibration.md",
+      "line": 593,
+      "url": "../../../../../example/Qwen/README.md#qwen25-72b-支持attention量化",
+      "target": "example/Qwen/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/traditional_quantization_v0/foundation_model_quantization_and_calibration.md",
+      "line": 594,
+      "url": "../../../../../example/Llama/quant_llama.py",
+      "target": "example/Llama/quant_llama.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/traditional_quantization_v0/foundation_model_quantization_and_calibration.md",
+      "line": 594,
+      "url": "../../../../../example/Llama/README.md#llama31-70b-w8a8量化搭配attention量化",
+      "target": "example/Llama/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/traditional_quantization_v0/foundation_model_quantization_and_calibration.md",
+      "line": 711,
+      "url": "../../../../../example/multimodal_sd/Flux/README.md#flux-fa3-quantization",
+      "target": "example/multimodal_sd/Flux/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/traditional_quantization_v0/foundation_model_quantization_and_calibration.md",
+      "line": 711,
+      "url": "../../../../../example/multimodal_sd/HunYuanVideo/README.md#hunyuanvideo-fa3-量化",
+      "target": "example/multimodal_sd/HunYuanVideo/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/traditional_quantization_v0/inference_optimization_for_multimodal_generative_model.md",
+      "line": 173,
+      "url": "../../../../../example/osp1_2/dit_cache_search_t2v_sp.sh",
+      "target": "example/osp1_2/dit_cache_search_t2v_sp.sh",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/traditional_quantization_v0/inference_optimization_for_multimodal_generative_model.md",
+      "line": 257,
+      "url": "../../../../../example/osp1_2/dit_cache_sample_t2v_sp.sh",
+      "target": "example/osp1_2/dit_cache_sample_t2v_sp.sh",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/traditional_quantization_v0/inference_optimization_for_multimodal_generative_model.md",
+      "line": 322,
+      "url": "../../../../../example/osp1_2/search_t2v_sp.sh",
+      "target": "example/osp1_2/search_t2v_sp.sh",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/traditional_quantization_v0/inference_optimization_for_multimodal_generative_model.md",
+      "line": 348,
+      "url": "../../../../../example/osp1_2/sample_t2v_sp.sh",
+      "target": "example/osp1_2/sample_t2v_sp.sh",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/feature_guide/traditional_quantization_v0/inference_optimization_for_multimodal_generative_model.md",
+      "line": 365,
+      "url": "../../../../../example/osp1_2/search_t2v_sp.sh",
+      "target": "example/osp1_2/search_t2v_sp.sh",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/model_support/foundation_model_support_matrix.md",
+      "line": 814,
+      "url": "../../../../example/MiniMax-M2/README.md",
+      "target": "example/MiniMax-M2/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/model_support/foundation_model_support_matrix.md",
+      "line": 829,
+      "url": "../../../../example/longcat_flash/README.md",
+      "target": "example/longcat_flash/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/auto_tuning_strategies/standing_high_with_experience.md",
+      "line": 24,
+      "url": "../../../../../msmodelslim/core/tune_strategy/common/config_builder/expert_experience/expert_experience.yaml",
+      "target": "msmodelslim/core/tune_strategy/common/config_builder/expert_experience/expert_experience.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/auto_tuning_strategies/standing_high_with_experience.md",
+      "line": 95,
+      "url": "../../../../../msmodelslim/core/tune_strategy/common/config_builder/expert_experience/expert_experience.yaml",
+      "target": "msmodelslim/core/tune_strategy/common/config_builder/expert_experience/expert_experience.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/adapt_rotation.md",
+      "line": 35,
+      "url": "../../../../../msmodelslim/processor/adapt_rotation",
+      "target": "msmodelslim/processor/adapt_rotation",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/awq_smooth.md",
+      "line": 114,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/awq/__init__.py",
+      "target": "msmodelslim/processor/anti_outlier/awq/__init__.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/awq_smooth.md",
+      "line": 118,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/awq/processor.py",
+      "target": "msmodelslim/processor/anti_outlier/awq/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/awq_smooth.md",
+      "line": 119,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/awq/api.py",
+      "target": "msmodelslim/processor/anti_outlier/awq/api.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/awq_smooth.md",
+      "line": 120,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/awq/best_scales_search.py",
+      "target": "msmodelslim/processor/anti_outlier/awq/best_scales_search.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/awq_smooth.md",
+      "line": 121,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/awq/awq_stats_collector.py",
+      "target": "msmodelslim/processor/anti_outlier/awq/awq_stats_collector.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/awq_smooth.md",
+      "line": 122,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/awq/common.py",
+      "target": "msmodelslim/processor/anti_outlier/awq/common.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/awq_smooth.md",
+      "line": 123,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/awq/interface.py",
+      "target": "msmodelslim/processor/anti_outlier/awq/interface.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/awq_smooth.md",
+      "line": 217,
+      "url": "../../../../../msmodelslim/model/qwen2/model_adapter.py",
+      "target": "msmodelslim/model/qwen2/model_adapter.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/flex_awq_ssz.md",
+      "line": 120,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/flex_smooth/processor.py",
+      "target": "msmodelslim/processor/anti_outlier/flex_smooth/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/flex_awq_ssz.md",
+      "line": 303,
+      "url": "../../../../../msmodelslim/model/qwen3/model_adapter.py",
+      "target": "msmodelslim/model/qwen3/model_adapter.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/iterative_smooth.md",
+      "line": 116,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/iter_smooth/processor.py",
+      "target": "msmodelslim/processor/anti_outlier/iter_smooth/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/iterative_smooth.md",
+      "line": 264,
+      "url": "../../../../../msmodelslim/model/qwen3/model_adapter.py",
+      "target": "msmodelslim/model/qwen3/model_adapter.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/kv_smooth.md",
+      "line": 30,
+      "url": "../../../../../msmodelslim/processor/kv_smooth/",
+      "target": "msmodelslim/processor/kv_smooth",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/kv_smooth.md",
+      "line": 127,
+      "url": "../../../../../msmodelslim/model/qwen3/model_adapter.py",
+      "target": "msmodelslim/model/qwen3/model_adapter.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/quarot.md",
+      "line": 34,
+      "url": "../../../../../msmodelslim/processor/quarot/offline_quarot/quarot.py",
+      "target": "msmodelslim/processor/quarot/offline_quarot/quarot.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/quarot.md",
+      "line": 363,
+      "url": "../../../../../msmodelslim/model/qwen3/model_adapter.py",
+      "target": "msmodelslim/model/qwen3/model_adapter.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/quarot.md",
+      "line": 363,
+      "url": "../../../../../msmodelslim/model/deepseek_v3/model_adapter.py",
+      "target": "msmodelslim/model/deepseek_v3/model_adapter.py",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
@@ -551,7 +1351,855 @@
       "line": 378,
       "url": "../../../../../msmodelslim/processor/quarot/common/hadamard_txt",
       "target": "msmodelslim/processor/quarot/common/hadamard_txt",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/quarot.md",
+      "line": 378,
+      "url": "../../../../../msmodelslim/processor/quarot/common/hadamard.py",
+      "target": "msmodelslim/processor/quarot/common/hadamard.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/quarot.md",
+      "line": 413,
+      "url": "../../../../../msmodelslim/model/qwen3/model_adapter.py",
+      "target": "msmodelslim/model/qwen3/model_adapter.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/quarot.md",
+      "line": 413,
+      "url": "../../../../../msmodelslim/model/deepseek_v3/model_adapter.py",
+      "target": "msmodelslim/model/deepseek_v3/model_adapter.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/smooth_quant.md",
+      "line": 76,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/smooth_quant",
+      "target": "msmodelslim/processor/anti_outlier/smooth_quant",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/outlier_suppression_algorithms/smooth_quant.md",
+      "line": 198,
+      "url": "../../../../../msmodelslim/model/qwen3/model_adapter.py",
+      "target": "msmodelslim/model/qwen3/model_adapter.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/autoround.md",
+      "line": 49,
+      "url": "../../../../../msmodelslim/processor/quant/autoround.py",
+      "target": "msmodelslim/processor/quant/autoround.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/ceil_x.md",
+      "line": 63,
+      "url": "../../../../../msmodelslim/core/quantizer/impl/ceil_x.py",
+      "target": "msmodelslim/core/quantizer/impl/ceil_x.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/fa3_quant.md",
+      "line": 70,
+      "url": "../../../../../msmodelslim/processor/quant/fa3/processor.py",
+      "target": "msmodelslim/processor/quant/fa3/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/fa3_quant.md",
+      "line": 206,
+      "url": "../../../../../msmodelslim/model/deepseek_v3/model_adapter.py",
+      "target": "msmodelslim/model/deepseek_v3/model_adapter.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/float_sparse.md",
+      "line": 35,
+      "url": "../../../../../msmodelslim/processor/sparse/float_sparse.py",
+      "target": "msmodelslim/processor/sparse/float_sparse.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/float_sparse.md",
+      "line": 35,
+      "url": "../../../../../msmodelslim/processor/sparse/admm.py",
+      "target": "msmodelslim/processor/sparse/admm.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/float_sparse.md",
+      "line": 129,
+      "url": "../../../../../msmodelslim/processor/sparse/admm.py",
+      "target": "msmodelslim/processor/sparse/admm.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/fouroversix.md",
+      "line": 39,
+      "url": "../../../../../msmodelslim/core/quantizer/impl/fouroversix.py",
+      "target": "msmodelslim/core/quantizer/impl/fouroversix.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/gptq.md",
+      "line": 27,
+      "url": "../../../../../msmodelslim/core/quantizer/impl/gptq.py",
+      "target": "msmodelslim/core/quantizer/impl/gptq.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/histogram_activation_quantization.md",
+      "line": 21,
+      "url": "../../../../../msmodelslim/core/quantizer/impl/histogram.py",
+      "target": "msmodelslim/core/quantizer/impl/histogram.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/histogram_activation_quantization.md",
+      "line": 21,
+      "url": "../../../../../msmodelslim/core/observer/histogram.py",
+      "target": "msmodelslim/core/observer/histogram.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/histogram_activation_quantization.md",
+      "line": 275,
+      "url": "../../../../../msmodelslim/core/quantizer",
+      "target": "msmodelslim/core/quantizer",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/kvcache_quant.md",
+      "line": 28,
+      "url": "../../../../../msmodelslim/processor/quant/attention.py",
+      "target": "msmodelslim/processor/quant/attention.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/linear_quant.md",
+      "line": 30,
+      "url": "../../../../../msmodelslim/processor/quant/linear.py",
+      "target": "msmodelslim/processor/quant/linear.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/minmax.md",
+      "line": 34,
+      "url": "../../../../../msmodelslim/core/quantizer/impl/minmax.py",
+      "target": "msmodelslim/core/quantizer/impl/minmax.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/mse_round.md",
+      "line": 61,
+      "url": "../../../../../msmodelslim/core/quantizer/impl/mse_round.py",
+      "target": "msmodelslim/core/quantizer/impl/mse_round.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/pdmix.md",
+      "line": 28,
+      "url": "../../../../../msmodelslim/core/quantizer/impl/minmax.py",
+      "target": "msmodelslim/core/quantizer/impl/minmax.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/pdmix.md",
+      "line": 29,
+      "url": "../../../../../msmodelslim/ir/w8a8_pdmix.py",
+      "target": "msmodelslim/ir/w8a8_pdmix.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/pdmix.md",
+      "line": 30,
+      "url": "../../../../../msmodelslim/ir/const.py",
+      "target": "msmodelslim/ir/const.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/ssz.md",
+      "line": 34,
+      "url": "../../../../../msmodelslim/core/quantizer/impl/ssz.py",
+      "target": "msmodelslim/core/quantizer/impl/ssz.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/en/user_guide/quantization_algorithms/quantization_algorithms/ssz.md",
+      "line": 97,
+      "url": "../../../../../msmodelslim/core/quantizer/impl/ssz.py",
+      "target": "msmodelslim/core/quantizer/impl/ssz.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/cli/msmodelslim_quant.md",
+      "line": 64,
+      "url": "../../../../lab_practice/",
+      "target": "lab_practice",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/format/ascendv1_saver.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/format/ascendV1_format/ascendV1.py",
+      "target": "msmodelslim/format/ascendV1_format/ascendV1.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/format/compressed_tensors.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/format/compressed_tensors_format/compressed_tensors.py",
+      "target": "msmodelslim/format/compressed_tensors_format/compressed_tensors.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/format/mindie_format_saver.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/format/mindie_format/mindie.py",
+      "target": "msmodelslim/format/mindie_format/mindie.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/adapt_rotation.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/adapt_rotation/adapt_rotation.py",
+      "target": "msmodelslim/processor/adapt_rotation/adapt_rotation.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/autoround_quant.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/quant/autoround.py",
+      "target": "msmodelslim/processor/quant/autoround.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/awq.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/awq/processor.py",
+      "target": "msmodelslim/processor/anti_outlier/awq/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/binary_analysis.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/analysis/binary_operator/processor.py",
+      "target": "msmodelslim/processor/analysis/binary_operator/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/binary_operator_layer_wise.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/analysis/binary_operator_layer_wise/processor.py",
+      "target": "msmodelslim/processor/analysis/binary_operator_layer_wise/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/binary_operator_model_wise.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/analysis/binary_operator_model_wise/processor.py",
+      "target": "msmodelslim/processor/analysis/binary_operator_model_wise/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/dynamic_cache.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/quant/attention.py",
+      "target": "msmodelslim/processor/quant/attention.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/fa3_quant.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/quant/fa3/processor.py",
+      "target": "msmodelslim/processor/quant/fa3/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/flatquant.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/flat_quant/flat_quant.py",
+      "target": "msmodelslim/processor/flat_quant/flat_quant.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/flex_awq_ssz.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/flex_smooth/processor.py",
+      "target": "msmodelslim/processor/anti_outlier/flex_smooth/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/flex_smooth_quant.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/flex_smooth/processor.py",
+      "target": "msmodelslim/processor/anti_outlier/flex_smooth/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/float_sparse.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/sparse/float_sparse.py",
+      "target": "msmodelslim/processor/sparse/float_sparse.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/group.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/container/group.py",
+      "target": "msmodelslim/processor/container/group.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/iter_smooth.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/iter_smooth/processor.py",
+      "target": "msmodelslim/processor/anti_outlier/iter_smooth/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/kv_smooth.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/kv_smooth/processor.py",
+      "target": "msmodelslim/processor/kv_smooth/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/linear_quant.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/quant/linear.py",
+      "target": "msmodelslim/processor/quant/linear.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/load.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/memory/load.py",
+      "target": "msmodelslim/processor/memory/load.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/oasq.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/oasq/processor.py",
+      "target": "msmodelslim/processor/anti_outlier/oasq/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/online_quarot.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/quarot/online_quarot/online_quarot.py",
+      "target": "msmodelslim/processor/quarot/online_quarot/online_quarot.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/quarot.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/quarot/offline_quarot/quarot.py",
+      "target": "msmodelslim/processor/quarot/offline_quarot/quarot.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/saver.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/save/processor.py",
+      "target": "msmodelslim/processor/save/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/saver.md",
+      "line": 20,
+      "url": "../../../../../msmodelslim/format/base.py",
+      "target": "msmodelslim/format/base.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/smooth_quant.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/smooth_quant/processor.py",
+      "target": "msmodelslim/processor/anti_outlier/smooth_quant/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/svd_res.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/svd_residual/processor.py",
+      "target": "msmodelslim/processor/svd_residual/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/trainable_linear_quant.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/trainable_linear_quant/config/processor_config.py",
+      "target": "msmodelslim/processor/trainable_linear_quant/config/processor_config.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/processor/unary_analysis.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/processor/analysis/unary_operator/processor.py",
+      "target": "msmodelslim/processor/analysis/unary_operator/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/quant/modelslim_convert.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/core/quant_service/modelslim_convert/quant_config.py",
+      "target": "msmodelslim/core/quant_service/modelslim_convert/quant_config.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/quant/modelslim_v1.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/core/quant_service/modelslim_v1/quant_config.py",
+      "target": "msmodelslim/core/quant_service/modelslim_v1/quant_config.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/quant/multimodal_sd_modelslim_v1.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/core/quant_service/multimodal_sd_v1/quant_config.py",
+      "target": "msmodelslim/core/quant_service/multimodal_sd_v1/quant_config.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/quant/multimodal_vlm_modelslim_v1.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/core/quant_service/multimodal_vlm_v1/quant_config.py",
+      "target": "msmodelslim/core/quant_service/multimodal_vlm_v1/quant_config.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/quant/practice_config.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/core/practice/interface.py",
+      "target": "msmodelslim/core/practice/interface.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/tuning/evaluation_service_oriented.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/infra/service_oriented_evaluate_service.py",
+      "target": "msmodelslim/infra/service_oriented_evaluate_service.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/tuning/strategy_binary_fallback.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/core/tune_strategy/binary_fallback/strategy.py",
+      "target": "msmodelslim/core/tune_strategy/binary_fallback/strategy.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/tuning/strategy_standing_high.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/core/tune_strategy/standing_high/strategy.py",
+      "target": "msmodelslim/core/tune_strategy/standing_high/strategy.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/tuning/strategy_standing_high_with_experience.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/core/tune_strategy/standing_high_with_experience/strategy.py",
+      "target": "msmodelslim/core/tune_strategy/standing_high_with_experience/strategy.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/api_reference/config/tuning/tuning_plan.md",
+      "line": 11,
+      "url": "../../../../../msmodelslim/app/auto_tuning/plan_manager_infra.py",
+      "target": "msmodelslim/app/auto_tuning/plan_manager_infra.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_flash_w8a8_quick_quantization_case.md",
+      "line": 33,
+      "url": "../../../example/DeepSeek/README.md#deepseek-v4-flash-0731-w4a4c8量化",
+      "target": "example/DeepSeek/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_flash_w8a8_quick_quantization_case.md",
+      "line": 40,
+      "url": "../../../lab_calib/mix_calib.jsonl",
+      "target": "lab_calib/mix_calib.jsonl",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_flash_w8a8_quick_quantization_case.md",
+      "line": 370,
+      "url": "../../../lab_practice/deepseek_v4/deepseek_v4_flash_w8a8.yaml",
+      "target": "lab_practice/deepseek_v4/deepseek_v4_flash_w8a8.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 50,
+      "url": "../../../lab_calib/mix_calib.jsonl",
+      "target": "lab_calib/mix_calib.jsonl",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 51,
+      "url": "../../../msmodelslim/model/deepseek_v4/",
+      "target": "msmodelslim/model/deepseek_v4",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 52,
+      "url": "../../../lab_practice/deepseek_v4/deepseek_v4_pro_w4a8.yaml",
+      "target": "lab_practice/deepseek_v4/deepseek_v4_pro_w4a8.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 107,
+      "url": "../../../lab_practice/deepseek_v4/deepseek_v4_pro_w4a8.yaml",
+      "target": "lab_practice/deepseek_v4/deepseek_v4_pro_w4a8.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 115,
+      "url": "../../../lab_calib/mix_calib.jsonl",
+      "target": "lab_calib/mix_calib.jsonl",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 137,
+      "url": "../../../msmodelslim/model/deepseek_v4/model.py",
+      "target": "msmodelslim/model/deepseek_v4/model.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 138,
+      "url": "../../../msmodelslim/model/deepseek_v4/model_adapter.py",
+      "target": "msmodelslim/model/deepseek_v4/model_adapter.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 151,
+      "url": "../../../config/config.ini",
+      "target": "config/config.ini",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 163,
+      "url": "../../../lab_practice/deepseek_v4/deepseek_v4_pro_w4a8.yaml",
+      "target": "lab_practice/deepseek_v4/deepseek_v4_pro_w4a8.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 246,
+      "url": "../../../lab_practice/deepseek_v4/deepseek_v4_pro_w4a8.yaml",
+      "target": "lab_practice/deepseek_v4/deepseek_v4_pro_w4a8.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 252,
+      "url": "../../../lab_practice/deepseek_v4/deepseek_v4_pro_w4a8.yaml",
+      "target": "lab_practice/deepseek_v4/deepseek_v4_pro_w4a8.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 512,
+      "url": "../../../lab_practice/deepseek_v4/deepseek_v4_pro_w4a8.yaml",
+      "target": "lab_practice/deepseek_v4/deepseek_v4_pro_w4a8.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 566,
+      "url": "../../../lab_practice/deepseek_v4/deepseek_v4_pro_w4a8.yaml",
+      "target": "lab_practice/deepseek_v4/deepseek_v4_pro_w4a8.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 567,
+      "url": "../../../lab_calib/mix_calib.jsonl",
+      "target": "lab_calib/mix_calib.jsonl",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 568,
+      "url": "../../../msmodelslim/model/deepseek_v4/",
+      "target": "msmodelslim/model/deepseek_v4",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 568,
+      "url": "../../../msmodelslim/model/deepseek_v4/model_adapter.py",
+      "target": "msmodelslim/model/deepseek_v4/model_adapter.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 568,
+      "url": "../../../msmodelslim/model/deepseek_v4/model.py",
+      "target": "msmodelslim/model/deepseek_v4/model.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 568,
+      "url": "../../../msmodelslim/model/deepseek_v4/loader.py",
+      "target": "msmodelslim/model/deepseek_v4/loader.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/deepseek_v4_pro_w4a8_new_llm_quantization_case.md",
+      "line": 569,
+      "url": "../../../config/config.ini",
+      "target": "config/config.ini",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/kimi_k3_adaptation_case.md",
+      "line": 36,
+      "url": "../../../msmodelslim/model/kimi_k3/",
+      "target": "msmodelslim/model/kimi_k3",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/kimi_k3_adaptation_case.md",
+      "line": 37,
+      "url": "../../../lab_practice/kimi_k3/kimi_k3_w4a8.yaml",
+      "target": "lab_practice/kimi_k3/kimi_k3_w4a8.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/kimi_k3_adaptation_case.md",
+      "line": 64,
+      "url": "../../../msmodelslim/model/kimi_k3/model_adapter.py",
+      "target": "msmodelslim/model/kimi_k3/model_adapter.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/kimi_k3_adaptation_case.md",
+      "line": 64,
+      "url": "../../../msmodelslim/model/kimi_k3/ep_patches.py",
+      "target": "msmodelslim/model/kimi_k3/ep_patches.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/kimi_k3_adaptation_case.md",
+      "line": 66,
+      "url": "../../../config/config.ini",
+      "target": "config/config.ini",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/kimi_k3_adaptation_case.md",
+      "line": 204,
+      "url": "../../../lab_practice/kimi_k3/kimi_k3_w4a8.yaml",
+      "target": "lab_practice/kimi_k3/kimi_k3_w4a8.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/kimi_k3_adaptation_case.md",
+      "line": 212,
+      "url": "../../../msmodelslim/model/deepseek_v4/model.py",
+      "target": "msmodelslim/model/deepseek_v4/model.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/kimi_k3_adaptation_case.md",
+      "line": 212,
+      "url": "../../../msmodelslim/model/kimi_k3/ep_patches.py",
+      "target": "msmodelslim/model/kimi_k3/ep_patches.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/kimi_k3_adaptation_case.md",
+      "line": 216,
+      "url": "../../../config/config.ini",
+      "target": "config/config.ini",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/qwen3_32b_w8a8_precision_tuning_case.md",
+      "line": 37,
+      "url": "../../../lab_calib/mix_calib.jsonl",
+      "target": "lab_calib/mix_calib.jsonl",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/qwen3_32b_w8a8_precision_tuning_case.md",
+      "line": 37,
+      "url": "../../../lab_calib/qwen3_cot_w4a4.json",
+      "target": "lab_calib/qwen3_cot_w4a4.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/qwen3_32b_w8a8_precision_tuning_case.md",
+      "line": 173,
+      "url": "../../../lab_calib/mix_calib.jsonl",
+      "target": "lab_calib/mix_calib.jsonl",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/qwen3_32b_w8a8_precision_tuning_case.md",
+      "line": 179,
+      "url": "../../../lab_calib/qwen3_cot_w4a4.json",
+      "target": "lab_calib/qwen3_cot_w4a4.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/wan2_2_w4a4f4_new_dit_quantization_case.md",
+      "line": 53,
+      "url": "../../../lab_practice/wan2_2/wan2_2_w4a4f4_mxfp_t2v.yaml",
+      "target": "lab_practice/wan2_2/wan2_2_w4a4f4_mxfp_t2v.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/wan2_2_w4a4f4_new_dit_quantization_case.md",
+      "line": 132,
+      "url": "../../../config/config.ini",
+      "target": "config/config.ini",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/wan2_2_w4a4f4_new_dit_quantization_case.md",
+      "line": 132,
+      "url": "../../../msmodelslim/model/wan2_2/t2v/loader.py",
+      "target": "msmodelslim/model/wan2_2/t2v/loader.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/wan2_2_w4a4f4_new_dit_quantization_case.md",
+      "line": 175,
+      "url": "../../../lab_practice/wan2_2/wan2_2_w4a4f4_mxfp_t2v.yaml",
+      "target": "lab_practice/wan2_2/wan2_2_w4a4f4_mxfp_t2v.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/best_practices/wan2_2_w4a4f4_new_dit_quantization_case.md",
+      "line": 456,
+      "url": "../../../lab_practice/wan2_2/wan2_2_w4a4f4_mxfp_t2v.yaml",
+      "target": "lab_practice/wan2_2/wan2_2_w4a4f4_mxfp_t2v.yaml",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
@@ -559,7 +2207,7 @@
       "line": 21,
       "url": "../../../.gitcode/ISSUE_TEMPLATE",
       "target": ".gitcode/ISSUE_TEMPLATE",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
@@ -567,7 +2215,15 @@
       "line": 28,
       "url": "../../../.gitcode/PULL_REQUEST_TEMPLATE.md",
       "target": ".gitcode/PULL_REQUEST_TEMPLATE.md",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/contributing/design/api_reference_docgen.md",
+      "line": 3,
+      "url": "../../../../skills/docs-management/scripts/README.md",
+      "target": "skills/docs-management/scripts/README.md",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
@@ -603,11 +2259,347 @@
     },
     {
       "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/model/README.md",
+      "line": 865,
+      "url": "../../../../example/Hy3/README.md",
+      "target": "example/Hy3/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/model/README.md",
+      "line": 895,
+      "url": "../../../../example/MiniMax-M2/README.md",
+      "target": "example/MiniMax-M2/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/model/README.md",
+      "line": 910,
+      "url": "../../../../example/MiMo-V2-Flash/README.md",
+      "target": "example/MiMo-V2-Flash/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/model/README.md",
+      "line": 925,
+      "url": "../../../../example/longcat_flash/README.md",
+      "target": "example/longcat_flash/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/parallel/data_parallelism/data_parallelism_guide.md",
+      "line": 70,
+      "url": "../../../../../msmodelslim/processor/quant/fa3/processor.py",
+      "target": "msmodelslim/processor/quant/fa3/processor.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/parallel/data_parallelism/term_data_parallelism.md",
+      "line": 13,
+      "url": "../../../../../msmodelslim/core/runner/dp_layer_wise_runner.py",
+      "target": "msmodelslim/core/runner/dp_layer_wise_runner.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
       "document": "docs/zh/knowledge_base/parallel/distributed_task_scheduler/term_distributed_task_scheduler.md",
       "line": 13,
       "url": "../../../../../msmodelslim/utils/distributed/task_scheduler/",
       "target": "msmodelslim/utils/distributed/task_scheduler",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/parallel/expert_parallelism/expert_parallelism_guide.md",
+      "line": 127,
+      "url": "../../../../../msmodelslim/model/deepseek_v4/model_adapter.py",
+      "target": "msmodelslim/model/deepseek_v4/model_adapter.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/parallel/expert_parallelism/expert_parallelism_guide.md",
+      "line": 128,
+      "url": "../../../../../msmodelslim/model/kimi_k3/quarot.py",
+      "target": "msmodelslim/model/kimi_k3/quarot.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/parallel/expert_parallelism/term_expert_parallelism.md",
+      "line": 13,
+      "url": "../../../../../msmodelslim/utils/distributed/dist_helper.py",
+      "target": "msmodelslim/utils/distributed/dist_helper.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/adapt_rotation/usage_adapt_rotation.md",
+      "line": 112,
+      "url": "../../../../../msmodelslim/processor/adapt_rotation",
+      "target": "msmodelslim/processor/adapt_rotation",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/adapt_rotation/usage_adapt_rotation.md",
+      "line": 204,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/attention_mse/usage_attention_mse.md",
+      "line": 167,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/autoround/usage_autoround.md",
+      "line": 122,
+      "url": "../../../../../msmodelslim/processor/quant/autoround.py",
+      "target": "msmodelslim/processor/quant/autoround.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/autoround/usage_autoround.md",
+      "line": 212,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/awq_smooth/usage_awq_smooth.md",
+      "line": 105,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/awq",
+      "target": "msmodelslim/processor/anti_outlier/awq",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/awq_smooth/usage_awq_smooth.md",
+      "line": 190,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/fa3_quant/usage_fa3_quant.md",
+      "line": 82,
+      "url": "../../../../../msmodelslim/processor/quant/fa3",
+      "target": "msmodelslim/processor/quant/fa3",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/fa3_quant/usage_fa3_quant.md",
+      "line": 163,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/flex_awq_ssz/usage_flex_awq_ssz.md",
+      "line": 193,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/flex_smooth_quant/usage_flex_smooth_quant.md",
+      "line": 110,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/flex_smooth",
+      "target": "msmodelslim/processor/anti_outlier/flex_smooth",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/flex_smooth_quant/usage_flex_smooth_quant.md",
+      "line": 190,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/float_sparse/usage_float_sparse.md",
+      "line": 92,
+      "url": "../../../../../msmodelslim/processor/sparse",
+      "target": "msmodelslim/processor/sparse",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/float_sparse/usage_float_sparse.md",
+      "line": 153,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/iterative_smooth/usage_iterative_smooth.md",
+      "line": 112,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/iter_smooth",
+      "target": "msmodelslim/processor/anti_outlier/iter_smooth",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/iterative_smooth/usage_iterative_smooth.md",
+      "line": 195,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/kv_smooth/usage_kv_smooth.md",
+      "line": 105,
+      "url": "../../../../../msmodelslim/processor/kv_smooth",
+      "target": "msmodelslim/processor/kv_smooth",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/kv_smooth/usage_kv_smooth.md",
+      "line": 181,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/kvcache_quant/usage_kvcache_quant.md",
+      "line": 178,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/laos/usage_laos.md",
+      "line": 262,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/linear_quant/usage_linear_quant.md",
+      "line": 107,
+      "url": "../../../../../msmodelslim/processor/quant/linear.py",
+      "target": "msmodelslim/processor/quant/linear.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/linear_quant/usage_linear_quant.md",
+      "line": 192,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/mse_model_wise/usage_mse_model_wise.md",
+      "line": 160,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/oasq/usage_oasq.md",
+      "line": 209,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/quarot/usage_quarot.md",
+      "line": 281,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/ra_compress/usage_ra_compress.md",
+      "line": 186,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/smooth_quant/usage_smooth_quant.md",
+      "line": 113,
+      "url": "../../../../../msmodelslim/processor/anti_outlier/smooth_quant",
+      "target": "msmodelslim/processor/anti_outlier/smooth_quant",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/smooth_quant/usage_smooth_quant.md",
+      "line": 189,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/svdquant/usage_svdquant.md",
+      "line": 167,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_algorithms/trainable_linear_quant/usage_trainable_linear_quant.md",
+      "line": 263,
+      "url": "../../../../../msmodelslim/model/interface_hub.py",
+      "target": "msmodelslim/model/interface_hub.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_format/README.md",
+      "line": 6,
+      "url": "../../../../msmodelslim/format/",
+      "target": "msmodelslim/format",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_format/ascendv1/ascendv1_usage.md",
+      "line": 64,
+      "url": "../../../../../msmodelslim/core/quant_service/modelslim_v1/save/interface.py",
+      "target": "msmodelslim/core/quant_service/modelslim_v1/save/interface.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_format/ascendv1/ascendv1_usage.md",
+      "line": 69,
+      "url": "../../../../../msmodelslim/model/deepseek_v3/",
+      "target": "msmodelslim/model/deepseek_v3",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
@@ -615,7 +2607,7 @@
       "line": 70,
       "url": "../../../../../msmodelslim/model/qwen3_next/",
       "target": "msmodelslim/model/qwen3_next",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
@@ -623,7 +2615,71 @@
       "line": 71,
       "url": "../../../../../msmodelslim/model/minimax_m2/",
       "target": "msmodelslim/model/minimax_m2",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_format/ascendv1/term_ascendv1.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/format/ascendV1_format/",
+      "target": "msmodelslim/format/ascendV1_format",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_format/compressed_tensors/term_compressed_tensors.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/format/compressed_tensors_format/",
+      "target": "msmodelslim/format/compressed_tensors_format",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_format/iformat_integration_guide.md",
+      "line": 18,
+      "url": "../../../../skills/docs-management/scenarios/add-quantization-format.md",
+      "target": "skills/docs-management/scenarios/add-quantization-format.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_format/iformat_integration_guide.md",
+      "line": 46,
+      "url": "../../../../msmodelslim/format/interface.py",
+      "target": "msmodelslim/format/interface.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_format/iformat_integration_guide.md",
+      "line": 46,
+      "url": "../../../../msmodelslim/format/base.py",
+      "target": "msmodelslim/format/base.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_format/iformat_integration_guide.md",
+      "line": 83,
+      "url": "../../../../msmodelslim/format/compressed_tensors_format/compressed_tensors.py",
+      "target": "msmodelslim/format/compressed_tensors_format/compressed_tensors.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_format/iformat_integration_guide.md",
+      "line": 135,
+      "url": "../../../../msmodelslim/format/compressed_tensors_format/compressed_tensors.py",
+      "target": "msmodelslim/format/compressed_tensors_format/compressed_tensors.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_format/iformat_integration_guide.md",
+      "line": 150,
+      "url": "../../../../msmodelslim/format/registry.py",
+      "target": "msmodelslim/format/registry.py",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
@@ -631,47 +2687,543 @@
       "line": 183,
       "url": "../../../../test/cases/format/compressed_tensors_format",
       "target": "test/cases/format/compressed_tensors_format",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
-      "document": "skills/README.md",
-      "line": 18,
-      "url": "tuning-loop-lib/",
-      "target": "skills/tuning-loop-lib",
-      "kind": "upstream_directory_outside_scope"
+      "document": "docs/zh/knowledge_base/quantization_format/iformat_integration_guide.md",
+      "line": 209,
+      "url": "../../../../msmodelslim/format/interface.py",
+      "target": "msmodelslim/format/interface.py",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
-      "document": "skills/README.md",
-      "line": 132,
-      "url": "相对路径",
-      "target": "skills/相对路径",
-      "kind": "not_found_in_upstream_commit"
+      "document": "docs/zh/knowledge_base/quantization_format/iformat_integration_guide.md",
+      "line": 210,
+      "url": "../../../../msmodelslim/format/registry.py",
+      "target": "msmodelslim/format/registry.py",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
-      "document": "skills/docs-management/references/link_check.md",
-      "line": 9,
-      "url": "../xx/yy.md",
-      "target": "skills/docs-management/xx/yy.md",
-      "kind": "not_found_in_upstream_commit"
+      "document": "docs/zh/knowledge_base/quantization_format/mindie_sd/term_mindie_sd.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/format/mindie_format/",
+      "target": "msmodelslim/format/mindie_format",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
-      "document": "skills/docs-management/references/link_check.md",
-      "line": 9,
-      "url": "./zz.md",
-      "target": "skills/docs-management/references/zz.md",
-      "kind": "not_found_in_upstream_commit"
+      "document": "docs/zh/knowledge_base/quantization_mode/README.md",
+      "line": 53,
+      "url": "../../../../msmodelslim/ir/",
+      "target": "msmodelslim/ir",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmodelslim",
-      "document": "skills/docs-management/scenarios/add-quantization-format.md",
-      "line": 44,
-      "url": "路径",
-      "target": "skills/docs-management/scenarios/路径",
-      "kind": "not_found_in_upstream_commit"
+      "document": "docs/zh/knowledge_base/quantization_mode/README.md",
+      "line": 72,
+      "url": "../../../../msmodelslim/ir/svd_residual.py",
+      "target": "msmodelslim/ir/svd_residual.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/fa_quantization/term_fa_fp8_dynamic.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/activation_dynamic.py",
+      "target": "msmodelslim/ir/activation_dynamic.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/fa_quantization/term_fa_int8_dynamic.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/activation_dynamic.py",
+      "target": "msmodelslim/ir/activation_dynamic.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/fa_quantization/term_fa_int8_perhead.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/activation_static.py",
+      "target": "msmodelslim/ir/activation_static.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/fa_quantization/term_fa_mxfp4_dynamic.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/activation_dynamic.py",
+      "target": "msmodelslim/ir/activation_dynamic.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/fa_quantization/term_fa_q_fp8_dynamic_kv_fp8.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/activation_dynamic.py",
+      "target": "msmodelslim/ir/activation_dynamic.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/fa_quantization/term_fa_q_fp8_dynamic_kv_fp8.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/activation_static.py",
+      "target": "msmodelslim/ir/activation_static.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/fa_quantization/term_fa_q_int8_dynamic_kv_int8.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/activation_dynamic.py",
+      "target": "msmodelslim/ir/activation_dynamic.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/fa_quantization/term_fa_q_int8_dynamic_kv_int8.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/activation_static.py",
+      "target": "msmodelslim/ir/activation_static.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/fa_quantization/term_fa_qk_mxfp8_dynamic_v_mxfp8_perchannel.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/activation_dynamic.py",
+      "target": "msmodelslim/ir/activation_dynamic.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/fa_quantization/term_fa_qk_mxfp8_dynamic_v_mxfp8_perchannel.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/mxfp8_activation_static.py",
+      "target": "msmodelslim/ir/mxfp8_activation_static.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/kv_cache_quantization/README.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/attention.py",
+      "target": "msmodelslim/ir/attention.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/kv_cache_quantization/term_kv_cache_perchannel.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/attention.py",
+      "target": "msmodelslim/ir/attention.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/README.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/w8a8_static.py",
+      "target": "msmodelslim/ir/w8a8_static.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/term_float_sparse.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/w16a16s.py",
+      "target": "msmodelslim/ir/w16a16s.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/term_svdquant.md",
+      "line": 7,
+      "url": "../../../../../msmodelslim/ir/svd_residual.py",
+      "target": "msmodelslim/ir/svd_residual.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/term_w4a4_dynamic.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/w4a4_dynamic.py",
+      "target": "msmodelslim/ir/w4a4_dynamic.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/term_w4a4_mx_dualscale.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/w4a4_mx_dynamic_dualscale.py",
+      "target": "msmodelslim/ir/w4a4_mx_dynamic_dualscale.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/term_w4a4_mx_dynamic.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/w4a4_mx_dynamic.py",
+      "target": "msmodelslim/ir/w4a4_mx_dynamic.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/term_w4a8_dynamic.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/w4a8_dynamic.py",
+      "target": "msmodelslim/ir/w4a8_dynamic.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/term_w4a8_mx_dynamic.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/w4a8_mx_dynamic.py",
+      "target": "msmodelslim/ir/w4a8_mx_dynamic.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/term_w8a16_static.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/w8a16_static.py",
+      "target": "msmodelslim/ir/w8a16_static.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/term_w8a8_dynamic.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/w8a8_dynamic.py",
+      "target": "msmodelslim/ir/w8a8_dynamic.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/term_w8a8_fp8_dynamic.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/w8a8_fp_dynamic.py",
+      "target": "msmodelslim/ir/w8a8_fp_dynamic.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/term_w8a8_mx_dynamic.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/w8a8_mx_dynamic.py",
+      "target": "msmodelslim/ir/w8a8_mx_dynamic.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/term_w8a8_pdmix.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/w8a8_pdmix.py",
+      "target": "msmodelslim/ir/w8a8_pdmix.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/term_w8a8_sparse.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/w8a8_static.py",
+      "target": "msmodelslim/ir/w8a8_static.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/quantization_mode/linear_layer_quantization/term_w8a8_static.md",
+      "line": 6,
+      "url": "../../../../../msmodelslim/ir/w8a8_static.py",
+      "target": "msmodelslim/ir/w8a8_static.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/tuning_strategies/standing_high_with_experience/standing_high_with_experience.md",
+      "line": 24,
+      "url": "../../../../../msmodelslim/core/tune_strategy/common/config_builder/expert_experience/expert_experience.yaml",
+      "target": "msmodelslim/core/tune_strategy/common/config_builder/expert_experience/expert_experience.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/knowledge_base/tuning_strategies/standing_high_with_experience/standing_high_with_experience.md",
+      "line": 95,
+      "url": "../../../../../msmodelslim/core/tune_strategy/common/config_builder/expert_experience/expert_experience.yaml",
+      "target": "msmodelslim/core/tune_strategy/common/config_builder/expert_experience/expert_experience.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/traditional_quantization_v0/foundation_model_quantization_and_calibration.md",
+      "line": 52,
+      "url": "../../../../example/DeepSeek/README.md",
+      "target": "example/DeepSeek/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/traditional_quantization_v0/foundation_model_quantization_and_calibration.md",
+      "line": 593,
+      "url": "../../../../example/Qwen/quant_qwen.py",
+      "target": "example/Qwen/quant_qwen.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/traditional_quantization_v0/foundation_model_quantization_and_calibration.md",
+      "line": 593,
+      "url": "../../../../example/Qwen/README.md#qwen25-72b-支持attention量化",
+      "target": "example/Qwen/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/traditional_quantization_v0/foundation_model_quantization_and_calibration.md",
+      "line": 594,
+      "url": "../../../../example/Llama/quant_llama.py",
+      "target": "example/Llama/quant_llama.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/traditional_quantization_v0/foundation_model_quantization_and_calibration.md",
+      "line": 594,
+      "url": "../../../../example/Llama/README.md#llama31-70b-w8a8量化搭配attention量化",
+      "target": "example/Llama/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/traditional_quantization_v0/foundation_model_quantization_and_calibration.md",
+      "line": 709,
+      "url": "../../../../example/multimodal_sd/Flux/README.md#flux-fa3-quantization",
+      "target": "example/multimodal_sd/Flux/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/traditional_quantization_v0/foundation_model_quantization_and_calibration.md",
+      "line": 709,
+      "url": "../../../../example/multimodal_sd/HunYuanVideo/README.md#hunyuanvideo-fa3-量化",
+      "target": "example/multimodal_sd/HunYuanVideo/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/traditional_quantization_v0/inference_optimization_for_multimodal_generative_model.md",
+      "line": 173,
+      "url": "../../../../example/osp1_2/dit_cache_search_t2v_sp.sh",
+      "target": "example/osp1_2/dit_cache_search_t2v_sp.sh",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/traditional_quantization_v0/inference_optimization_for_multimodal_generative_model.md",
+      "line": 257,
+      "url": "../../../../example/osp1_2/dit_cache_sample_t2v_sp.sh",
+      "target": "example/osp1_2/dit_cache_sample_t2v_sp.sh",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/traditional_quantization_v0/inference_optimization_for_multimodal_generative_model.md",
+      "line": 322,
+      "url": "../../../../example/osp1_2/search_t2v_sp.sh",
+      "target": "example/osp1_2/search_t2v_sp.sh",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/traditional_quantization_v0/inference_optimization_for_multimodal_generative_model.md",
+      "line": 348,
+      "url": "../../../../example/osp1_2/sample_t2v_sp.sh",
+      "target": "example/osp1_2/sample_t2v_sp.sh",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/traditional_quantization_v0/inference_optimization_for_multimodal_generative_model.md",
+      "line": 365,
+      "url": "../../../../example/osp1_2/search_t2v_sp.sh",
+      "target": "example/osp1_2/search_t2v_sp.sh",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_auto_precision_tuning.md",
+      "line": 64,
+      "url": "../../../config/config.ini",
+      "target": "config/config.ini",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_auto_precision_tuning.md",
+      "line": 66,
+      "url": "../../../config/config.ini",
+      "target": "config/config.ini",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_fake_quant_evaluation.md",
+      "line": 76,
+      "url": "../../../msmodelslim/core/infer_engine/interface.py",
+      "target": "msmodelslim/core/infer_engine/interface.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_fake_quant_evaluation.md",
+      "line": 92,
+      "url": "../../../msmodelslim/core/runner/pipeline_interface.py",
+      "target": "msmodelslim/core/runner/pipeline_interface.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_fake_quant_evaluation.md",
+      "line": 93,
+      "url": "../../../msmodelslim/model/qwen3/model_adapter.py",
+      "target": "msmodelslim/model/qwen3/model_adapter.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_processor_group.md",
+      "line": 31,
+      "url": "../../../msmodelslim/processor/container/group.py",
+      "target": "msmodelslim/processor/container/group.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_sensitive_attn_analysis.md",
+      "line": 40,
+      "url": "../../../lab_calib/",
+      "target": "lab_calib",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_sensitive_attn_analysis.md",
+      "line": 95,
+      "url": "../../../lab_calib/",
+      "target": "lab_calib",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_sensitive_attn_head_analysis.md",
+      "line": 112,
+      "url": "../../../msmodelslim/processor/analysis/unary_operator/metrics/ra_compress/interface.py",
+      "target": "msmodelslim/processor/analysis/unary_operator/metrics/ra_compress/interface.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_sensitive_attn_head_analysis.md",
+      "line": 227,
+      "url": "../../../msmodelslim/processor/analysis/unary_operator/metrics/ra_compress/interface.py",
+      "target": "msmodelslim/processor/analysis/unary_operator/metrics/ra_compress/interface.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_sensitive_attn_head_analysis.md",
+      "line": 234,
+      "url": "../../../msmodelslim/processor/analysis/unary_operator/metrics/ra_compress/interface.py",
+      "target": "msmodelslim/processor/analysis/unary_operator/metrics/ra_compress/interface.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_sensitive_layer_analysis.md",
+      "line": 39,
+      "url": "../../../lab_calib/",
+      "target": "lab_calib",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_sensitive_layer_analysis.md",
+      "line": 96,
+      "url": "../../../lab_calib/",
+      "target": "lab_calib",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_sensitive_linear_analysis.md",
+      "line": 40,
+      "url": "../../../lab_calib/",
+      "target": "lab_calib",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmodelslim",
+      "document": "docs/zh/user_guide/usage_sensitive_linear_analysis.md",
+      "line": 98,
+      "url": "../../../lab_calib/",
+      "target": "lab_calib",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmonitor",
+      "document": "README.md",
+      "line": 15,
+      "url": "./README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmonitor",
+      "document": "docs/en/contributing/contributing_guide.md",
+      "line": 198,
+      "url": "../../../README_EN.md#-suggestions-and-communication",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmonitor",
+      "document": "docs/en/contributing/contributing_guide.md",
+      "line": 281,
+      "url": "../../../README_EN.md#-suggestions-and-communication",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmonitor",
+      "document": "docs/en/contributing/contributing_guide.md",
+      "line": 285,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmonitor",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msmonitor",
@@ -679,15 +3231,999 @@
       "line": 122,
       "url": "../../../test/st/test_dcmi_fa_comm_multistream.py",
       "target": "test/st/test_dcmi_fa_comm_multistream.py",
-      "kind": "excluded_source"
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmonitor",
+      "document": "docs/zh/contributing/contributing_guide.md",
+      "line": 239,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msmonitor",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 3,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msopcom",
+      "document": "README.md",
+      "line": 11,
+      "url": "README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msopcom",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msopcom",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msopgen",
+      "document": "README.md",
+      "line": 15,
+      "url": "README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msopgen",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msopgen",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msopprof",
+      "document": "README.md",
+      "line": 15,
+      "url": "README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msopprof",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msopprof",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msoptuner",
-      "document": "tuner/README.md",
-      "line": 81,
-      "url": "../../examples/06_optimized_matmul/optimized_matmul.cpp",
-      "target": "../examples/06_optimized_matmul/optimized_matmul.cpp",
-      "kind": "outside_upstream_repository"
+      "document": "README.md",
+      "line": 11,
+      "url": "README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msoptuner",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msoptuner",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msot",
+      "document": "README.md",
+      "line": 15,
+      "url": "README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msot",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msot",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "README.md",
+      "line": 15,
+      "url": "./README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/contributing/contributing_guide.md",
+      "line": 171,
+      "url": "../../../README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/contributing/contributing_guide.md",
+      "line": 240,
+      "url": "../../../README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/support/faq.md",
+      "line": 215,
+      "url": "../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_checker/mindspore_accuracy_checker_instruct.md",
+      "line": 122,
+      "url": "../../../../python/msprobe/mindspore/api_accuracy_checker/checker_support_api.yaml",
+      "target": "python/msprobe/mindspore/api_accuracy_checker/checker_support_api.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_checker/mindspore_accuracy_checker_instruct.md",
+      "line": 171,
+      "url": "../../../../python/msprobe/mindspore/api_accuracy_checker/checker_support_api.yaml",
+      "target": "python/msprobe/mindspore/api_accuracy_checker/checker_support_api.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_checker/pytorch_accuracy_checker_instruct.md",
+      "line": 65,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_checker/pytorch_accuracy_checker_instruct.md",
+      "line": 83,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_checker/pytorch_accuracy_checker_instruct.md",
+      "line": 83,
+      "url": "../../../../python/msprobe/pytorch/api_accuracy_checker/config.yaml",
+      "target": "python/msprobe/pytorch/api_accuracy_checker/config.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_checker/pytorch_accuracy_checker_instruct.md",
+      "line": 121,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_checker/pytorch_accuracy_checker_instruct.md",
+      "line": 127,
+      "url": "../../../../python/msprobe/core/common/output_postprocess/api_output_postprocess.yaml",
+      "target": "python/msprobe/core/common/output_postprocess/api_output_postprocess.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_checker/pytorch_accuracy_checker_instruct.md",
+      "line": 181,
+      "url": "../../../../python/msprobe/core/common/output_postprocess/",
+      "target": "python/msprobe/core/common/output_postprocess",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_checker/pytorch_accuracy_checker_instruct.md",
+      "line": 208,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_compare/mindspore_accuracy_compare_instruct.md",
+      "line": 87,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_compare/mindspore_accuracy_compare_instruct.md",
+      "line": 99,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_compare/mindspore_accuracy_compare_instruct.md",
+      "line": 127,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_compare/mindspore_accuracy_compare_instruct.md",
+      "line": 158,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 83,
+      "url": "../../../../python/msprobe/core/common/output_postprocess/api_output_postprocess.yaml",
+      "target": "python/msprobe/core/common/output_postprocess/api_output_postprocess.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 85,
+      "url": "../../../../python/msprobe/core/common/output_postprocess/",
+      "target": "python/msprobe/core/common/output_postprocess",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 111,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 129,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 149,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 255,
+      "url": "../../../../python/msprobe/core/compare/tensor_postprocess/matmul.yaml",
+      "target": "python/msprobe/core/compare/tensor_postprocess/matmul.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 274,
+      "url": "../../../../python/msprobe/core/compare/tensor_postprocess/matmul.yaml",
+      "target": "python/msprobe/core/compare/tensor_postprocess/matmul.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/config_json_introduct.md",
+      "line": 3,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/mindspore_data_dump_instruct.md",
+      "line": 732,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/mindspore_data_dump_instruct.md",
+      "line": 733,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/mindspore_data_dump_instruct.md",
+      "line": 735,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/mindspore_data_dump_instruct.md",
+      "line": 987,
+      "url": "../../../../python/msprobe/mindspore/dump/dump_processor/hook_cell/support_wrap_ops.yaml",
+      "target": "python/msprobe/mindspore/dump/dump_processor/hook_cell/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/msadapter_data_dump_instruct.md",
+      "line": 645,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/msadapter_data_dump_instruct.md",
+      "line": 647,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/msadapter_data_dump_instruct.md",
+      "line": 647,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/msadapter_data_dump_instruct.md",
+      "line": 740,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/pytorch_data_dump_instruct.md",
+      "line": 155,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/pytorch_data_dump_instruct.md",
+      "line": 168,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/pytorch_data_dump_instruct.md",
+      "line": 687,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/pytorch_data_dump_instruct.md",
+      "line": 687,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/builtin_ignore_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/builtin_ignore_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/pytorch_data_dump_instruct.md",
+      "line": 867,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/sglang_eager_dump_instruct.md",
+      "line": 18,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/sglang_eager_dump_instruct_new.md",
+      "line": 17,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/dump/vllm_dump_instruct.md",
+      "line": 24,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/response_anomaly_instruct.md",
+      "line": 23,
+      "url": "../../../python/msprobe/response_anomaly/configs/config.yaml",
+      "target": "python/msprobe/response_anomaly/configs/config.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/response_anomaly_instruct.md",
+      "line": 66,
+      "url": "../../../python/msprobe/response_anomaly/configs/mtype_config.json",
+      "target": "python/msprobe/response_anomaly/configs/mtype_config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/response_anomaly_instruct.md",
+      "line": 66,
+      "url": "../../../python/msprobe/response_anomaly/token2category/deepseekv3_128000.json",
+      "target": "python/msprobe/response_anomaly/token2category/deepseekv3_128000.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/response_anomaly_instruct.md",
+      "line": 66,
+      "url": "../../../python/msprobe/response_anomaly/token2category/glm-4-7_151329.json",
+      "target": "python/msprobe/response_anomaly/token2category/glm-4-7_151329.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/response_anomaly_instruct.md",
+      "line": 66,
+      "url": "../../../python/msprobe/response_anomaly/token2category/qwen3-30b-a3b_151643.json",
+      "target": "python/msprobe/response_anomaly/token2category/qwen3-30b-a3b_151643.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/en/user_guide/verl_param_compare_or_verify_instruct.md",
+      "line": 89,
+      "url": "../../../python/msprobe/core/config_check/verl_param_compare/verl_hyper_params_verify.yaml",
+      "target": "python/msprobe/core/config_check/verl_param_compare/verl_hyper_params_verify.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/support/faq.md",
+      "line": 215,
+      "url": "../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_checker/mindspore_accuracy_checker_instruct.md",
+      "line": 122,
+      "url": "../../../../python/msprobe/mindspore/api_accuracy_checker/checker_support_api.yaml",
+      "target": "python/msprobe/mindspore/api_accuracy_checker/checker_support_api.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_checker/mindspore_accuracy_checker_instruct.md",
+      "line": 171,
+      "url": "../../../../python/msprobe/mindspore/api_accuracy_checker/checker_support_api.yaml",
+      "target": "python/msprobe/mindspore/api_accuracy_checker/checker_support_api.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_checker/pytorch_accuracy_checker_instruct.md",
+      "line": 65,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_checker/pytorch_accuracy_checker_instruct.md",
+      "line": 83,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_checker/pytorch_accuracy_checker_instruct.md",
+      "line": 83,
+      "url": "../../../../python/msprobe/pytorch/api_accuracy_checker/config.yaml",
+      "target": "python/msprobe/pytorch/api_accuracy_checker/config.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_checker/pytorch_accuracy_checker_instruct.md",
+      "line": 121,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_checker/pytorch_accuracy_checker_instruct.md",
+      "line": 127,
+      "url": "../../../../python/msprobe/core/common/output_postprocess/api_output_postprocess.yaml",
+      "target": "python/msprobe/core/common/output_postprocess/api_output_postprocess.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_checker/pytorch_accuracy_checker_instruct.md",
+      "line": 181,
+      "url": "../../../../python/msprobe/core/common/output_postprocess/",
+      "target": "python/msprobe/core/common/output_postprocess",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_checker/pytorch_accuracy_checker_instruct.md",
+      "line": 208,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_compare/mindspore_accuracy_compare_instruct.md",
+      "line": 87,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_compare/mindspore_accuracy_compare_instruct.md",
+      "line": 99,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_compare/mindspore_accuracy_compare_instruct.md",
+      "line": 127,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_compare/mindspore_accuracy_compare_instruct.md",
+      "line": 158,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 71,
+      "url": "../../../../python/msprobe/core/compare/tensor_postprocess/matmul.yaml",
+      "target": "python/msprobe/core/compare/tensor_postprocess/matmul.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 84,
+      "url": "../../../../python/msprobe/core/common/output_postprocess/api_output_postprocess.yaml",
+      "target": "python/msprobe/core/common/output_postprocess/api_output_postprocess.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 86,
+      "url": "../../../../python/msprobe/core/common/output_postprocess/",
+      "target": "python/msprobe/core/common/output_postprocess",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 112,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 130,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 150,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 257,
+      "url": "../../../../python/msprobe/core/compare/tensor_postprocess/matmul.yaml",
+      "target": "python/msprobe/core/compare/tensor_postprocess/matmul.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/accuracy_compare/pytorch_accuracy_compare_instruct.md",
+      "line": 276,
+      "url": "../../../../python/msprobe/core/compare/tensor_postprocess/matmul.yaml",
+      "target": "python/msprobe/core/compare/tensor_postprocess/matmul.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/config_json_introduct.md",
+      "line": 3,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/mindspore_data_dump_instruct.md",
+      "line": 732,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/mindspore_data_dump_instruct.md",
+      "line": 733,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/mindspore_data_dump_instruct.md",
+      "line": 735,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/mindspore_data_dump_instruct.md",
+      "line": 987,
+      "url": "../../../../python/msprobe/mindspore/dump/dump_processor/hook_cell/support_wrap_ops.yaml",
+      "target": "python/msprobe/mindspore/dump/dump_processor/hook_cell/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/msadapter_data_dump_instruct.md",
+      "line": 645,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/msadapter_data_dump_instruct.md",
+      "line": 647,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/msadapter_data_dump_instruct.md",
+      "line": 647,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/msadapter_data_dump_instruct.md",
+      "line": 740,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/pytorch_data_dump_instruct.md",
+      "line": 155,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/pytorch_data_dump_instruct.md",
+      "line": 168,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/pytorch_data_dump_instruct.md",
+      "line": 687,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/pytorch_data_dump_instruct.md",
+      "line": 687,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/builtin_ignore_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/builtin_ignore_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/pytorch_data_dump_instruct.md",
+      "line": 867,
+      "url": "../../../../python/msprobe/config.json",
+      "target": "python/msprobe/config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/sglang_eager_dump_instruct.md",
+      "line": 17,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/sglang_eager_dump_instruct_new.md",
+      "line": 16,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/dump/vllm_dump_instruct.md",
+      "line": 25,
+      "url": "../../../../python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "target": "python/msprobe/pytorch/dump/api_dump/support_wrap_ops.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/response_anomaly_instruct.md",
+      "line": 25,
+      "url": "../../../python/msprobe/response_anomaly/configs/config.yaml",
+      "target": "python/msprobe/response_anomaly/configs/config.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/response_anomaly_instruct.md",
+      "line": 68,
+      "url": "../../../python/msprobe/response_anomaly/configs/mtype_config.json",
+      "target": "python/msprobe/response_anomaly/configs/mtype_config.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/response_anomaly_instruct.md",
+      "line": 68,
+      "url": "../../../python/msprobe/response_anomaly/token2category/deepseekv3_128000.json",
+      "target": "python/msprobe/response_anomaly/token2category/deepseekv3_128000.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/response_anomaly_instruct.md",
+      "line": 68,
+      "url": "../../../python/msprobe/response_anomaly/token2category/glm-4-7_151329.json",
+      "target": "python/msprobe/response_anomaly/token2category/glm-4-7_151329.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/response_anomaly_instruct.md",
+      "line": 68,
+      "url": "../../../python/msprobe/response_anomaly/token2category/qwen3-30b-a3b_151643.json",
+      "target": "python/msprobe/response_anomaly/token2category/qwen3-30b-a3b_151643.json",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprobe",
+      "document": "docs/zh/user_guide/verl_param_compare_or_verify_instruct.md",
+      "line": 87,
+      "url": "../../../python/msprobe/core/config_check/verl_param_compare/verl_hyper_params_verify.yaml",
+      "target": "python/msprobe/core/config_check/verl_param_compare/verl_hyper_params_verify.yaml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "README.md",
+      "line": 15,
+      "url": "./README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "docs/en/best_practices/cpu_cache_miss_conflict.md",
+      "line": 27,
+      "url": "../../../misc/function_monitor/README_EN.md",
+      "target": "misc/function_monitor/README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "docs/en/best_practices/cpu_cache_miss_conflict.md",
+      "line": 30,
+      "url": "../../../misc/host_analyzer/README_EN.md",
+      "target": "misc/host_analyzer/README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "docs/en/best_practices/gil_lock_preemption.md",
+      "line": 17,
+      "url": "../../../misc/gil_tracer/README_EN.md",
+      "target": "misc/gil_tracer/README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "docs/en/best_practices/irq_interruption.md",
+      "line": 26,
+      "url": "../../../misc/host_analyzer/README_EN.md",
+      "target": "misc/host_analyzer/README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "docs/en/contributing/contributing_guide.md",
+      "line": 183,
+      "url": "../../../README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "docs/en/contributing/contributing_guide.md",
+      "line": 256,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "docs/en/legal/LICENSE.md",
+      "line": 3,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "docs/zh/best_practices/cpu_cache_miss_conflict.md",
+      "line": 27,
+      "url": "../../../misc/function_monitor/README.md",
+      "target": "misc/function_monitor/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "docs/zh/best_practices/cpu_cache_miss_conflict.md",
+      "line": 30,
+      "url": "../../../misc/host_analyzer/README.md",
+      "target": "misc/host_analyzer/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "docs/zh/best_practices/gil_lock_preemption.md",
+      "line": 17,
+      "url": "../../../misc/gil_tracer/README.md",
+      "target": "misc/gil_tracer/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "docs/zh/best_practices/irq_interruption.md",
+      "line": 28,
+      "url": "../../../misc/host_analyzer/README.md",
+      "target": "misc/host_analyzer/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "docs/zh/contributing/contributing_guide.md",
+      "line": 256,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof",
+      "document": "docs/zh/legal/LICENSE.md",
+      "line": 3,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof-analyze",
+      "document": "README.md",
+      "line": 15,
+      "url": "./README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msprof-analyze",
@@ -695,31 +4231,159 @@
       "line": 29,
       "url": "./msprof_analyze/advisor",
       "target": "msprof_analyze/advisor",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "msprof-analyze",
-      "document": "README_EN.md",
-      "line": 29,
-      "url": "./msprof_analyze/advisor",
-      "target": "msprof_analyze/advisor",
-      "kind": "upstream_directory_outside_scope"
+      "document": "README.md",
+      "line": 30,
+      "url": "./msprof_analyze/compare_tools",
+      "target": "msprof_analyze/compare_tools",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "msprof",
-      "document": "README_EN.md",
-      "line": 34,
-      "url": "analysis",
-      "target": "analysis",
-      "kind": "upstream_directory_outside_scope"
+      "repository": "msprof-analyze",
+      "document": "README.md",
+      "line": 31,
+      "url": "./msprof_analyze/cluster_analyse",
+      "target": "msprof_analyze/cluster_analyse",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "msprof",
-      "document": "samples/README.md",
-      "line": 9,
-      "url": "./mstx_with_domain",
-      "target": "samples/mstx_with_domain",
-      "kind": "upstream_directory_outside_scope"
+      "repository": "msprof-analyze",
+      "document": "README.md",
+      "line": 32,
+      "url": "./msprof_analyze/cluster_analyse/recipes",
+      "target": "msprof_analyze/cluster_analyse/recipes",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof-analyze",
+      "document": "docs/en/advanced_features/cluster_kernels_analysis_instruct.md",
+      "line": 13,
+      "url": "../../../msprof_analyze/cluster_analyse/cluster_kernels_analysis/cluster_prof_info_analysis.py",
+      "target": "msprof_analyze/cluster_analyse/cluster_kernels_analysis/cluster_prof_info_analysis.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof-analyze",
+      "document": "docs/en/advanced_features/custom_analysis_guide.md",
+      "line": 66,
+      "url": "../../../msprof_analyze/cluster_analyse/recipes/mstx2commop/mstx2commop.py",
+      "target": "msprof_analyze/cluster_analyse/recipes/mstx2commop/mstx2commop.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof-analyze",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 3,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof-analyze",
+      "document": "docs/en/user_guide/compare_tool_instruct.md",
+      "line": 356,
+      "url": "../../../msprof_analyze/compare_tools/compare_backend/compare_config/compare_config.ini",
+      "target": "msprof_analyze/compare_tools/compare_backend/compare_config/compare_config.ini",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof-analyze",
+      "document": "docs/zh/advanced_features/cluster_kernels_analysis_instruct.md",
+      "line": 13,
+      "url": "../../../msprof_analyze/cluster_analyse/cluster_kernels_analysis/cluster_prof_info_analysis.py",
+      "target": "msprof_analyze/cluster_analyse/cluster_kernels_analysis/cluster_prof_info_analysis.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof-analyze",
+      "document": "docs/zh/advanced_features/custom_analysis_guide.md",
+      "line": 66,
+      "url": "../../../msprof_analyze/cluster_analyse/recipes/mstx2commop/mstx2commop.py",
+      "target": "msprof_analyze/cluster_analyse/recipes/mstx2commop/mstx2commop.py",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof-analyze",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 3,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msprof-analyze",
+      "document": "docs/zh/user_guide/compare_tool_instruct.md",
+      "line": 356,
+      "url": "../../../msprof_analyze/compare_tools/compare_backend/compare_config/compare_config.ini",
+      "target": "msprof_analyze/compare_tools/compare_backend/compare_config/compare_config.ini",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "README.md",
+      "line": 15,
+      "url": "./README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "README.md",
+      "line": 37,
+      "url": "./samples/README.md",
+      "target": "samples/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/contributing/contributing_guide.md",
+      "line": 165,
+      "url": "../../../README_EN.md#-suggestions-and-communication",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/contributing/contributing_guide.md",
+      "line": 234,
+      "url": "../../../README_EN.md#-suggestions-and-communication",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/contributing/contributing_guide.md",
+      "line": 238,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/development_guide/development_guide.md",
+      "line": 276,
+      "url": "../../../samples/README.md",
+      "target": "samples/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 3,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/en/user_guide/activity_api.md",
+      "line": 526,
+      "url": "../../../samples/README.md",
+      "target": "samples/README.md",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -727,7 +4391,7 @@
       "line": 72,
       "url": "../../../samples/callback_domain",
       "target": "samples/callback_domain",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -735,7 +4399,7 @@
       "line": 73,
       "url": "../../../samples/callback_mstx",
       "target": "samples/callback_mstx",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -743,7 +4407,7 @@
       "line": 79,
       "url": "../../../samples/mspti_activity",
       "target": "samples/mspti_activity",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -751,7 +4415,7 @@
       "line": 80,
       "url": "../../../samples/mspti_correlation",
       "target": "samples/mspti_correlation",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -759,7 +4423,7 @@
       "line": 81,
       "url": "../../../samples/mspti_external_correlation",
       "target": "samples/mspti_external_correlation",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -767,7 +4431,7 @@
       "line": 82,
       "url": "../../../samples/mspti_hccl_activity",
       "target": "samples/mspti_hccl_activity",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -775,7 +4439,7 @@
       "line": 83,
       "url": "../../../samples/mspti_mstx_activity_domain",
       "target": "samples/mspti_mstx_activity_domain",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -783,7 +4447,7 @@
       "line": 89,
       "url": "../../../samples/python_monitor",
       "target": "samples/python_monitor",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -791,7 +4455,39 @@
       "line": 90,
       "url": "../../../samples/python_mstx_monitor",
       "target": "samples/python_mstx_monitor",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/zh/contributing/contributing_guide.md",
+      "line": 238,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/zh/development_guide/development_guide.md",
+      "line": 297,
+      "url": "../../../samples/README.md",
+      "target": "samples/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 3,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mspti",
+      "document": "docs/zh/user_guide/activity_api.md",
+      "line": 560,
+      "url": "../../../samples/README.md",
+      "target": "samples/README.md",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -799,7 +4495,7 @@
       "line": 82,
       "url": "../../../samples/callback_domain",
       "target": "samples/callback_domain",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -807,7 +4503,7 @@
       "line": 83,
       "url": "../../../samples/callback_mstx",
       "target": "samples/callback_mstx",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -815,7 +4511,7 @@
       "line": 89,
       "url": "../../../samples/mspti_activity",
       "target": "samples/mspti_activity",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -823,7 +4519,7 @@
       "line": 90,
       "url": "../../../samples/mspti_correlation",
       "target": "samples/mspti_correlation",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -831,7 +4527,7 @@
       "line": 91,
       "url": "../../../samples/mspti_external_correlation",
       "target": "samples/mspti_external_correlation",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -839,7 +4535,7 @@
       "line": 92,
       "url": "../../../samples/mspti_hccl_activity",
       "target": "samples/mspti_hccl_activity",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -847,7 +4543,7 @@
       "line": 93,
       "url": "../../../samples/mspti_mstx_activity_domain",
       "target": "samples/mspti_mstx_activity_domain",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -855,7 +4551,7 @@
       "line": 99,
       "url": "../../../samples/python_monitor",
       "target": "samples/python_monitor",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mspti",
@@ -863,87 +4559,151 @@
       "line": 100,
       "url": "../../../samples/python_mstx_monitor",
       "target": "samples/python_mstx_monitor",
-      "kind": "upstream_directory_outside_scope"
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "mspti",
-      "document": "samples/README.md",
-      "line": 23,
-      "url": "./callback_domain",
-      "target": "samples/callback_domain",
-      "kind": "upstream_directory_outside_scope"
+      "repository": "mssanitizer",
+      "document": "README.md",
+      "line": 15,
+      "url": "README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "mspti",
-      "document": "samples/README.md",
-      "line": 24,
-      "url": "./callback_mstx",
-      "target": "samples/callback_mstx",
-      "kind": "upstream_directory_outside_scope"
+      "repository": "mssanitizer",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "mspti",
-      "document": "samples/README.md",
-      "line": 25,
-      "url": "./mspti_activity",
-      "target": "samples/mspti_activity",
-      "kind": "upstream_directory_outside_scope"
+      "repository": "mssanitizer",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "mspti",
-      "document": "samples/README.md",
-      "line": 26,
-      "url": "./mspti_correlation",
-      "target": "samples/mspti_correlation",
-      "kind": "upstream_directory_outside_scope"
+      "repository": "msserviceprofiler",
+      "document": "README.md",
+      "line": 15,
+      "url": "./README_en.md",
+      "target": "README_en.md",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "mspti",
-      "document": "samples/README.md",
-      "line": 27,
-      "url": "./mspti_external_correlation",
-      "target": "samples/mspti_external_correlation",
-      "kind": "upstream_directory_outside_scope"
+      "repository": "msserviceprofiler",
+      "document": "README.md",
+      "line": 68,
+      "url": "CONTRIBUTING.md",
+      "target": "CONTRIBUTING.md",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "mspti",
-      "document": "samples/README.md",
-      "line": 28,
-      "url": "./mspti_hccl_activity",
-      "target": "samples/mspti_hccl_activity",
-      "kind": "upstream_directory_outside_scope"
+      "repository": "msserviceprofiler",
+      "document": "docs/en/developer_guide/development_guide.md",
+      "line": 943,
+      "url": "../../../CONTRIBUTING.md",
+      "target": "CONTRIBUTING.md",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "mspti",
-      "document": "samples/README.md",
-      "line": 29,
-      "url": "./mspti_mstx_activity_domain",
-      "target": "samples/mspti_mstx_activity_domain",
-      "kind": "upstream_directory_outside_scope"
+      "repository": "msserviceprofiler",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "mspti",
-      "document": "samples/README.md",
-      "line": 30,
-      "url": "./python_monitor",
-      "target": "samples/python_monitor",
-      "kind": "upstream_directory_outside_scope"
+      "repository": "msserviceprofiler",
+      "document": "docs/en/serviceparam_optimizer_instruct.md",
+      "line": 100,
+      "url": "../../ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "target": "ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "mspti",
-      "document": "samples/README.md",
-      "line": 31,
-      "url": "./python_mstx_monitor",
-      "target": "samples/python_mstx_monitor",
-      "kind": "upstream_directory_outside_scope"
+      "repository": "msserviceprofiler",
+      "document": "docs/en/serviceparam_optimizer_instruct.md",
+      "line": 142,
+      "url": "../../ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "target": "ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "kind": "outside_aligned_scope"
     },
     {
-      "repository": "mspti",
-      "document": "samples/README.md",
-      "line": 35,
-      "url": "./common",
-      "target": "samples/common",
-      "kind": "upstream_directory_outside_scope"
+      "repository": "msserviceprofiler",
+      "document": "docs/en/serviceparam_optimizer_instruct.md",
+      "line": 160,
+      "url": "../../ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "target": "ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msserviceprofiler",
+      "document": "docs/en/serviceparam_optimizer_instruct.md",
+      "line": 247,
+      "url": "../../ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "target": "ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msserviceprofiler",
+      "document": "docs/zh/developer_guide/development_guide.md",
+      "line": 841,
+      "url": "../../../CONTRIBUTING.md",
+      "target": "CONTRIBUTING.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msserviceprofiler",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 3,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msserviceprofiler",
+      "document": "docs/zh/user_guide/serviceparam_optimizer_instruct.md",
+      "line": 110,
+      "url": "../../../ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "target": "ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msserviceprofiler",
+      "document": "docs/zh/user_guide/serviceparam_optimizer_instruct.md",
+      "line": 152,
+      "url": "../../../ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "target": "ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msserviceprofiler",
+      "document": "docs/zh/user_guide/serviceparam_optimizer_instruct.md",
+      "line": 170,
+      "url": "../../../ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "target": "ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "msserviceprofiler",
+      "document": "docs/zh/user_guide/serviceparam_optimizer_instruct.md",
+      "line": 257,
+      "url": "../../../ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "target": "ms_serviceparam_optimizer/ms_serviceparam_optimizer/config.toml",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mstt",
+      "document": "README.md",
+      "line": 15,
+      "url": "./README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
     },
     {
       "repository": "mstt",
@@ -960,6 +4720,78 @@
       "url": "../../figures/best_practices/general_performance_issue_troubleshooting_guide/cluster_step_trace_time-csv-deliverable-(comparison-between-a-normal-4-node-cluster-and-an-abnormal.png)",
       "target": "docs/en/figures/best_practices/general_performance_issue_troubleshooting_guide/cluster_step_trace_time-csv-deliverable-(comparison-between-a-normal-4-node-cluster-and-an-abnormal.png)",
       "kind": "not_found_in_upstream_commit"
+    },
+    {
+      "repository": "mstt",
+      "document": "docs/en/contributing/contributing_guide.md",
+      "line": 15,
+      "url": "../../../msfmktransplt",
+      "target": "msfmktransplt",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mstt",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mstt",
+      "document": "docs/en/quick_start/mstt_quick_start.md",
+      "line": 36,
+      "url": "../../../msfmktransplt/README_EN.md#quick-start",
+      "target": "msfmktransplt/README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mstt",
+      "document": "docs/zh/contributing/contributing_guide.md",
+      "line": 15,
+      "url": "../../../msfmktransplt",
+      "target": "msfmktransplt",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mstt",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mstt",
+      "document": "docs/zh/quick_start/mstt_quick_start.md",
+      "line": 36,
+      "url": "../../../msfmktransplt/README.md#快速入门",
+      "target": "msfmktransplt/README.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mstx",
+      "document": "README.md",
+      "line": 14,
+      "url": "README_EN.md",
+      "target": "README_EN.md",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mstx",
+      "document": "docs/en/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
+    },
+    {
+      "repository": "mstx",
+      "document": "docs/zh/legal/license_notice.md",
+      "line": 5,
+      "url": "../../../LICENSE",
+      "target": "LICENSE",
+      "kind": "outside_aligned_scope"
     }
   ]
 }

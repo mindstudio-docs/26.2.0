@@ -45,7 +45,8 @@ class NavigationTests(unittest.TestCase):
             self.assertEqual(len(paths), len(set(paths)))
             self.assertEqual(set(paths), pages)
             self.assertIn("msmodeling/README.md", pages)
-            self.assertIn("msmodeling/README_EN.md", pages)
+            self.assertNotIn("msmodeling/README_EN.md", pages)
+            self.assertTrue(any("/docs/en/" in path for path in pages))
             self.assertEqual(config.nav[1]["工具资料"][0].keys(), {"mstt"})
             published = {file.src_uri for file in files}
             self.assertIn("msmodeling/docs/perf_database/forward_pass_traces/dsv3_dc_1tok.csv", published)
@@ -53,6 +54,7 @@ class NavigationTests(unittest.TestCase):
             self.assertNotIn("requirements-docs.txt", published)
             self.assertNotIn("SOURCES.md", published)
             self.assertNotIn("docs/site-maintenance.md", published)
+            self.assertFalse(any(path.startswith(("msagent/", "msinsight/")) for path in published))
             manifest = json.loads((ROOT / ".sync/manifest.json").read_text(encoding="utf-8"))
             imported_pages = {
                 repo["name"] + "/" + file["path"]
@@ -60,6 +62,10 @@ class NavigationTests(unittest.TestCase):
                 if file["path"].endswith(".md")
             }
             self.assertEqual(pages, imported_pages | set(nav.ROOT_PAGES))
+            self.assertTrue(all(
+                file["path"] == "README.md" or file["path"].startswith("docs/")
+                for repo in manifest["repositories"] for file in repo["files"]
+            ))
 
     def test_inventory_and_missing_entry_points_fail_explicitly(self):
         with TemporaryDirectory() as directory:

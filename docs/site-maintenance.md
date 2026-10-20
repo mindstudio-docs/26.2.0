@@ -49,7 +49,7 @@ python -m mkdocs serve
 | `hooks/md_in_html_fix.py` | HTML 中的 Markdown、目录式页面 URL 下的 HTML 链接、本地图片与元数据链接适配 |
 | `assets/stylesheets/extra.css` | 内容宽度、表格和徽章样式 |
 
-工具范围读取 `.sync/manifest.json`，顺序参考首页工具表；导航覆盖已发布的全部 Markdown 文档，保留中英文及子组件目录结构。新增工具资料时，应同时更新同步清单及首页入口。
+工具范围读取 `.sync/manifest.json`，顺序参考首页工具表；导航覆盖各工具 `README.md` 和根目录 `docs/` 下的全部 Markdown 文档，保留 `docs/` 内的中英文目录结构。新增工具资料时，应核对 26.1.0 范围基准，并同步更新清单及首页入口。
 
 少数上游文档使用带 BOM 的 UTF-16 编码，Hook 在内存中解码后交给 MkDocs，仓库文件的原始编码及哈希保持不变。
 
